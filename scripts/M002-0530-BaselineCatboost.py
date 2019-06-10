@@ -106,7 +106,7 @@ print('Training model....')
 from catboost import Pool, cv
 from catboost import CatBoostRegressor, Pool
 
-ITERATIONS = 5
+ITERATIONS = 50000
 
 train_dataset = Pool(data=train_df[FEATURES],
                   label=train_df['scalar_coupling_constant'].values,

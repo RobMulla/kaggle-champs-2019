@@ -1,5 +1,5 @@
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import numpy as np  # linear algebra
+import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
 import matplotlib.pylab as plt
 import seaborn as sns
@@ -11,18 +11,24 @@ import warnings
 from datetime import datetime
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# MODEL NUMBER
+MODEL_NUMBER = 'M005'
+
+
 print('Reading input files....')
 train_df = pd.read_csv('input/train.csv')
 test_df = pd.read_csv('input/test.csv')
 structures = pd.read_csv('input/structures.csv')
 #####################
-## FEATURE CREATION
+# FEATURE CREATION
 #####################
 print('Creating features....')
+
+
 def map_atom_info(df, atom_idx):
-    df = pd.merge(df, structures, how = 'left',
-                  left_on  = ['molecule_name', f'atom_index_{atom_idx}'],
-                  right_on = ['molecule_name',  'atom_index'])
+    df = pd.merge(df, structures, how='left',
+                  left_on=['molecule_name', f'atom_index_{atom_idx}'],
+                  right_on=['molecule_name',  'atom_index'])
 
     df = df.drop('atom_index', axis=1)
     df = df.rename(columns={'atom': f'atom_{atom_idx}',
@@ -30,6 +36,7 @@ def map_atom_info(df, atom_idx):
                             'y': f'y_{atom_idx}',
                             'z': f'z_{atom_idx}'})
     return df
+
 
 train_df = map_atom_info(train_df, 0)
 train_df = map_atom_info(train_df, 1)
@@ -59,16 +66,19 @@ test_df['atom_1_cat'] = test_df['atom_1'].map(atom_map).astype('int')
 train_df = pd.concat([train_df, pd.get_dummies(train_df['type'])], axis=1)
 test_df = pd.concat([test_df, pd.get_dummies(test_df['type'])], axis=1)
 
-train_df['dist_to_type_mean'] = train_df['dist'] / train_df.groupby('type')['dist'].transform('mean')
-test_df['dist_to_type_mean'] = test_df['dist'] / test_df.groupby('type')['dist'].transform('mean')
+train_df['dist_to_type_mean'] = train_df['dist'] / \
+    train_df.groupby('type')['dist'].transform('mean')
+test_df['dist_to_type_mean'] = test_df['dist'] / \
+    test_df.groupby('type')['dist'].transform('mean')
 
 # Atom Count
-atom_count_dict = structures.groupby('molecule_name').count()['atom_index'].to_dict()
+atom_count_dict = structures.groupby('molecule_name').count()[
+    'atom_index'].to_dict()
 train_df['atom_count'] = train_df['molecule_name'].map(atom_count_dict)
 test_df['atom_count'] = test_df['molecule_name'].map(atom_count_dict)
 
 #####################
-## CONFIGURABLES
+# CONFIGURABLES
 #####################
 
 FEATURES = ['atom_index_0', 'atom_index_1',
@@ -78,17 +88,17 @@ FEATURES = ['atom_index_0', 'atom_index_1',
             'x_1', 'y_1', 'z_1', 'dist', 'dist_to_type_mean',
             'atom_count',
             '1JHC', '1JHN', '2JHC', '2JHH', '2JHN', '3JHC', '3JHH', '3JHN'
-           ]
+            ]
 TARGET = 'scalar_coupling_constant'
-CAT_FEATS = ['atom_0','atom_1']
-N_ESTIMATORS = 500000
+CAT_FEATS = ['atom_0', 'atom_1']
+N_ESTIMATORS = 50000
 VERBOSE = 500
 EARLY_STOPPING_ROUNDS = 200
 RANDOM_STATE = 529
-N_THREADS = 32
+N_THREADS = 64
 
 #####################
-## CREATE FINAL DATASETS
+# CREATE FINAL DATASETS
 #####################
 
 X = train_df[FEATURES]
@@ -96,14 +106,14 @@ X_test = test_df[FEATURES]
 y = train_df[TARGET]
 
 #####################
-## TRAIN MODEL
+# TRAIN MODEL
 #####################
 print('Training model....')
 lgb_params = {'num_leaves': 128,
               'min_child_samples': 64,
               'objective': 'regression',
               'max_depth': 6,
-              'learning_rate': 0.5,
+              'learning_rate': 0.1,
               "boosting_type": "gbdt",
               "subsample_freq": 1,
               "subsample": 0.9,
@@ -113,8 +123,7 @@ lgb_params = {'num_leaves': 128,
               'reg_alpha': 0.1,
               'reg_lambda': 0.4,
               'colsample_bytree': 1.0,
-              'nthreads': N_THREADS
-         }
+              }
 
 n_fold = 5
 folds = KFold(n_splits=n_fold, shuffle=True, random_state=RANDOM_STATE)
@@ -129,7 +138,7 @@ feature_importance = pd.DataFrame()
 for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X)):
     X_train, X_valid = X.iloc[train_idx], X.iloc[valid_idx]
     y_train, y_valid = y.iloc[train_idx], y.iloc[valid_idx]
-    model = lgb.LGBMRegressor(**lgb_params, n_estimators = N_ESTIMATORS, n_jobs = -1)
+    model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
     model.fit(X_train, y_train,
               eval_set=[(X_train, y_train), (X_valid, y_valid)],
               eval_metric='mae',
@@ -144,14 +153,16 @@ for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X)):
     fold_importance["feature"] = FEATURES
     fold_importance["importance"] = model.feature_importances_
     fold_importance["fold"] = fold_n + 1
-    feature_importance = pd.concat([feature_importance, fold_importance], axis=0)
+    feature_importance = pd.concat(
+        [feature_importance, fold_importance], axis=0)
 
-    prediction /= folds.n_splits
     scores.append(mean_absolute_error(y_valid, y_pred_valid))
-    print('CV mean score: {0:.4f}, std: {1:.4f}.'.format(np.mean(scores), np.std(scores)))
+    print('CV mean score: {0:.4f}, std: {1:.4f}.'.format(
+        np.mean(scores), np.std(scores)))
     oof[valid_idx] = y_pred_valid.reshape(-1,)
     scores.append(mean_absolute_error(y_valid, y_pred_valid))
     prediction += y_pred
+prediction /= folds.n_splits
 
 #####################
 # SAVE RESULTS
@@ -160,9 +171,11 @@ for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X)):
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 
 # Save Prediction and name appropriately
-submission_csv_name = 'submissions/{}_submission_lgb_{}folds_{:.4f}CV.csv'.format(run_id, n_fold, np.mean(scores))
-oof_csv_name = 'oof/{}oof_lgb_{}folds_{:.4f}CV.csv'.format(run_id, n_fold, np.mean(scores))
-fi_csv_name = 'fi/{}fi_lgb_{}folds_{:.4f}CV.csv'.format(run_id, n_fold, np.mean(scores))
+submission_csv_name = 'submissions/{}_{}_submission_lgb_{}folds_{:.4f}CV.csv'.format(MODEL_NUMBER,
+                                                                                     run_id,
+                                                                                     n_fold, np.mean(scores))
+oof_csv_name = 'oof/{}_{}_oof_lgb_{}folds_{:.4f}CV.csv'.format(MODEL_NUMBER, run_id, n_fold, np.mean(scores))
+fi_csv_name = 'fi/{}_{}_fi_lgb_{}folds_{:.4f}CV.csv'.format(MODEL_NUMBER, run_id, n_fold, np.mean(scores))
 
 print('Saving LGB Submission as:')
 print(submission_csv_name)
@@ -171,7 +184,7 @@ ss['scalar_coupling_constant'] = prediction
 ss.to_csv(submission_csv_name, index=False)
 ss.head()
 # OOF
-oof_df = train_df[['id','molecule_name','scalar_coupling_constant']].copy()
+oof_df = train_df[['id', 'molecule_name', 'scalar_coupling_constant']].copy()
 oof_df['oof_pred'] = oof
 oof_df.to_csv(oof_csv_name, index=False)
 # Feature Importance
