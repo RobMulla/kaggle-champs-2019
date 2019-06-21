@@ -129,3 +129,6 @@ dmypy.json
 *.tsv
 *.json
 *.tfevents
+*.h5
+*.parquet
+*.model

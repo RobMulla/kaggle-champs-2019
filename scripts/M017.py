@@ -75,8 +75,8 @@ def reduce_mem_usage(df, verbose=True):
 #####################
 logger.info('Reading input files....')
 path = 'data/'
-train_df = pd.read_hdf(f'{path}/FE005-train.csv')
-test_df = pd.read_hdf(f'{path}/FE005-test.csv')
+train_df = pd.read_parquet(f'{path}/FE005-train.parquet')
+test_df = pd.read_parquet(f'{path}/FE005-test.parquet')
 ss = pd.read_csv('input/sample_submission.csv')
 structures = pd.read_csv('input/structures.csv')
 train_df = reduce_mem_usage(train_df)
@@ -107,10 +107,10 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv'):
 # CONFIGURABLES
 #####################
 # MODEL NUMBER
-MODEL_NUMBER = 'M016'
+MODEL_NUMBER = 'M017'
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.5
+LEARNING_RATE = 0.1
 FEATURES = ['bond_lengths_mean_y',
              'molecule_atom_index_0_dist_max',
              'bond_lengths_mean_x',
