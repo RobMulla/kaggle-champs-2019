@@ -111,6 +111,7 @@ MODEL_NUMBER = 'M017'
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.1
+FOLD_RUN = 0
 FEATURES = ['bond_lengths_mean_y',
              'molecule_atom_index_0_dist_max',
              'bond_lengths_mean_x',
@@ -167,7 +168,7 @@ N_ESTIMATORS = 500000
 VERBOSE = 5000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
-N_THREADS = 42
+N_THREADS = 16
 n_fold = 3
 EVAL_METRIC = 'group_mae'
 
@@ -222,6 +223,11 @@ test_pred_df['prediction'] = 0
 bond_count = 1
 number_of_bonds = len(X['type'].unique())
 for bond_type in X['type'].unique():
+    # Skip these were already trained
+    if bond_type in ['1JHC','2JHH','1JHN','2JHN']:
+        logger.info('Skipping bond type because already completed')
+        continue
+    bond_start = timer()
     fold_count = 1
     # Train the model
     X_type = X.loc[X['type'] == bond_type]
@@ -231,27 +237,35 @@ for bond_type in X['type'].unique():
     prediction_type = np.zeros(len(X_test_type))
     bond_scores = []
     for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X_type)):
+        if fold_n != FOLD_RUN:
+            # Only run for one fold
+            continue
+        fold_start = timer()
         logger.info('Running Type {} - Fold {} of {}'.format(bond_type,
                                                        fold_count, folds.n_splits))
         X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
         y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
         model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
         model.fit(X_train.drop('type', axis=1), y_train,
-                  eval_set=[(X_train.drop('type', axis=1), y_train),
+                  eval_set=[#(X_train.drop('type', axis=1), y_train),
                             (X_valid.drop('type', axis=1), y_valid)],
                   eval_metric=EVAL_METRIC,
                   verbose=VERBOSE,
                   early_stopping_rounds=EARLY_STOPPING_ROUNDS)
+        logger.info('Saving model file')
         model.booster_.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
                                                            run_id,
                                                            bond_type,
                                                            fold_count))
+        logger.info('Predicting on validation set')
         y_pred_valid = model.predict(X_valid.drop('type', axis=1),
                                      num_iteration=model.best_iteration_)
+        logger.info('Predicting on test set')
         y_pred = model.predict(X_test_type.drop('type', axis=1),
                                num_iteration=model.best_iteration_)
 
         # feature importance
+        logger.info('Storing the fold importance')
         fold_importance = pd.DataFrame()
         fold_importance["feature"] = X_train.drop('type', axis=1).columns
         fold_importance["importance"] = model.feature_importances_
@@ -265,6 +279,11 @@ for bond_type in X['type'].unique():
         oof[valid_idx] = y_pred_valid.reshape(-1,)
         prediction_type += y_pred
         fold_count += 1
+        now = timer()
+        logger.info('Completed training and predicting for bond {} fold {}-of-{} in {:0.4f} seconds'.format(bond_type,
+                                                                                                            fold_n+1,
+                                                                                                            fold_count+1,
+                                                                                                            now-fold_start))
     update_tracking(run_id, f'{bond_type}_mae_cv', np.mean(bond_scores))
     update_tracking(run_id, f'{bond_type}_std_mae_cv', np.std(bond_scores))
     oof_df.loc[oof_df['type'] == bond_type, 'oof_preds'] = oof
@@ -272,15 +291,17 @@ for bond_type in X['type'].unique():
     test_pred_df.loc[test_pred_df['type'] ==
                      bond_type, 'prediction'] = prediction_type
     now = timer()
-    update_tracking(run_id, '{}_tr_sec'.format(bond_type), (now-start))
+    update_tracking(run_id, '{}_tr_sec'.format(bond_type), (now-bond_start))
+    logger.info('Completed training and predicting for bond {} in {:0.4f} seconds'.format(bond_type,
+                                                                                          now-bond_start))
     if bond_count != number_of_bonds:
         # Save the results inbetween bond type because it takes a long time
-        submission_csv_name = 'temp/temp{}of{}_{}_{}_submission_lgb_{}folds_{}iter_{}lr.csv'.format(
-            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE)
-        oof_csv_name = 'temp/temp{}of{}_{}_{}_oof_lgb_{}folds_{}iter_{}lr.csv'.format(
-            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE)
-        fi_csv_name = 'temp/temp{}of{}_{}_{}_fi_lgb_{}folds_{}iter_{}lr.csv'.format(
-            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE)
+        submission_csv_name = 'temp/temp{}of{}_{}_{}_submission_lgb_{}folds_{}iter_{}lr_fold{}.csv'.format(
+            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE, FOLD_RUN)
+        oof_csv_name = 'temp/temp{}of{}_{}_{}_oof_lgb_{}folds_{}iter_{}lr_fold{}.csv'.format(
+            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE, FOLD_RUN)
+        fi_csv_name = 'temp/temp{}of{}_{}_{}_fi_lgb_{}folds_{}iter_{}lr_fold{}.csv'.format(
+            bond_count, number_of_bonds, MODEL_NUMBER, run_id, n_fold, N_ESTIMATORS, LEARNING_RATE, FOLD_RUN)
 
         logger.info('Saving Temporary LGB Submission files:')
         logger.info(submission_csv_name)
@@ -304,16 +325,17 @@ logger.info('Out of fold score is {:.4f}'.format(oof_score))
 # SAVE RESULTS
 #####################
 # Save Prediction and name appropriately
-submission_csv_name = 'submissions/{}_{}_submission_lgb_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(MODEL_NUMBER,
+submission_csv_name = 'submissions/{}_{}_submission_lgb_{}folds_{:.4f}CV_{}iter_{}lr_{}fold.csv'.format(MODEL_NUMBER,
                                                                                                  run_id,
                                                                                                  n_fold,
                                                                                                  oof_score,
                                                                                                  N_ESTIMATORS,
-                                                                                                 LEARNING_RATE)
-oof_csv_name = 'oof/{}_{}_oof_lgb_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(
-    MODEL_NUMBER, run_id, n_fold, oof_score, N_ESTIMATORS, LEARNING_RATE)
-fi_csv_name = 'fi/{}_{}_fi_lgb_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(
-    MODEL_NUMBER, run_id, n_fold, oof_score, N_ESTIMATORS, LEARNING_RATE)
+                                                                                                 LEARNING_RATE,
+                                                                                                        FOLD_RUN)
+oof_csv_name = 'oof/{}_{}_oof_lgb_{}folds_{:.4f}CV_{}iter_{}lr_{}fold.csv'.format(
+    MODEL_NUMBER, run_id, n_fold, oof_score, N_ESTIMATORS, LEARNING_RATE, FOLD_RUN)
+fi_csv_name = 'fi/{}_{}_fi_lgb_{}folds_{:.4f}CV_{}iter_{}lr_{}fold.csv'.format(
+    MODEL_NUMBER, run_id, n_fold, oof_score, N_ESTIMATORS, LEARNING_RATE, FOLD_RUN)
 
 logger.info('Saving LGB Submission as:')
 logger.info(submission_csv_name)
