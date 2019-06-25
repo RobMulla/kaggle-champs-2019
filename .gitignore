@@ -132,3 +132,4 @@ dmypy.json
 *.h5
 *.parquet
 *.model
+*.hdf
