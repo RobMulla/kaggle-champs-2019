@@ -3,9 +3,9 @@ Created by: Rob Mulla
 Jun 26
 
 New Changes:
-    - Even more features from openbabel FE009
-    - Atom details (mass, etc)
+    - Fixed OOF error by using GroupKFold
     - Adding type column to feature importance dataframe/csv
+    - Tracking sheet set percision
 Changes:
     - New features created from openbabel
     - Switch to GroupShuffleSplit
@@ -18,7 +18,7 @@ import os
 import matplotlib.pylab as plt
 import seaborn as sns
 from sklearn import metrics
-from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import GroupKFold
 from sklearn.metrics import mean_absolute_error
 import lightgbm as lgb
 import warnings
@@ -94,8 +94,13 @@ logger.info('Available features {}'.format([x for x in train_df.columns]))
 ##########################
 # Tracking Sheet function
 #########################
-def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv'):
+def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
+                    integer=False, digits=None):
     df = pd.read_csv(csv_file, index_col=[0])
+    if integer=True:
+        value = round(value)
+    elif digits is not None:
+        value = round(value, digits)
     df.loc[run_id, field] = value # Model number is index
     df.to_csv(csv_file)
 
@@ -120,14 +125,14 @@ FEATURES = [
              'right_middle_average_angle',
              'distance',
              'is_bond',
-             'closest_to_0',
-             '2nd_closest_to_0',
-             '3rd_closest_to_0',
-             '4th_closest_to_0',
-             'closest_to_1',
-             '2nd_closest_to_1',
-             '3rd_closest_to_1',
-             '4th_closest_to_1',
+            # 'closest_to_0',
+            # '2nd_closest_to_0',
+            # '3rd_closest_to_0',
+            # '4th_closest_to_0',
+            # 'closest_to_1',
+            # '2nd_closest_to_1',
+            # '3rd_closest_to_1',
+            # '4th_closest_to_1',
              'is_closest_pair',
              'distance_closest_to_0',
              'is_bond_closest_to_0',
@@ -206,7 +211,7 @@ lgb_params = {'num_leaves': 128,
               'random_state': RANDOM_STATE
               }
 
-folds = GroupShuffleSplit(n_splits=N_FOLDS, random_state=RANDOM_STATE)
+folds = GroupKFold(n_splits=N_FOLDS)
 
 # Setup arrays for storing results
 oof_df = train_df[['id', 'type', 'scalar_coupling_constant']].copy()
@@ -242,7 +247,7 @@ for bond_type in X['type'].unique():
                   verbose=VERBOSE,
                   early_stopping_rounds=EARLY_STOPPING_ROUNDS)
         now = timer()
-        update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start))
+        update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start), integer=True)
         logger.info('Saving model file')
         model.booster_.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
                                                            run_id,
@@ -256,7 +261,7 @@ for bond_type in X['type'].unique():
         y_pred = model.predict(X_test_type.drop('type', axis=1),
                                num_iteration=model.best_iteration_)
         now = timer()
-        update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start))
+        update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
         # feature importance
         logger.info('Storing the fold importance')
         fold_importance = pd.DataFrame()
@@ -278,8 +283,8 @@ for bond_type in X['type'].unique():
                                                                                                             fold_n+1,
                                                                                                             fold_count+1,
                                                                                                             now-fold_start))
-    update_tracking(run_id, f'{bond_type}_mae_cv', np.mean(bond_scores))
-    update_tracking(run_id, f'{bond_type}_std_mae_cv', np.std(bond_scores))
+    update_tracking(run_id, f'{bond_type}_mae_cv', np.mean(bond_scores), digits=4)
+    update_tracking(run_id, f'{bond_type}_std_mae_cv', np.std(bond_scores), , digits=6)
     oof_df.loc[oof_df['type'] == bond_type, 'oof_preds'] = oof
     prediction_type /= folds.n_splits
     test_pred_df.loc[test_pred_df['type'] ==
@@ -307,16 +312,16 @@ for bond_type in X['type'].unique():
         # Feature Importance
         feature_importance.to_csv(fi_csv_name, index=False)
         now = timer()
-        update_tracking(run_id, '{}_csv_save_sec'.format(bond_type), (now-csv_save_start))
+        update_tracking(run_id, '{}_csv_save_sec'.format(bond_type), (now-csv_save_start), integer=True)
     bond_count += 1
 oof_score = mean_absolute_error(
     oof_df['scalar_coupling_constant'], oof_df['oof_preds'])
-update_tracking(run_id, 'oof_score', oof_score)
+update_tracking(run_id, 'oof_score', oof_score, digits=4)
 logger.info('Out of fold score is {:.4f}'.format(oof_score))
 
 oof_gml_score = group_mean_log_mae(
     oof_df['scalar_coupling_constant'], oof_df['oof_preds'], oof_df['type'])
-update_tracking(run_id, 'gml_oof_score', oof_gml_score)
+update_tracking(run_id, 'gml_oof_score', oof_gml_score, digits=4)
 logger.info('Out of fold group mean log mae score is {:.4f}'.format(oof_gml_score))
 
 #####################
@@ -345,6 +350,6 @@ oof_df.to_csv(oof_csv_name, index=False)
 # Feature Importance
 feature_importance.to_csv(fi_csv_name, index=False)
 end = timer()
-update_tracking(run_id, 'training_time', (end-start))
+update_tracking(run_id, 'training_time', (end-start), integer=True)
 logger.info('==== Training done in {} seconds ======'.format(end - start))
 logger.info('Done!')
