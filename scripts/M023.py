@@ -108,7 +108,7 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 # CONFIGURABLES
 #####################
 # MODEL NUMBER
-MODEL_NUMBER = 'M022'
+MODEL_NUMBER = 'M023'
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.3
@@ -119,7 +119,7 @@ FEATURES = [
             # 'atom_index_0',
             # 'atom_index_1',
              'type',
-             'scalar_coupling_constant',
+            # 'scalar_coupling_constant',
              'atom0_atomic_mass',
              'atom0_atomic_number',
              'exact_mass_x',
