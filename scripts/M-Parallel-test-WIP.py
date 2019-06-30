@@ -1,15 +1,11 @@
 '''
 Created by: Rob Mulla
-Jun 29
+Jun 27
 New Changes:
-    - catboost
-    - Learning rate 0.8
-    - change logging timestamp
-    - update code to check for model number being same as filename
-Changes:
     - Remove useless features
     - Change learning rate from 0.3 to 0.1
     - Delete and gc train and test df after copied
+Changes:
     - Fixed OOF error by using GroupKFold
     - Adding type column to feature importance dataframe/csv
     - Tracking sheet set percision
@@ -32,10 +28,7 @@ from datetime import datetime
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import logging
 import gc
-import catboost
-from catboost import CatBoostRegressor, Pool
 from timeit import default_timer as timer
-import time
 start = timer()
 
 #####################
@@ -45,10 +38,8 @@ def get_logger():
     '''
         credits to: https://www.kaggle.com/ogrellier/user-level-lightgbm-lb-1-4480
     '''
-    os.environ['TZ'] = 'US/Eastern'
-    time.tzset()
     FORMAT = '[%(levelname)s]%(asctime)s:%(name)s:%(message)s'
-    logging.basicConfig(format=FORMAT)    
+    logging.basicConfig(format=FORMAT)
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     return logger
@@ -58,7 +49,7 @@ logger = get_logger()
 ######################
 def reduce_mem_usage(df, verbose=True):
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-    start_mem = df.memory_usage().sum() / 1024**2    
+    start_mem = df.memory_usage().sum() / 1024**2
     for col in df.columns:
         col_type = df[col].dtypes
         if col_type in numerics:
@@ -72,14 +63,14 @@ def reduce_mem_usage(df, verbose=True):
                 elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
                     df[col] = df[col].astype(np.int32)
                 elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-                    df[col] = df[col].astype(np.int64)  
+                    df[col] = df[col].astype(np.int64)
             else:
                 if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
                     df[col] = df[col].astype(np.float16)
                 elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
                     df[col] = df[col].astype(np.float32)
                 else:
-                    df[col] = df[col].astype(np.float64)    
+                    df[col] = df[col].astype(np.float64)
     end_mem = df.memory_usage().sum() / 1024**2
     if verbose: print('Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)'.format(end_mem, 100 * (start_mem - end_mem) / start_mem))
     return df
@@ -96,6 +87,18 @@ path = 'data/'
 train_df = pd.read_parquet(f'{path}FE009_train_pandas.parquet')
 test_df = pd.read_parquet(f'{path}FE009_test_pandas.parquet')
 ss = pd.read_csv('input/sample_submission.csv')
+
+
+#####################
+# FILTER FOR RUNNING IN PARALLEL
+#####################
+J1J2_TYPES = ['1JHC','2JHH','1JHN','2JHN','2JHC']
+J3_TYPES = ['3JHH','3JHC','3JHN']
+JRUN = J1J2_TYPES # Change this in each script run in parallel
+JTYPES = 'J1J2'
+FOLDS_TO_RUN = [1] # Fold count starts with 1
+train_df = train_df.loc[train_df['type'].isin(JRUN)]
+test_df = test_df.loc[test_df['type'].isin(JRUN)]
 
 #####################
 # FEATURE CREATION
@@ -119,16 +122,10 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 # CONFIGURABLES
 #####################
 # MODEL NUMBER
-MODEL_NUMBER = 'M025'
-# Check that model number is same as filename
-script_name = os.path.basename(__file__).split('.')[0]
-if MODEL_NUMBER not in script_name:
-    logger.error('Model Number is not same as script! Update before running')
-    raise SystemExit('Model Number is not same as script! Update before running')
+MODEL_NUMBER = 'M026'
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.1
-FOLD_RUN = 0
 FEATURES = [
             #'id',
             # 'molecule_name',
@@ -327,7 +324,7 @@ N_ESTIMATORS = 500000
 VERBOSE = 500
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
-N_THREADS = 24
+N_THREADS = 14
 N_FOLDS = 2
 EVAL_METRIC = 'group_mae'
 
@@ -339,7 +336,7 @@ update_tracking(run_id, 'n_threads', N_THREADS)
 update_tracking(run_id, 'learning_rate', LEARNING_RATE)
 update_tracking(run_id, 'n_fold', N_FOLDS)
 update_tracking(run_id, 'n_features', len(FEATURES))
-update_tracking(run_id, 'model_type', 'catboost')
+update_tracking(run_id, 'model_type', 'lgbm')
 update_tracking(run_id, 'eval_metric', EVAL_METRIC)
 
 #####################
@@ -355,22 +352,22 @@ mol_group = train_df[['molecule_name','type']].copy()
 #####################
 logger.info('Training model....')
 logger.info('Using features {}'.format([x for x in X.columns]))
-# lgb_params = {'num_leaves': 128,
-#               'min_child_samples': 64,
-#               'objective': 'regression',
-#               'max_depth': 6,
-#               'learning_rate': LEARNING_RATE,
-#               "boosting_type": "gbdt",
-#               "subsample_freq": 1,
-#               "subsample": 0.9,
-#               "bagging_seed": 11,
-#               "metric": 'mae',
-#               "verbosity": -1,
-#               'reg_alpha': 0.1,
-#               'reg_lambda': 0.4,
-#               'colsample_bytree': 1.0,
-#               'random_state': RANDOM_STATE
-#               }
+lgb_params = {'num_leaves': 128,
+              'min_child_samples': 64,
+              'objective': 'regression',
+              'max_depth': 6,
+              'learning_rate': LEARNING_RATE,
+              "boosting_type": "gbdt",
+              "subsample_freq": 1,
+              "subsample": 0.9,
+              "bagging_seed": 11,
+              "metric": 'mae',
+              "verbosity": -1,
+              'reg_alpha': 0.1,
+              'reg_lambda': 0.4,
+              'colsample_bytree': 1.0,
+              'random_state': RANDOM_STATE
+              }
 
 folds = GroupKFold(n_splits=N_FOLDS)
 
@@ -400,49 +397,49 @@ for bond_type in X['type'].unique():
     prediction_type = np.zeros(len(X_test_type))
     bond_scores = []
     for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X_type, groups=mol_group_type)):
+        if fold_count is not in FOLDS_TO_RUN:
+            # Only run for folds set. This allows running in parallel
+            logger.info('Skipping fold {} because its not in the list of folds to run'.format(fold_count))
+            break
         fold_start = timer()
         logger.info('Running Type {} - Fold {} of {}'.format(bond_type,
                                                        fold_count, folds.n_splits))
         X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
         y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
-        train_dataset = Pool(data=X_train.drop('type', axis=1), label=y_train)
-        valid_dataset = Pool(data=X_valid.drop('type', axis=1), label=y_valid)
-        test_dataset = Pool(data=X_test_type.drop('type', axis=1))
-        model = CatBoostRegressor(iterations=N_ESTIMATORS,
-                                     learning_rate=LEARNING_RATE,
-                                     depth=7,
-                                     eval_metric='MAE',
-                                     verbose=VERBOSE,
-                                     random_state = RANDOM_STATE,
-                                     thread_count=N_THREADS,
-                                     task_type = "GPU") # Train on GPU
-
-        model.fit(train_dataset,
-                  eval_set=valid_dataset,
-                  early_stopping_rounds=500)
+        model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
+        model.fit(X_train.drop('type', axis=1), y_train,
+                  eval_set=[#(X_train.drop('type', axis=1), y_train),
+                            (X_valid.drop('type', axis=1), y_valid)],
+                  eval_metric=EVAL_METRIC,
+                  verbose=VERBOSE,
+                  early_stopping_rounds=EARLY_STOPPING_ROUNDS)
         now = timer()
         update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start), integer=True)
         logger.info('Saving model file')
-        model.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
+        model.booster_.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
                                                            run_id,
                                                            bond_type,
                                                            fold_count))
         pred_start = timer()
         logger.info('Predicting on validation set')
-        y_pred_valid = model.predict(valid_dataset)
+        y_pred_valid = model.predict(X_valid.drop('type', axis=1),
+                                     num_iteration=model.best_iteration_,
+                                     n_jobs=N_THREADS)
         logger.info('Predicting on test set')
-        y_pred = model.predict(test_dataset)
+        y_pred = model.predict(X_test_type.drop('type', axis=1),
+                               num_iteration=model.best_iteration_,
+                               n_jobs=N_THREADS)
         now = timer()
         update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
-        # # feature importance
-        # logger.info('Storing the fold importance')
-        # fold_importance = pd.DataFrame()
-        # fold_importance["feature"] = X_train.drop('type', axis=1).columns
-        # fold_importance["importance"] = model.feature_importances_
-        # fold_importance["type"] = bond_type
-        # fold_importance["fold"] = fold_n + 1
-        # feature_importance = pd.concat(
-        #     [feature_importance, fold_importance], axis=0)
+        # feature importance
+        logger.info('Storing the fold importance')
+        fold_importance = pd.DataFrame()
+        fold_importance["feature"] = X_train.drop('type', axis=1).columns
+        fold_importance["importance"] = model.feature_importances_
+        fold_importance["type"] = bond_type
+        fold_importance["fold"] = fold_n + 1
+        feature_importance = pd.concat(
+            [feature_importance, fold_importance], axis=0)
 
         bond_scores.append(mean_absolute_error(y_valid, y_pred_valid))
         logger.info('CV mean score: {0:.4f}, std: {1:.4f}.'.format(
@@ -453,7 +450,7 @@ for bond_type in X['type'].unique():
         now = timer()
         logger.info('Completed training and predicting for bond {} fold {}-of-{} in {:0.4f} seconds'.format(bond_type,
                                                                                                             fold_n+1,
-                                                                                                            fold_count,
+                                                                                                            fold_count+1,
                                                                                                             now-fold_start))
     update_tracking(run_id, f'{bond_type}_mae_cv', np.mean(bond_scores), digits=4)
     update_tracking(run_id, f'{bond_type}_std_mae_cv', np.std(bond_scores), digits=6)
@@ -482,7 +479,7 @@ for bond_type in X['type'].unique():
         # OOF
         oof_df.to_csv(oof_csv_name, index=False)
         # Feature Importance
-        # feature_importance.to_csv(fi_csv_name, index=False)
+        feature_importance.to_csv(fi_csv_name, index=False)
         now = timer()
         update_tracking(run_id, '{}_csv_save_sec'.format(bond_type), (now-csv_save_start), integer=True)
     bond_count += 1
@@ -519,8 +516,8 @@ ss.to_csv(submission_csv_name, index=False)
 ss.head()
 # OOF
 oof_df.to_csv(oof_csv_name, index=False)
-# # Feature Importance
-# feature_importance.to_csv(fi_csv_name, index=False)
+# Feature Importance
+feature_importance.to_csv(fi_csv_name, index=False)
 end = timer()
 update_tracking(run_id, 'training_time', (end-start), integer=True)
 logger.info('==== Training done in {} seconds ======'.format(end - start))

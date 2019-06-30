@@ -1,14 +1,18 @@
 '''
 Created by: Rob Mulla
-Jun 29
+Jun 27
 New Changes:
-    - catboost
-    - Learning rate 0.8
+    - lightgbm
+    - learning rate to 0.1
+    - PART A and PART B - one for each fold
     - change logging timestamp
     - update code to check for model number being same as filename
+    - FE010 !
+    - Load feature data each fold
+    - N_THREADS when using predict
+
 Changes:
     - Remove useless features
-    - Change learning rate from 0.3 to 0.1
     - Delete and gc train and test df after copied
     - Fixed OOF error by using GroupKFold
     - Adding type column to feature importance dataframe/csv
@@ -32,8 +36,6 @@ from datetime import datetime
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import logging
 import gc
-import catboost
-from catboost import CatBoostRegressor, Pool
 from timeit import default_timer as timer
 import time
 start = timer()
@@ -48,7 +50,7 @@ def get_logger():
     os.environ['TZ'] = 'US/Eastern'
     time.tzset()
     FORMAT = '[%(levelname)s]%(asctime)s:%(name)s:%(message)s'
-    logging.basicConfig(format=FORMAT)    
+    logging.basicConfig(format=FORMAT)
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     return logger
@@ -93,15 +95,15 @@ def group_mean_log_mae(y_true, y_pred, groups, floor=1e-9):
 #####################
 logger.info('Reading input files....')
 path = 'data/'
-train_df = pd.read_parquet(f'{path}FE009_train_pandas.parquet')
-test_df = pd.read_parquet(f'{path}FE009_test_pandas.parquet')
+# train_df = pd.read_parquet(f'{path}FE009_train_pandas.parquet')
+# test_df = pd.read_parquet(f'{path}FE009_test_pandas.parquet')
 ss = pd.read_csv('input/sample_submission.csv')
 
 #####################
 # FEATURE CREATION
 #####################
-logger.info('Creating features....')
-logger.info('Available features {}'.format([x for x in train_df.columns]))
+# logger.info('Creating features....')
+# logger.info('Available features {}'.format([x for x in train_df.columns]))
 ##########################
 # Tracking Sheet function
 #########################
@@ -119,16 +121,16 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 # CONFIGURABLES
 #####################
 # MODEL NUMBER
-MODEL_NUMBER = 'M025'
-# Check that model number is same as filename
+MODEL_NUMBER = 'M026'
 script_name = os.path.basename(__file__).split('.')[0]
 if MODEL_NUMBER not in script_name:
     logger.error('Model Number is not same as script! Update before running')
     raise SystemExit('Model Number is not same as script! Update before running')
+
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.1
-FOLD_RUN = 0
+
 FEATURES = [
             #'id',
             # 'molecule_name',
@@ -321,7 +323,293 @@ FEATURES = [
              'tor_ang_2leftright_count',
              'mol_wt',
              'num_atoms',
-             'num_bonds']
+             'num_bonds',
+             # '11th_closest_to_0',
+             # '12th_closest_to_0',
+             # '13th_closest_to_0',
+             # '14th_closest_to_0',
+             # '15th_closest_to_0',
+             # '16th_closest_to_0',
+             # '17th_closest_to_0',
+             # '18th_closest_to_0',
+             # '19th_closest_to_0',
+             # '20th_closest_to_0',
+             # '21st_closest_to_0',
+             # '22nd_closest_to_0',
+             # '23rd_closest_to_0',
+             # '24th_closest_to_0',
+             # '25th_closest_to_0',
+             # '26th_closest_to_0',
+             # '27th_closest_to_0',
+             # '28th_closest_to_0',
+             # '11th_closest_to_1',
+             # '12th_closest_to_1',
+             # '13th_closest_to_1',
+             # '14th_closest_to_1',
+             # '15th_closest_to_1',
+             # '16th_closest_to_1',
+             # '17th_closest_to_1',
+             # '18th_closest_to_1',
+             # '19th_closest_to_1',
+             # '20th_closest_to_1',
+             # '21st_closest_to_1',
+             # '22nd_closest_to_1',
+             # '23rd_closest_to_1',
+             # '24th_closest_to_1',
+             # '25th_closest_to_1',
+             # '26th_closest_to_1',
+             # '27th_closest_to_1',
+             # '28th_closest_to_1',
+             'distance_12th_closest_to_0',
+             # 'is_bond_12th_closest_to_0',
+             'distance_13th_closest_to_0',
+             # 'is_bond_13th_closest_to_0',
+             'distance_14th_closest_to_0',
+             # 'is_bond_14th_closest_to_0',
+             'distance_15th_closest_to_0',
+             # 'is_bond_15th_closest_to_0',
+             'distance_16th_closest_to_0',
+             # 'is_bond_16th_closest_to_0',
+             'distance_17th_closest_to_0',
+             # 'is_bond_17th_closest_to_0',
+             'distance_18th_closest_to_0',
+             # 'is_bond_18th_closest_to_0',
+             'distance_19th_closest_to_0',
+             # 'is_bond_19th_closest_to_0',
+             'distance_20th_closest_to_0',
+             # 'is_bond_20th_closest_to_0',
+             'distance_21st_closest_to_0',
+             # 'is_bond_21st_closest_to_0',
+             'distance_22nd_closest_to_0',
+             # 'is_bond_22nd_closest_to_0',
+             'distance_23rd_closest_to_0',
+             # 'is_bond_23rd_closest_to_0',
+             'distance_24th_closest_to_0',
+             # 'is_bond_24th_closest_to_0',
+             'distance_25th_closest_to_0',
+             # 'is_bond_25th_closest_to_0',
+             'distance_26th_closest_to_0',
+             # 'is_bond_26th_closest_to_0',
+             'distance_27th_closest_to_0',
+             # 'is_bond_27th_closest_to_0',
+             'distance_28th_closest_to_0',
+             # 'is_bond_28th_closest_to_0',
+             'distance_12th_closest_to_1',
+             # 'is_bond_12th_closest_to_1',
+             'distance_13th_closest_to_1',
+             # 'is_bond_13th_closest_to_1',
+             'distance_14th_closest_to_1',
+             # 'is_bond_14th_closest_to_1',
+             'distance_15th_closest_to_1',
+             # 'is_bond_15th_closest_to_1',
+             'distance_16th_closest_to_1',
+             # 'is_bond_16th_closest_to_1',
+             'distance_17th_closest_to_1',
+             # 'is_bond_17th_closest_to_1',
+             'distance_18th_closest_to_1',
+             # 'is_bond_18th_closest_to_1',
+             'distance_19th_closest_to_1',
+             # 'is_bond_19th_closest_to_1',
+             'distance_20th_closest_to_1',
+             # 'is_bond_20th_closest_to_1',
+             'distance_21st_closest_to_1',
+             # 'is_bond_21st_closest_to_1',
+             'distance_22nd_closest_to_1',
+             # 'is_bond_22nd_closest_to_1',
+             'distance_23rd_closest_to_1',
+             # 'is_bond_23rd_closest_to_1',
+             'distance_24th_closest_to_1',
+             # 'is_bond_24th_closest_to_1',
+             'distance_25th_closest_to_1',
+             # 'is_bond_25th_closest_to_1',
+             'distance_26th_closest_to_1',
+             # 'is_bond_26th_closest_to_1',
+             'distance_27th_closest_to_1',
+             # 'is_bond_27th_closest_to_1',
+             'distance_28th_closest_to_1',
+             # 'is_bond_28th_closest_to_1',
+             '11th_closest_to_0_atomic_mass',
+             # '11th_closest_to_0_atomic_number',
+             # '11th_closest_to_0_exact_mass',
+             '11th_closest_to_0_valence',
+             '11th_closest_to_0_spin_multiplicity',
+             '12th_closest_to_0_atomic_mass',
+             # '12th_closest_to_0_atomic_number',
+             # '12th_closest_to_0_exact_mass',
+             '12th_closest_to_0_valence',
+             '12th_closest_to_0_spin_multiplicity',
+             '13th_closest_to_0_atomic_mass',
+             # '13th_closest_to_0_atomic_number',
+             # '13th_closest_to_0_exact_mass',
+             '13th_closest_to_0_valence',
+             '13th_closest_to_0_spin_multiplicity',
+             '14th_closest_to_0_atomic_mass',
+             # '14th_closest_to_0_atomic_number',
+             # '14th_closest_to_0_exact_mass',
+             '14th_closest_to_0_valence',
+             '14th_closest_to_0_spin_multiplicity',
+             '15th_closest_to_0_atomic_mass',
+             # '15th_closest_to_0_atomic_number',
+             # '15th_closest_to_0_exact_mass',
+             '15th_closest_to_0_valence',
+             '15th_closest_to_0_spin_multiplicity',
+             '16th_closest_to_0_atomic_mass',
+             # '16th_closest_to_0_atomic_number',
+             # '16th_closest_to_0_exact_mass',
+             '16th_closest_to_0_valence',
+             '16th_closest_to_0_spin_multiplicity',
+             '17th_closest_to_0_atomic_mass',
+             # '17th_closest_to_0_atomic_number',
+             # '17th_closest_to_0_exact_mass',
+             '17th_closest_to_0_valence',
+             '17th_closest_to_0_spin_multiplicity',
+             '18th_closest_to_0_atomic_mass',
+             # '18th_closest_to_0_atomic_number',
+             # '18th_closest_to_0_exact_mass',
+             '18th_closest_to_0_valence',
+             '18th_closest_to_0_spin_multiplicity',
+             '19th_closest_to_0_atomic_mass',
+             # '19th_closest_to_0_atomic_number',
+             # '19th_closest_to_0_exact_mass',
+             '19th_closest_to_0_valence',
+             '19th_closest_to_0_spin_multiplicity',
+             '20th_closest_to_0_atomic_mass',
+             # '20th_closest_to_0_atomic_number',
+             # '20th_closest_to_0_exact_mass',
+             '20th_closest_to_0_valence',
+             '20th_closest_to_0_spin_multiplicity',
+             '21st_closest_to_0_atomic_mass',
+             # '21st_closest_to_0_atomic_number',
+             # '21st_closest_to_0_exact_mass',
+             '21st_closest_to_0_valence',
+             '21st_closest_to_0_spin_multiplicity',
+             '22nd_closest_to_0_atomic_mass',
+             # '22nd_closest_to_0_atomic_number',
+             # '22nd_closest_to_0_exact_mass',
+             '22nd_closest_to_0_valence',
+             '22nd_closest_to_0_spin_multiplicity',
+             '23rd_closest_to_0_atomic_mass',
+             # '23rd_closest_to_0_atomic_number',
+             # '23rd_closest_to_0_exact_mass',
+             '23rd_closest_to_0_valence',
+             '23rd_closest_to_0_spin_multiplicity',
+             '24th_closest_to_0_atomic_mass',
+             # '24th_closest_to_0_atomic_number',
+             # '24th_closest_to_0_exact_mass',
+             '24th_closest_to_0_valence',
+             '24th_closest_to_0_spin_multiplicity',
+             '25th_closest_to_0_atomic_mass',
+             # '25th_closest_to_0_atomic_number',
+             # '25th_closest_to_0_exact_mass',
+             '25th_closest_to_0_valence',
+             '25th_closest_to_0_spin_multiplicity',
+             '26th_closest_to_0_atomic_mass',
+             # '26th_closest_to_0_atomic_number',
+             # '26th_closest_to_0_exact_mass',
+             '26th_closest_to_0_valence',
+             '26th_closest_to_0_spin_multiplicity',
+             '27th_closest_to_0_atomic_mass',
+             # '27th_closest_to_0_atomic_number',
+             # '27th_closest_to_0_exact_mass',
+             '27th_closest_to_0_valence',
+             '27th_closest_to_0_spin_multiplicity',
+             '28th_closest_to_0_atomic_mass',
+             # '28th_closest_to_0_atomic_number',
+             # '28th_closest_to_0_exact_mass',
+             '28th_closest_to_0_valence',
+             '28th_closest_to_0_spin_multiplicity',
+             '11th_closest_to_1_atomic_mass',
+             # '11th_closest_to_1_atomic_number',
+             # '11th_closest_to_1_exact_mass',
+             '11th_closest_to_1_valence',
+             '11th_closest_to_1_spin_multiplicity',
+             '12th_closest_to_1_atomic_mass',
+             # '12th_closest_to_1_atomic_number',
+             # '12th_closest_to_1_exact_mass',
+             '12th_closest_to_1_valence',
+             '12th_closest_to_1_spin_multiplicity',
+             '13th_closest_to_1_atomic_mass',
+             # '13th_closest_to_1_atomic_number',
+             # '13th_closest_to_1_exact_mass',
+             '13th_closest_to_1_valence',
+             '13th_closest_to_1_spin_multiplicity',
+             '14th_closest_to_1_atomic_mass',
+             # '14th_closest_to_1_atomic_number',
+             # '14th_closest_to_1_exact_mass',
+             '14th_closest_to_1_valence',
+             '14th_closest_to_1_spin_multiplicity',
+             '15th_closest_to_1_atomic_mass',
+             # '15th_closest_to_1_atomic_number',
+             # '15th_closest_to_1_exact_mass',
+             '15th_closest_to_1_valence',
+             '15th_closest_to_1_spin_multiplicity',
+             '16th_closest_to_1_atomic_mass',
+             # '16th_closest_to_1_atomic_number',
+             # '16th_closest_to_1_exact_mass',
+             '16th_closest_to_1_valence',
+             '16th_closest_to_1_spin_multiplicity',
+             '17th_closest_to_1_atomic_mass',
+             # '17th_closest_to_1_atomic_number',
+             # '17th_closest_to_1_exact_mass',
+             '17th_closest_to_1_valence',
+             '17th_closest_to_1_spin_multiplicity',
+             '18th_closest_to_1_atomic_mass',
+             # '18th_closest_to_1_atomic_number',
+             # '18th_closest_to_1_exact_mass',
+             '18th_closest_to_1_valence',
+             '18th_closest_to_1_spin_multiplicity',
+             '19th_closest_to_1_atomic_mass',
+             # '19th_closest_to_1_atomic_number',
+             # '19th_closest_to_1_exact_mass',
+             '19th_closest_to_1_valence',
+             '19th_closest_to_1_spin_multiplicity',
+             '20th_closest_to_1_atomic_mass',
+             # '20th_closest_to_1_atomic_number',
+             # '20th_closest_to_1_exact_mass',
+             '20th_closest_to_1_valence',
+             '20th_closest_to_1_spin_multiplicity',
+             '21st_closest_to_1_atomic_mass',
+             # '21st_closest_to_1_atomic_number',
+             # '21st_closest_to_1_exact_mass',
+             '21st_closest_to_1_valence',
+             '21st_closest_to_1_spin_multiplicity',
+             '22nd_closest_to_1_atomic_mass',
+             # '22nd_closest_to_1_atomic_number',
+             # '22nd_closest_to_1_exact_mass',
+             '22nd_closest_to_1_valence',
+             '22nd_closest_to_1_spin_multiplicity',
+             '23rd_closest_to_1_atomic_mass',
+             # '23rd_closest_to_1_atomic_number',
+             # '23rd_closest_to_1_exact_mass',
+             '23rd_closest_to_1_valence',
+             '23rd_closest_to_1_spin_multiplicity',
+             '24th_closest_to_1_atomic_mass',
+             # '24th_closest_to_1_atomic_number',
+             # '24th_closest_to_1_exact_mass',
+             '24th_closest_to_1_valence',
+             '24th_closest_to_1_spin_multiplicity',
+             '25th_closest_to_1_atomic_mass',
+             # '25th_closest_to_1_atomic_number',
+             # '25th_closest_to_1_exact_mass',
+             '25th_closest_to_1_valence',
+             '25th_closest_to_1_spin_multiplicity',
+             '26th_closest_to_1_atomic_mass',
+             # '26th_closest_to_1_atomic_number',
+             # '26th_closest_to_1_exact_mass',
+             '26th_closest_to_1_valence',
+             '26th_closest_to_1_spin_multiplicity',
+             '27th_closest_to_1_atomic_mass',
+             # '27th_closest_to_1_atomic_number',
+             # '27th_closest_to_1_exact_mass',
+             '27th_closest_to_1_valence',
+             '27th_closest_to_1_spin_multiplicity',
+             '28th_closest_to_1_atomic_mass',
+             # '28th_closest_to_1_atomic_number',
+             # '28th_closest_to_1_exact_mass',
+             '28th_closest_to_1_valence',
+             '28th_closest_to_1_spin_multiplicity'
+             ]
+
 TARGET = 'scalar_coupling_constant'
 N_ESTIMATORS = 500000
 VERBOSE = 500
@@ -339,110 +627,119 @@ update_tracking(run_id, 'n_threads', N_THREADS)
 update_tracking(run_id, 'learning_rate', LEARNING_RATE)
 update_tracking(run_id, 'n_fold', N_FOLDS)
 update_tracking(run_id, 'n_features', len(FEATURES))
-update_tracking(run_id, 'model_type', 'catboost')
+update_tracking(run_id, 'model_type', 'lgbm')
 update_tracking(run_id, 'eval_metric', EVAL_METRIC)
 
-#####################
-# CREATE FINAL DATASETS
-#####################
-X = train_df[FEATURES].copy()
-X_test = test_df[FEATURES].copy()
-y = train_df[TARGET].copy()
-mol_group = train_df[['molecule_name','type']].copy()
 
 #####################
 # TRAIN MODEL
 #####################
 logger.info('Training model....')
-logger.info('Using features {}'.format([x for x in X.columns]))
-# lgb_params = {'num_leaves': 128,
-#               'min_child_samples': 64,
-#               'objective': 'regression',
-#               'max_depth': 6,
-#               'learning_rate': LEARNING_RATE,
-#               "boosting_type": "gbdt",
-#               "subsample_freq": 1,
-#               "subsample": 0.9,
-#               "bagging_seed": 11,
-#               "metric": 'mae',
-#               "verbosity": -1,
-#               'reg_alpha': 0.1,
-#               'reg_lambda': 0.4,
-#               'colsample_bytree': 1.0,
-#               'random_state': RANDOM_STATE
-#               }
+logger.info('Using features {}'.format([x for x in FEATURES]))
+lgb_params = {'num_leaves': 128,
+              'min_child_samples': 64,
+              'objective': 'regression',
+              'max_depth': 6,
+              'learning_rate': LEARNING_RATE,
+              "boosting_type": "gbdt",
+              "subsample_freq": 1,
+              "subsample": 0.9,
+              "bagging_seed": 11,
+              "metric": 'mae',
+              "verbosity": -1,
+              'reg_alpha': 0.1,
+              'reg_lambda': 0.4,
+              'colsample_bytree': 1.0,
+              'random_state': RANDOM_STATE
+              }
 
 folds = GroupKFold(n_splits=N_FOLDS)
 
 # Setup arrays for storing results
+train_df = pd.read_parquet('data/FE008_train.parquet') # only loading for skeleton not features
 oof_df = train_df[['id', 'type','scalar_coupling_constant']].copy()
-oof_df['oof_preds'] = 0
-prediction = np.zeros(len(X_test))
-feature_importance = pd.DataFrame()
-test_pred_df = test_df[['id','type','molecule_name']].copy()
-test_pred_df['prediction'] = 0
-bond_count = 1
-number_of_bonds = len(X['type'].unique())
-
+mol_group = train_df[['molecule_name','type']].copy()
 del train_df
-del test_df
 gc.collect()
 
-for bond_type in X['type'].unique():
+oof_df['oof_preds'] = 0
+test_df = pd.read_parquet('data/FE008_test.parquet') # only loading for skeleton not features
+prediction = np.zeros(len(test_df))
+feature_importance = pd.DataFrame()
+test_pred_df = test_df[['id','type','molecule_name']].copy()
+del test_df
+gc.collect()
+test_pred_df['prediction'] = 0
+bond_count = 1
+
+types = ['3JHH','3JHC', '3JHN','1JHC', '2JHH', '1JHN', '2JHN', '2JHC']
+number_of_bonds = len(types)
+
+for bond_type in types:
+    # Read the files and make X, X_test, and y
+    train_df = pd.read_parquet('data/FE010-train-{}.parquet'.format(bond_type)) 
+    test_df = pd.read_parquet('data/FE010-test-{}.parquet'.format(bond_type)) 
+    X_type = train_df[FEATURES].copy()
+    X_test_type = test_df[FEATURES].copy()
+    y_type = train_df[TARGET].copy()
+    del train_df
+    del test_df
+    gc.collect()
+    
+    # Start training for type
+    
     bond_start = timer()
     fold_count = 1
     # Train the model
-    X_type = X.loc[X['type'] == bond_type]
-    y_type = y.iloc[X_type.index]
-    X_test_type = X_test.loc[X_test['type'] == bond_type]
+    # X_type = X.loc[X['type'] == bond_type]
+    # y_type = y.iloc[X_type.index]
+    # X_test_type = X_test.loc[X_test['type'] == bond_type]
     mol_group_type = mol_group.loc[mol_group['type'] == bond_type]['molecule_name']
     oof = np.zeros(len(X_type))
     prediction_type = np.zeros(len(X_test_type))
     bond_scores = []
     for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X_type, groups=mol_group_type)):
+        if fold_n == 1:
+            # ONLY TRAIN FOR FOLD 0
+            continue
         fold_start = timer()
         logger.info('Running Type {} - Fold {} of {}'.format(bond_type,
                                                        fold_count, folds.n_splits))
         X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
         y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
-        train_dataset = Pool(data=X_train.drop('type', axis=1), label=y_train)
-        valid_dataset = Pool(data=X_valid.drop('type', axis=1), label=y_valid)
-        test_dataset = Pool(data=X_test_type.drop('type', axis=1))
-        model = CatBoostRegressor(iterations=N_ESTIMATORS,
-                                     learning_rate=LEARNING_RATE,
-                                     depth=7,
-                                     eval_metric='MAE',
-                                     verbose=VERBOSE,
-                                     random_state = RANDOM_STATE,
-                                     thread_count=N_THREADS,
-                                     task_type = "GPU") # Train on GPU
-
-        model.fit(train_dataset,
-                  eval_set=valid_dataset,
-                  early_stopping_rounds=500)
+        model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
+        model.fit(X_train.drop('type', axis=1), y_train,
+                  eval_set=[#(X_train.drop('type', axis=1), y_train),
+                            (X_valid.drop('type', axis=1), y_valid)],
+                  eval_metric=EVAL_METRIC,
+                  verbose=VERBOSE,
+                  early_stopping_rounds=EARLY_STOPPING_ROUNDS)
         now = timer()
         update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start), integer=True)
         logger.info('Saving model file')
-        model.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
+        model.booster_.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
                                                            run_id,
                                                            bond_type,
                                                            fold_count))
         pred_start = timer()
         logger.info('Predicting on validation set')
-        y_pred_valid = model.predict(valid_dataset)
+        y_pred_valid = model.predict(X_valid.drop('type', axis=1),
+                                     num_iteration=model.best_iteration_,
+                                     n_jobs=N_THREADS)
         logger.info('Predicting on test set')
-        y_pred = model.predict(test_dataset)
+        y_pred = model.predict(X_test_type.drop('type', axis=1),
+                               num_iteration=model.best_iteration_)
         now = timer()
         update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
-        # # feature importance
-        # logger.info('Storing the fold importance')
-        # fold_importance = pd.DataFrame()
-        # fold_importance["feature"] = X_train.drop('type', axis=1).columns
-        # fold_importance["importance"] = model.feature_importances_
-        # fold_importance["type"] = bond_type
-        # fold_importance["fold"] = fold_n + 1
-        # feature_importance = pd.concat(
-        #     [feature_importance, fold_importance], axis=0)
+        # feature importance
+        logger.info('Storing the fold importance')
+        fold_importance = pd.DataFrame()
+        fold_importance["feature"] = X_train.drop('type', axis=1).columns
+        fold_importance["importance"] = model.feature_importances_
+        fold_importance["type"] = bond_type
+        fold_importance["fold"] = fold_n + 1
+        feature_importance = pd.concat(
+            [feature_importance, fold_importance], axis=0)
 
         bond_scores.append(mean_absolute_error(y_valid, y_pred_valid))
         logger.info('CV mean score: {0:.4f}, std: {1:.4f}.'.format(
@@ -482,7 +779,7 @@ for bond_type in X['type'].unique():
         # OOF
         oof_df.to_csv(oof_csv_name, index=False)
         # Feature Importance
-        # feature_importance.to_csv(fi_csv_name, index=False)
+        feature_importance.to_csv(fi_csv_name, index=False)
         now = timer()
         update_tracking(run_id, '{}_csv_save_sec'.format(bond_type), (now-csv_save_start), integer=True)
     bond_count += 1
@@ -519,8 +816,8 @@ ss.to_csv(submission_csv_name, index=False)
 ss.head()
 # OOF
 oof_df.to_csv(oof_csv_name, index=False)
-# # Feature Importance
-# feature_importance.to_csv(fi_csv_name, index=False)
+# Feature Importance
+feature_importance.to_csv(fi_csv_name, index=False)
 end = timer()
 update_tracking(run_id, 'training_time', (end-start), integer=True)
 logger.info('==== Training done in {} seconds ======'.format(end - start))
