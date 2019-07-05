@@ -1,15 +1,12 @@
 '''
 Created by: Rob Mulla
-Jul 1
+Jul 3
 New Changes:
-    - lgbm
-    - learning rate to 0.5
+    - New Features (distance time mass)
+    - learning rate to 0.1
     - 3 folds
 Old Changes:
     - Remove features per type if feature is all nulls
-    - catboost
-    - learning rate to 0.1
-    - PART A and PART B - one for each fold
     - change logging timestamp
     - update code to check for model number being same as filename
     - FE010 !
@@ -42,7 +39,7 @@ import gc
 from timeit import default_timer as timer
 import time
 from catboost import CatBoostRegressor, Pool
-
+from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
 #####################
@@ -65,7 +62,7 @@ logger = get_logger()
 ######################
 def reduce_mem_usage(df, verbose=True):
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-    start_mem = df.memory_usage().sum() / 1024**2    
+    start_mem = df.memory_usage().sum() / 1024**2
     for col in df.columns:
         col_type = df[col].dtypes
         if col_type in numerics:
@@ -79,14 +76,14 @@ def reduce_mem_usage(df, verbose=True):
                 elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
                     df[col] = df[col].astype(np.int32)
                 elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-                    df[col] = df[col].astype(np.int64)  
+                    df[col] = df[col].astype(np.int64)
             else:
                 if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
                     df[col] = df[col].astype(np.float16)
                 elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
                     df[col] = df[col].astype(np.float32)
                 else:
-                    df[col] = df[col].astype(np.float64)    
+                    df[col] = df[col].astype(np.float64)
     end_mem = df.memory_usage().sum() / 1024**2
     if verbose: print('Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)'.format(end_mem, 100 * (start_mem - end_mem) / start_mem))
     return df
@@ -126,7 +123,7 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 # CONFIGURABLES
 #####################
 # MODEL NUMBER
-MODEL_NUMBER = 'M030'
+MODEL_NUMBER = 'M033'
 script_name = os.path.basename(__file__).split('.')[0]
 if MODEL_NUMBER not in script_name:
     logger.error('Model Number is not same as script! Update before running')
@@ -134,14 +131,14 @@ if MODEL_NUMBER not in script_name:
 
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.1
 RUN_SINGLE_FOLD = 1 # Fold number to run starting with 1 - Set to False to run all folds
 FEATURES = [
             #'id',
             # 'molecule_name',
             # 'atom_index_0',
             # 'atom_index_1',
-             'type',
+            # 'type',
             # 'scalar_coupling_constant',
              # 'atom0_atomic_mass',
              # 'atom0_atomic_number',
@@ -612,18 +609,74 @@ FEATURES = [
              # '28th_closest_to_1_atomic_number',
              # '28th_closest_to_1_exact_mass',
              '28th_closest_to_1_valence',
-             '28th_closest_to_1_spin_multiplicity'
+             '28th_closest_to_1_spin_multiplicity',
+             'closest_to_0_dist_x_atomic_mass',
+             '2nd_closest_to_0_dist_x_atomic_mass',
+             '3rd_closest_to_0_dist_x_atomic_mass',
+             '4th_closest_to_0_dist_x_atomic_mass',
+             '5th_closest_to_0_dist_x_atomic_mass',
+             '6th_closest_to_0_dist_x_atomic_mass',
+             '7th_closest_to_0_dist_x_atomic_mass',
+             '8th_closest_to_0_dist_x_atomic_mass',
+             '9th_closest_to_0_dist_x_atomic_mass',
+             '10th_closest_to_0_dist_x_atomic_mass',
+             '12th_closest_to_0_dist_x_atomic_mass',
+             '13th_closest_to_0_dist_x_atomic_mass',
+             '14th_closest_to_0_dist_x_atomic_mass',
+             '15th_closest_to_0_dist_x_atomic_mass',
+             '16th_closest_to_0_dist_x_atomic_mass',
+             '17th_closest_to_0_dist_x_atomic_mass',
+             '18th_closest_to_0_dist_x_atomic_mass',
+             '19th_closest_to_0_dist_x_atomic_mass',
+             '20th_closest_to_0_dist_x_atomic_mass',
+             '21st_closest_to_0_dist_x_atomic_mass',
+             '22nd_closest_to_0_dist_x_atomic_mass',
+             '23rd_closest_to_0_dist_x_atomic_mass',
+             '24th_closest_to_0_dist_x_atomic_mass',
+             '25th_closest_to_0_dist_x_atomic_mass',
+             '26th_closest_to_0_dist_x_atomic_mass',
+             '27th_closest_to_0_dist_x_atomic_mass',
+             '28th_closest_to_0_dist_x_atomic_mass',
+             'closest_to_1_dist_x_atomic_mass',
+             '2nd_closest_to_1_dist_x_atomic_mass',
+             '3rd_closest_to_1_dist_x_atomic_mass',
+             '4th_closest_to_1_dist_x_atomic_mass',
+             '5th_closest_to_1_dist_x_atomic_mass',
+             '6th_closest_to_1_dist_x_atomic_mass',
+             '7th_closest_to_1_dist_x_atomic_mass',
+             '8th_closest_to_1_dist_x_atomic_mass',
+             '9th_closest_to_1_dist_x_atomic_mass',
+             '10th_closest_to_1_dist_x_atomic_mass',
+             '12th_closest_to_1_dist_x_atomic_mass',
+             '13th_closest_to_1_dist_x_atomic_mass',
+             '14th_closest_to_1_dist_x_atomic_mass',
+             '15th_closest_to_1_dist_x_atomic_mass',
+             '16th_closest_to_1_dist_x_atomic_mass',
+             '17th_closest_to_1_dist_x_atomic_mass',
+             '18th_closest_to_1_dist_x_atomic_mass',
+             '19th_closest_to_1_dist_x_atomic_mass',
+             '20th_closest_to_1_dist_x_atomic_mass',
+             '21st_closest_to_1_dist_x_atomic_mass',
+             '22nd_closest_to_1_dist_x_atomic_mass',
+             '23rd_closest_to_1_dist_x_atomic_mass',
+             '24th_closest_to_1_dist_x_atomic_mass',
+             '25th_closest_to_1_dist_x_atomic_mass',
+             '26th_closest_to_1_dist_x_atomic_mass',
+             '27th_closest_to_1_dist_x_atomic_mass',
+             '28th_closest_to_1_dist_x_atomic_mass',
+            'angle_clos_0_2nd',
+            'angle_clos_1_2nd'
              ]
 
 TARGET = 'scalar_coupling_constant'
 N_ESTIMATORS = 5000000
 VERBOSE = 1000
-EARLY_STOPPING_ROUNDS = 500
+EARLY_STOPPING_ROUNDS = 50
 RANDOM_STATE = 529
-N_THREADS = 16
-N_FOLDS = 3
+N_THREADS = 24
+N_FOLDS = 2
 EVAL_METRIC = 'group_mae'
-#EVAL_METRIC = 'RMSE'
+#EVAL_METRIC = 'MAE'
 MODEL_TYPE = 'lgbm'
 update_tracking(run_id, 'model_number', MODEL_NUMBER)
 update_tracking(run_id, 'n_estimators', N_ESTIMATORS)
@@ -635,7 +688,6 @@ update_tracking(run_id, 'n_fold', N_FOLDS)
 update_tracking(run_id, 'n_features', len(FEATURES))
 update_tracking(run_id, 'model_type', MODEL_TYPE)
 update_tracking(run_id, 'eval_metric', EVAL_METRIC)
-
 
 #####################
 # TRAIN MODEL
@@ -678,14 +730,17 @@ gc.collect()
 test_pred_df['prediction'] = 0
 bond_count = 1
 
-# types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
-types = ['2JHC','3JHH','3JHC', '3JHN']
+# types = ['1JHC','1JHN','2JHH', '2JHN', '3JHH', '2JHC','3JHC', '3JHN']
+# types = ['1JHN','2JHH', '2JHN', '3JHH', '2JHC','3JHC', '3JHN']
+types = ['3JHH', '2JHC','3JHC', '3JHN']
+# types = ['2JHC','3JHH','3JHC', '3JHN']
+
 number_of_bonds = len(types)
 
 for bond_type in types:
     # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet('data/FE010-train-{}.parquet'.format(bond_type)) 
-    test_df = pd.read_parquet('data/FE010-test-{}.parquet'.format(bond_type)) 
+    train_df = pd.read_parquet('data/FE013-train-{}.parquet'.format(bond_type))
+    test_df = pd.read_parquet('data/FE013-test-{}.parquet'.format(bond_type))
     X_type = train_df[FEATURES].copy()
     X_test_type = test_df[FEATURES].copy()
     y_type = train_df[TARGET].copy()
@@ -721,9 +776,9 @@ for bond_type in types:
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
             y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
             model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
-            model.fit(X_train.drop('type', axis=1), y_train,
+            model.fit(X_train, y_train,
                       eval_set=[#(X_train.drop('type', axis=1), y_train),
-                                (X_valid.drop('type', axis=1), y_valid)],
+                                (X_valid, y_valid)],
                       eval_metric=EVAL_METRIC,
                       verbose=VERBOSE,
                       early_stopping_rounds=EARLY_STOPPING_ROUNDS)
@@ -736,18 +791,18 @@ for bond_type in types:
                                                                fold_count))
             pred_start = timer()
             logger.info('Predicting on validation set')
-            y_pred_valid = model.predict(X_valid.drop('type', axis=1),
+            y_pred_valid = model.predict(X_valid,
                                          num_iteration=model.best_iteration_,
                                          n_jobs=N_THREADS)
             logger.info('Predicting on test set')
-            y_pred = model.predict(X_test_type.drop('type', axis=1),
+            y_pred = model.predict(X_test_type,
                                    num_iteration=model.best_iteration_)
             now = timer()
             update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
             # feature importance
             logger.info('Storing the fold importance')
             fold_importance = pd.DataFrame()
-            fold_importance["feature"] = X_train.drop('type', axis=1).columns
+            fold_importance["feature"] = X_train.columns
             fold_importance["importance"] = model.feature_importances_
             fold_importance["type"] = bond_type
             fold_importance["fold"] = fold_n + 1
@@ -761,15 +816,25 @@ for bond_type in types:
             prediction_type += y_pred
         elif MODEL_TYPE == 'catboost':
             fold_start = timer()
+            X_type_nona = X_type.dropna(axis=1)
             logger.info('Running Type {} - Fold {} of {}'.format(bond_type,
                                                            fold_count, folds.n_splits))
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
+            X_train_nona, X_valid_nona = X_type_nona.iloc[train_idx], X_type_nona.iloc[valid_idx]
             y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
-            train_dataset = Pool(data=X_train.drop('type', axis=1), label=y_train)
-            valid_dataset = Pool(data=X_valid.drop('type', axis=1), label=y_valid)
-            test_dataset = Pool(data=X_test_type.drop('type', axis=1))
-            DEPTH = 4
+            DEPTH = 7
             update_tracking(run_id, 'depth', DEPTH)
+            if bond_type == '1JHN':
+                # For IJHN create 2 clusters for high and low group
+                knclf = KNeighborsClassifier(n_neighbors=5)
+                y_kn = [1 if x > 170 else 0 for x in y_train]
+                knclf.fit(X_train_nona, y_kn)
+                X_train['high_low_ind'] = knclf.predict(X_train_nona)
+                X_valid['high_low_ind'] = knclf.predict(X_valid_nona)
+                X_test_type['high_low_ind'] = knclf.predict(X_test_type[X_train_nona.columns])
+            train_dataset = Pool(data=X_train, label=y_train)
+            valid_dataset = Pool(data=X_valid, label=y_valid)
+            test_dataset = Pool(data=X_test_type)
             model = CatBoostRegressor(iterations=N_ESTIMATORS,
                                          learning_rate=LEARNING_RATE,
                                          depth=DEPTH,
@@ -777,7 +842,7 @@ for bond_type in types:
                                          verbose=VERBOSE,
                                          random_state = RANDOM_STATE,
                                          thread_count=N_THREADS,
-                                         loss_function=EVAL_METRIC,
+                                         #loss_function=EVAL_METRIC,
                                          task_type = "GPU") # Train on GPU
 
             model.fit(train_dataset,

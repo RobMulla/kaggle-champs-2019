@@ -678,7 +678,8 @@ gc.collect()
 test_pred_df['prediction'] = 0
 bond_count = 1
 
-types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
+# types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
+types = ['2JHC','3JHH','3JHC', '3JHN']
 number_of_bonds = len(types)
 
 for bond_type in types:

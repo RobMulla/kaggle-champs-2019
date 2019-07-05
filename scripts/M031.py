@@ -615,7 +615,7 @@ FEATURES = [
 TARGET = 'scalar_coupling_constant'
 N_ESTIMATORS = 5000000
 VERBOSE = 1000
-EARLY_STOPPING_ROUNDS = 500
+EARLY_STOPPING_ROUNDS = 50
 RANDOM_STATE = 529
 N_THREADS = 16
 N_FOLDS = 3
@@ -674,7 +674,9 @@ gc.collect()
 test_pred_df['prediction'] = 0
 bond_count = 1
 
-types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
+# types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
+types = ['2JHC','3JHH','3JHC', '3JHN']
+
 number_of_bonds = len(types)
 
 for bond_type in types:
