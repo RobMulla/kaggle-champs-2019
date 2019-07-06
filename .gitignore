@@ -134,3 +134,4 @@ dmypy.json
 *.model
 *.hdf
 *.tmp
+*.csv.gz
