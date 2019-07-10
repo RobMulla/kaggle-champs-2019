@@ -1,12 +1,11 @@
 '''
 Created by: Rob Mulla
-Jul 8
+Jul 9
 New Changes:
-    - Lightgbm
-    - Features from FE016
+    - Features from FE017
+    - catboost
     - Changed N_ESTIMATORS = 300000
     - Learning rate back to 0.1
-    - Remove features related to xyz location
 Old Changes:
     - Remove features per type if feature is all nulls
     - change logging timestamp
@@ -129,17 +128,7 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 ####################
 # CONFIGURABLES
 #####################
-# MODEL NUMBER
-MODEL_NUMBER = 'M041'
-script_name = os.path.basename(__file__).split('.')[0]
-if script_name not in MODEL_NUMBER:
-    logger.error('Model Number is not same as script! Update before running')
-    raise SystemExit('Model Number is not same as script! Update before running')
 
-# Make a runid that is unique to the time this is run for easy tracking later
-run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.1
-RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 FEATURES = [
             #'id',
             # 'molecule_name',
@@ -690,14 +679,14 @@ FEATURES = [
              'inv_distPE',
              'linkM0',
              'linkM1',
-             # 'min_molecule_atom_0_dist_xyz',
-             # 'mean_molecule_atom_0_dist_xyz',
-             # 'max_molecule_atom_0_dist_xyz',
-             # 'sd_molecule_atom_0_dist_xyz',
-             # 'min_molecule_atom_1_dist_xyz',
-             # 'mean_molecule_atom_1_dist_xyz',
-             # 'max_molecule_atom_1_dist_xyz',
-             # 'sd_molecule_atom_1_dist_xyz',
+             'min_molecule_atom_0_dist_xyz',
+             'mean_molecule_atom_0_dist_xyz',
+             'max_molecule_atom_0_dist_xyz',
+             'sd_molecule_atom_0_dist_xyz',
+             'min_molecule_atom_1_dist_xyz',
+             'mean_molecule_atom_1_dist_xyz',
+             'max_molecule_atom_1_dist_xyz',
+             'sd_molecule_atom_1_dist_xyz',
              'coulomb_C.x',
              'coulomb_F.x',
              'coulomb_H.x',
@@ -784,19 +773,270 @@ FEATURES = [
              'angle_0_8th1_1',
              'angle_0_9th1_1',
              'angle_0_10th1_1',
-             'angle_0_11th1_1'
+             'angle_0_11th1_1',
+             'dist_to_0_mean',
+             'dist_to_1_mean',
+             'dist_to_0_min',
+             'dist_to_1_min',
+             'dist_to_0_max',
+             'dist_to_1_max',
+             'dist_to_0_std',
+             'dist_to_1_std',
+             'val_not_0_mean',
+             'val_not_1_mean',
+             'val_not_0_max',
+             'val_not_1_max',
+             'val_not_0_min',
+             'val_not_1_min',
+             'val_not_0_std',
+             'val_not_1_std',
+             'atomic_mass_not_0_mean',
+             'atomic_mass_not_1_mean',
+             'atomic_mass_not_0_max',
+             'atomic_mass_not_1_max',
+             'atomic_mass_not_0_min',
+             'atomic_mass_not_1_min',
+             'atomic_mass_not_0_std',
+             'atomic_mass_not_1_std',
+             'distance_closest_to_0_cube_inverse',
+             'distance_2nd_closest_to_0_cube_inverse',
+             'distance_3rd_closest_to_0_cube_inverse',
+             'distance_4th_closest_to_0_cube_inverse',
+             'distance_5th_closest_to_0_cube_inverse',
+             'distance_6th_closest_to_0_cube_inverse',
+             'distance_7th_closest_to_0_cube_inverse',
+             'distance_8th_closest_to_0_cube_inverse',
+             'distance_9th_closest_to_0_cube_inverse',
+             'distance_10th_closest_to_0_cube_inverse',
+             'distance_closest_to_1_cube_inverse',
+             'distance_2nd_closest_to_1_cube_inverse',
+             'distance_3rd_closest_to_1_cube_inverse',
+             'distance_4th_closest_to_1_cube_inverse',
+             'distance_5th_closest_to_1_cube_inverse',
+             'distance_6th_closest_to_1_cube_inverse',
+             'distance_7th_closest_to_1_cube_inverse',
+             'distance_8th_closest_to_1_cube_inverse',
+             'distance_9th_closest_to_1_cube_inverse',
+             'distance_10th_closest_to_1_cube_inverse',
+           #  'distance_12th_closest_to_0_cube_inverse',
+           #  'distance_13th_closest_to_0_cube_inverse',
+           #  'distance_14th_closest_to_0_cube_inverse',
+           #  'distance_15th_closest_to_0_cube_inverse',
+           #  'distance_16th_closest_to_0_cube_inverse',
+           #  'distance_17th_closest_to_0_cube_inverse',
+           #  'distance_18th_closest_to_0_cube_inverse',
+           #  'distance_19th_closest_to_0_cube_inverse',
+           #  'distance_20th_closest_to_0_cube_inverse',
+           #  'distance_21st_closest_to_0_cube_inverse',
+           #  'distance_22nd_closest_to_0_cube_inverse',
+           #  'distance_23rd_closest_to_0_cube_inverse',
+           #  'distance_24th_closest_to_0_cube_inverse',
+           #  'distance_25th_closest_to_0_cube_inverse',
+           #  'distance_26th_closest_to_0_cube_inverse',
+           #  'distance_27th_closest_to_0_cube_inverse',
+           #  'distance_28th_closest_to_0_cube_inverse',
+           #  'distance_12th_closest_to_1_cube_inverse',
+           #  'distance_13th_closest_to_1_cube_inverse',
+           #  'distance_14th_closest_to_1_cube_inverse',
+           #  'distance_15th_closest_to_1_cube_inverse',
+           #  'distance_16th_closest_to_1_cube_inverse',
+           #  'distance_17th_closest_to_1_cube_inverse',
+           #  'distance_18th_closest_to_1_cube_inverse',
+           #  'distance_19th_closest_to_1_cube_inverse',
+           #  'distance_20th_closest_to_1_cube_inverse',
+           #  'distance_21st_closest_to_1_cube_inverse',
+           #  'distance_22nd_closest_to_1_cube_inverse',
+           #  'distance_23rd_closest_to_1_cube_inverse',
+           #  'distance_24th_closest_to_1_cube_inverse',
+           #  'distance_25th_closest_to_1_cube_inverse',
+           #  'distance_26th_closest_to_1_cube_inverse',
+           #  'distance_27th_closest_to_1_cube_inverse',
+           #  'distance_28th_closest_to_1_cube_inverse',
+             'closest_to_0_atomic_mass_x_cube_inv_dist',
+             'closest_to_0_valence_x_cube_inv_dist',
+             'closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '2nd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '2nd_closest_to_0_valence_x_cube_inv_dist',
+             '2nd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '3rd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '3rd_closest_to_0_valence_x_cube_inv_dist',
+             '3rd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '4th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '4th_closest_to_0_valence_x_cube_inv_dist',
+             '4th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '5th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '5th_closest_to_0_valence_x_cube_inv_dist',
+             '5th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '6th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '6th_closest_to_0_valence_x_cube_inv_dist',
+             '6th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '7th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '7th_closest_to_0_valence_x_cube_inv_dist',
+             '7th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '8th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '8th_closest_to_0_valence_x_cube_inv_dist',
+             '8th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '9th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '9th_closest_to_0_valence_x_cube_inv_dist',
+             '9th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '10th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '10th_closest_to_0_valence_x_cube_inv_dist',
+             '10th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             'closest_to_1_atomic_mass_x_cube_inv_dist',
+             'closest_to_1_valence_x_cube_inv_dist',
+             'closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '2nd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '2nd_closest_to_1_valence_x_cube_inv_dist',
+             '2nd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '3rd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '3rd_closest_to_1_valence_x_cube_inv_dist',
+             '3rd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '4th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '4th_closest_to_1_valence_x_cube_inv_dist',
+             '4th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '5th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '5th_closest_to_1_valence_x_cube_inv_dist',
+             '5th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '6th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '6th_closest_to_1_valence_x_cube_inv_dist',
+             '6th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '7th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '7th_closest_to_1_valence_x_cube_inv_dist',
+             '7th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '8th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '8th_closest_to_1_valence_x_cube_inv_dist',
+             '8th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '9th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '9th_closest_to_1_valence_x_cube_inv_dist',
+             '9th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '10th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '10th_closest_to_1_valence_x_cube_inv_dist',
+             '10th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '12th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '12th_closest_to_0_valence_x_cube_inv_dist',
+             # '12th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '13th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '13th_closest_to_0_valence_x_cube_inv_dist',
+             # '13th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '14th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '14th_closest_to_0_valence_x_cube_inv_dist',
+             # '14th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '15th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '15th_closest_to_0_valence_x_cube_inv_dist',
+             # '15th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '16th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '16th_closest_to_0_valence_x_cube_inv_dist',
+             # '16th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '17th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '17th_closest_to_0_valence_x_cube_inv_dist',
+             # '17th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '18th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '18th_closest_to_0_valence_x_cube_inv_dist',
+             # '18th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '19th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '19th_closest_to_0_valence_x_cube_inv_dist',
+             # '19th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '20th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '20th_closest_to_0_valence_x_cube_inv_dist',
+             # '20th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '21st_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '21st_closest_to_0_valence_x_cube_inv_dist',
+             # '21st_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '22nd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '22nd_closest_to_0_valence_x_cube_inv_dist',
+             # '22nd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '23rd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '23rd_closest_to_0_valence_x_cube_inv_dist',
+             # '23rd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '24th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '24th_closest_to_0_valence_x_cube_inv_dist',
+             # '24th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '25th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '25th_closest_to_0_valence_x_cube_inv_dist',
+             # '25th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '26th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '26th_closest_to_0_valence_x_cube_inv_dist',
+             # '26th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '27th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '27th_closest_to_0_valence_x_cube_inv_dist',
+             # '27th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '28th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '28th_closest_to_0_valence_x_cube_inv_dist',
+             # '28th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             # '12th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '12th_closest_to_1_valence_x_cube_inv_dist',
+             # '12th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '13th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '13th_closest_to_1_valence_x_cube_inv_dist',
+             # '13th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '14th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '14th_closest_to_1_valence_x_cube_inv_dist',
+             # '14th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '15th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '15th_closest_to_1_valence_x_cube_inv_dist',
+             # '15th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '16th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '16th_closest_to_1_valence_x_cube_inv_dist',
+             # '16th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '17th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '17th_closest_to_1_valence_x_cube_inv_dist',
+             # '17th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '18th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '18th_closest_to_1_valence_x_cube_inv_dist',
+             # '18th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '19th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '19th_closest_to_1_valence_x_cube_inv_dist',
+             # '19th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '20th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '20th_closest_to_1_valence_x_cube_inv_dist',
+             # '20th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '21st_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '21st_closest_to_1_valence_x_cube_inv_dist',
+             # '21st_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '22nd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '22nd_closest_to_1_valence_x_cube_inv_dist',
+             # '22nd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '23rd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '23rd_closest_to_1_valence_x_cube_inv_dist',
+             # '23rd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '24th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '24th_closest_to_1_valence_x_cube_inv_dist',
+             # '24th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '25th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '25th_closest_to_1_valence_x_cube_inv_dist',
+             # '25th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '26th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '26th_closest_to_1_valence_x_cube_inv_dist',
+             # '26th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '27th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '27th_closest_to_1_valence_x_cube_inv_dist',
+             # '27th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # '28th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '28th_closest_to_1_valence_x_cube_inv_dist',
+             # '28th_closest_to_1_spin_multiplicity_x_cube_inv_dist'
 ]
 
+# MODEL NUMBER
+MODEL_NUMBER = 'M042'
+script_name = os.path.basename(__file__).split('.')[0]
+if script_name not in MODEL_NUMBER:
+    logger.error('Model Number is not same as script! Update before running')
+    raise SystemExit('Model Number is not same as script! Update before running')
+
+# Make a runid that is unique to the time this is run for easy tracking later
+run_id = "{:%m%d_%H%M}".format(datetime.now())
+LEARNING_RATE = 0.1
+RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = 'scalar_coupling_constant'
-N_ESTIMATORS = 50000
+N_ESTIMATORS = 500000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
 N_THREADS = 48
 N_FOLDS = 2
 #EVAL_METRIC = 'group_mae'
-EVAL_METRIC = 'mae'
-MODEL_TYPE = 'lgbm'
+EVAL_METRIC = 'MAE'
+MODEL_TYPE = 'catboost'
 update_tracking(run_id, 'model_number', MODEL_NUMBER)
 update_tracking(run_id, 'n_estimators', N_ESTIMATORS)
 update_tracking(run_id, 'early_stopping_rounds', EARLY_STOPPING_ROUNDS)
@@ -850,8 +1090,8 @@ number_of_bonds = len(types)
 
 for bond_type in types:
     # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet('data/FE016/FE016-train-{}.parquet'.format(bond_type)) 
-    test_df = pd.read_parquet('data/FE016/FE016-test-{}.parquet'.format(bond_type)) 
+    train_df = pd.read_parquet('data/FE017/FE017-train-{}.parquet'.format(bond_type)) 
+    test_df = pd.read_parquet('data/FE017/FE017-test-{}.parquet'.format(bond_type)) 
     X_type = train_df[FEATURES].copy()
     X_test_type = test_df[FEATURES].copy()
     y_type = train_df[TARGET].copy()
