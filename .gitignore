@@ -135,3 +135,4 @@ dmypy.json
 *.hdf
 *.tmp
 *.csv.gz
+*.logs
