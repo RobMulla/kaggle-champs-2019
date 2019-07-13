@@ -1,4 +1,5 @@
 run_id,model_number,learning_rate,n_fold,eval_metric,n_features,random_state,hours_total,3JHC_mae_cv,3JHC_logmae_cv,oof_score,gml_oof_score,lb_score,n_estimators,early_stopping_rounds,n_threads,model_type,training_time,depth,3JHC_std_mae_cv,3JHC_f1_best_iter,3JHC_f2_best_iter,3JHCcv_f1,3JHCcv_f2,3JHC_tr_hour_f1,3JHC_pred_hour_f1,3JHC_tr_hour_f2,3JHC_pred_hour_f2,3JHC_csv_save_hour,3JHC_tr_hour_f3,3JHC_pred_hour_f3
+0712_0222,M045_3JHC,0.1000,2,MAE,329,529,5.3313,0.2409,-1.4234,17.2576,1.6550,,500000,500,48,catboost,28269.0000,7.0000,0.0005,492486.0000,479195.0000,0.2414,0.2404,2.6769,0.0408,2.5825,0.0311,,,
 0709_1336,M042,0.1000,2,MAE,332,529,4.9033,0.2458,-1.4032,0.9266,-0.9447,,500000,500,48,catboost,45779.0000,7.0000,0.0000,499959.0000,498442.0000,,,2.4269,0.0411,2.3853,0.0433,0.0067,,
 0708_1639,M040,0.1000,2,MAE,228,529,5.2364,0.2459,-1.4028,0.2635,-1.5419,-1.6420,500000,500,16,catboost,59711.0000,7.0000,0.0003,499929.0000,499978.0000,,,2.1642,0.0369,2.9847,0.0414,0.0092,,
 0710_2124,M043,0.1000,2,MAE,575,529,7.5500,0.2462,-1.4016,0.2527,-1.5582,,500000,500,48,catboost,,7.0000,0.0000,484850.0000,499991.0000,0.2462,0.2462,3.7778,0.0458,3.6714,0.0481,0.0069,,
