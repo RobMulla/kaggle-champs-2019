@@ -4,6 +4,7 @@ Jul 12
 New Changes:
     - Calculate meta feature for FC
     - Calculated within fold
+    - Delayed for 2.5 hours to wait until other training is done.
 Old Changes:
     - Features from FE018
     - Features from FE017
@@ -63,6 +64,12 @@ def get_logger():
     logger.addHandler(handler)
     return logger
 logger = get_logger()
+
+#### DELAY 2.5 Hours
+logger.info('Delaying for 2.25 Hours')
+time.sleep(60 * 60 * 2.25)
+logger.info('Done waiting! Starting program.')
+
 ######################
 ## Helper Func
 ######################

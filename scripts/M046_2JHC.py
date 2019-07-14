@@ -44,6 +44,7 @@ from catboost import CatBoostRegressor, Pool
 from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
+
 #####################
 ## SETUP LOGGER
 #####################
@@ -63,6 +64,7 @@ def get_logger():
     logger.addHandler(handler)
     return logger
 logger = get_logger()
+
 ######################
 ## Helper Func
 ######################
@@ -555,12 +557,12 @@ FEATURES = [
      'min_molecule_atom_0_dist_xyz',
      'min_molecule_atom_1_dist_xyz',
      'mol_wt',
-     'mulliken_charge_0',
-     'mulliken_charge_1',
-     'mulliken_charge_2nd_closest_0',
-     'mulliken_charge_2nd_closest_1',
-     'mulliken_charge_closest_0',
-     'mulliken_charge_closest_1',
+#      'mulliken_charge_0',
+#      'mulliken_charge_1',
+#      'mulliken_charge_2nd_closest_0',
+#      'mulliken_charge_2nd_closest_1',
+#      'mulliken_charge_closest_0',
+#      'mulliken_charge_closest_1',
      'right_middle_average_angle',
      'sd_molecule_atom_0_dist_xyz',
      'sd_molecule_atom_1_dist_xyz',
@@ -595,7 +597,7 @@ LEARNING_RATE = 0.1
 RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = 'scalar_coupling_constant'
 N_ESTIMATORS = 500000
-N_META_ESTIMATORS = 50000
+N_META_ESTIMATORS = 100000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
