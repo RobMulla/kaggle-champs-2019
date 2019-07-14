@@ -1,11 +1,13 @@
 '''
 Created by: Rob Mulla
-Jul 8
+Jul 12
 New Changes:
-    - Features from FE016
-    - Changed N_ESTIMATORS = 500000
-    - Learning rate back to 0.1
+    - Calculate meta feature for FC
+    - Calculated within fold
+    - Delayed for 2.5 hours to wait until other training is done.
 Old Changes:
+    - Features from FE018
+    - Features from FE017
     - Remove features per type if feature is all nulls
     - change logging timestamp
     - update code to check for model number being same as filename
@@ -62,12 +64,18 @@ def get_logger():
     logger.addHandler(handler)
     return logger
 logger = get_logger()
+
+#### DELAY 2.5 Hours
+logger.info('Delaying for 2.25 Hours')
+time.sleep(60 * 60 * 2.25)
+logger.info('Done waiting! Starting program.')
+
 ######################
 ## Helper Func
 ######################
 def reduce_mem_usage(df, verbose=True):
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-    start_mem = df.memory_usage().sum() / 1024**2    
+    start_mem = df.memory_usage().sum() / 1024**2
     for col in df.columns:
         col_type = df[col].dtypes
         if col_type in numerics:
@@ -81,14 +89,14 @@ def reduce_mem_usage(df, verbose=True):
                 elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
                     df[col] = df[col].astype(np.int32)
                 elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-                    df[col] = df[col].astype(np.int64)  
+                    df[col] = df[col].astype(np.int64)
             else:
                 if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
                     df[col] = df[col].astype(np.float16)
                 elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
                     df[col] = df[col].astype(np.float32)
                 else:
-                    df[col] = df[col].astype(np.float64)    
+                    df[col] = df[col].astype(np.float64)
     end_mem = df.memory_usage().sum() / 1024**2
     if verbose: print('Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)'.format(end_mem, 100 * (start_mem - end_mem) / start_mem))
     return df
@@ -127,17 +135,7 @@ def update_tracking(run_id, field, value, csv_file='tracking/tracking.csv',
 ####################
 # CONFIGURABLES
 #####################
-# MODEL NUMBER
-MODEL_NUMBER = 'M040'
-script_name = os.path.basename(__file__).split('.')[0]
-if script_name not in MODEL_NUMBER:
-    logger.error('Model Number is not same as script! Update before running')
-    raise SystemExit('Model Number is not same as script! Update before running')
 
-# Make a runid that is unique to the time this is run for easy tracking later
-run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.1
-RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 FEATURES = [
             #'id',
             # 'molecule_name',
@@ -229,37 +227,37 @@ FEATURES = [
              # '2nd_closest_to_0_atomic_number',
              # '2nd_closest_to_0_exact_mass',
              '2nd_closest_to_0_valence',
-             '2nd_closest_to_0_spin_multiplicity',
+             # '2nd_closest_to_0_spin_multiplicity',
              '3rd_closest_to_0_atomic_mass',
              # '3rd_closest_to_0_atomic_number',
              # '3rd_closest_to_0_exact_mass',
              '3rd_closest_to_0_valence',
-             '3rd_closest_to_0_spin_multiplicity',
+             # '3rd_closest_to_0_spin_multiplicity',
              '4th_closest_to_0_atomic_mass',
              # '4th_closest_to_0_atomic_number',
              # '4th_closest_to_0_exact_mass',
              '4th_closest_to_0_valence',
-             '4th_closest_to_0_spin_multiplicity',
+             # '4th_closest_to_0_spin_multiplicity',
              '5th_closest_to_0_atomic_mass',
              # '5th_closest_to_0_atomic_number',
              # '5th_closest_to_0_exact_mass',
              '5th_closest_to_0_valence',
-             '5th_closest_to_0_spin_multiplicity',
+             # '5th_closest_to_0_spin_multiplicity',
              '6th_closest_to_0_atomic_mass',
              # '6th_closest_to_0_atomic_number',
              # '6th_closest_to_0_exact_mass',
              '6th_closest_to_0_valence',
-             '6th_closest_to_0_spin_multiplicity',
+             # '6th_closest_to_0_spin_multiplicity',
              '7th_closest_to_0_atomic_mass',
              # '7th_closest_to_0_atomic_number',
              # '7th_closest_to_0_exact_mass',
              '7th_closest_to_0_valence',
-             '7th_closest_to_0_spin_multiplicity',
+             # '7th_closest_to_0_spin_multiplicity',
              '8th_closest_to_0_atomic_mass',
              # '8th_closest_to_0_atomic_number',
              # '8th_closest_to_0_exact_mass',
              '8th_closest_to_0_valence',
-             '8th_closest_to_0_spin_multiplicity',
+             # '8th_closest_to_0_spin_multiplicity',
              '9th_closest_to_0_atomic_mass',
              # '9th_closest_to_0_atomic_number',
              # '9th_closest_to_0_exact_mass',
@@ -271,7 +269,7 @@ FEATURES = [
              '10th_closest_to_0_valence',
              '10th_closest_to_0_spin_multiplicity',
               'closest_to_1_atomic_mass',
-             # 'closest_to_1_atomic_number',
+             'closest_to_1_atomic_number',
              # 'closest_to_1_exact_mass',
              'closest_to_1_valence',
              'closest_to_1_spin_multiplicity',
@@ -279,46 +277,46 @@ FEATURES = [
              # '2nd_closest_to_1_atomic_number',
              # '2nd_closest_to_1_exact_mass',
              '2nd_closest_to_1_valence',
-             '2nd_closest_to_1_spin_multiplicity',
+             # '2nd_closest_to_1_spin_multiplicity',
              '3rd_closest_to_1_atomic_mass',
              # '3rd_closest_to_1_atomic_number',
              # '3rd_closest_to_1_exact_mass',
              '3rd_closest_to_1_valence',
-             '3rd_closest_to_1_spin_multiplicity',
+             # '3rd_closest_to_1_spin_multiplicity',
              '4th_closest_to_1_atomic_mass',
              # '4th_closest_to_1_atomic_number',
              # '4th_closest_to_1_exact_mass',
              '4th_closest_to_1_valence',
-             '4th_closest_to_1_spin_multiplicity',
+             # '4th_closest_to_1_spin_multiplicity',
              '5th_closest_to_1_atomic_mass',
              # '5th_closest_to_1_atomic_number',
              # '5th_closest_to_1_exact_mass',
              '5th_closest_to_1_valence',
-             '5th_closest_to_1_spin_multiplicity',
+             # '5th_closest_to_1_spin_multiplicity',
              '6th_closest_to_1_atomic_mass',
              # '6th_closest_to_1_atomic_number',
              # '6th_closest_to_1_exact_mass',
              '6th_closest_to_1_valence',
-             '6th_closest_to_1_spin_multiplicity',
+             # '6th_closest_to_1_spin_multiplicity',
              '7th_closest_to_1_atomic_mass',
              # '7th_closest_to_1_atomic_number',
              # '7th_closest_to_1_exact_mass',
              '7th_closest_to_1_valence',
-             '7th_closest_to_1_spin_multiplicity',
+             # '7th_closest_to_1_spin_multiplicity',
              '8th_closest_to_1_atomic_mass',
              # '8th_closest_to_1_atomic_number',
              # '8th_closest_to_1_exact_mass',
              '8th_closest_to_1_valence',
-             '8th_closest_to_1_spin_multiplicity',
+             # '8th_closest_to_1_spin_multiplicity',
              '9th_closest_to_1_atomic_mass',
              # '9th_closest_to_1_atomic_number',
              # '9th_closest_to_1_exact_mass',
              '9th_closest_to_1_valence',
              '9th_closest_to_1_spin_multiplicity',
-             '10th_closest_to_1_atomic_mass',
+             # '10th_closest_to_1_atomic_mass',
              # '10th_closest_to_1_atomic_number',
              # '10th_closest_to_1_exact_mass',
-             '10th_closest_to_1_valence',
+             # '10th_closest_to_1_valence',
              '10th_closest_to_1_spin_multiplicity',
              'tor_ang_2leftleft_mean',
              'tor_ang_2leftleft_min',
@@ -329,7 +327,7 @@ FEATURES = [
              'tor_ang_2leftright_max',
              'tor_ang_2leftright_count',
              'mol_wt',
-             'num_atoms',
+             # 'num_atoms',
              'num_bonds',
              # '11th_closest_to_0',
              # '12th_closest_to_0',
@@ -624,7 +622,7 @@ FEATURES = [
              '7th_closest_to_0_dist_x_atomic_mass',
              '8th_closest_to_0_dist_x_atomic_mass',
              '9th_closest_to_0_dist_x_atomic_mass',
-             '10th_closest_to_0_dist_x_atomic_mass',
+             #'10th_closest_to_0_dist_x_atomic_mass',
              #'12th_closest_to_0_dist_x_atomic_mass',
              #'13th_closest_to_0_dist_x_atomic_mass',
              #'14th_closest_to_0_dist_x_atomic_mass',
@@ -651,7 +649,7 @@ FEATURES = [
              '7th_closest_to_1_dist_x_atomic_mass',
              '8th_closest_to_1_dist_x_atomic_mass',
              '9th_closest_to_1_dist_x_atomic_mass',
-             '10th_closest_to_1_dist_x_atomic_mass',
+             #'10th_closest_to_1_dist_x_atomic_mass',
              #'12th_closest_to_1_dist_x_atomic_mass',
              #'13th_closest_to_1_dist_x_atomic_mass',
              #'14th_closest_to_1_dist_x_atomic_mass',
@@ -697,22 +695,22 @@ FEATURES = [
              'max_molecule_atom_1_dist_xyz',
              'sd_molecule_atom_1_dist_xyz',
              'coulomb_C.x',
-             'coulomb_F.x',
+             # 'coulomb_F.x',
              'coulomb_H.x',
              'coulomb_N.x',
              'coulomb_O.x',
              'yukawa_C.x',
-             'yukawa_F.x',
+             # 'yukawa_F.x',
              'yukawa_H.x',
              'yukawa_N.x',
              'yukawa_O.x',
              'coulomb_C.y',
-             'coulomb_F.y',
+             # 'coulomb_F.y',
              'coulomb_H.y',
              'coulomb_N.y',
              'coulomb_O.y',
              'yukawa_C.y',
-             'yukawa_F.y',
+             # 'yukawa_F.y',
              'yukawa_H.y',
              'yukawa_N.y',
              'yukawa_O.y',
@@ -724,20 +722,20 @@ FEATURES = [
              'distN1',
              'adH1',
              'adH2',
-             'adH3',
-             'adH4',
+             # 'adH3',
+             # 'adH4',
              'adC1',
              'adC2',
              'adC3',
              'adC4',
              'adN1',
              'adN2',
-             'adN3',
-             'adN4',
+             # 'adN3',
+             # 'adN4',
              'NC',
              'NH',
-             'NN',
-             'NF',
+             # 'NN',
+             # 'NF',
              'NO',
              'angle_1_0_closest0',
              'angle_1_0_2nd0',
@@ -782,16 +780,525 @@ FEATURES = [
              'angle_0_8th1_1',
              'angle_0_9th1_1',
              'angle_0_10th1_1',
-             'angle_0_11th1_1'
+             # 'angle_0_11th1_1',
+             'dist_to_0_mean',
+             'dist_to_1_mean',
+             'dist_to_0_min',
+             'dist_to_1_min',
+             'dist_to_0_max',
+             'dist_to_1_max',
+             'dist_to_0_std',
+             'dist_to_1_std',
+             'val_not_0_mean',
+             'val_not_1_mean',
+             'val_not_0_max',
+             'val_not_1_max',
+             'val_not_0_min',
+             'val_not_1_min',
+             'val_not_0_std',
+             'val_not_1_std',
+             'atomic_mass_not_0_mean',
+             'atomic_mass_not_1_mean',
+             'atomic_mass_not_0_max',
+             'atomic_mass_not_1_max',
+             'atomic_mass_not_0_min',
+             'atomic_mass_not_1_min',
+             'atomic_mass_not_0_std',
+             'atomic_mass_not_1_std',
+             'distance_closest_to_0_cube_inverse',
+             'distance_2nd_closest_to_0_cube_inverse',
+             'distance_3rd_closest_to_0_cube_inverse',
+             'distance_4th_closest_to_0_cube_inverse',
+             'distance_5th_closest_to_0_cube_inverse',
+             'distance_6th_closest_to_0_cube_inverse',
+             'distance_7th_closest_to_0_cube_inverse',
+             'distance_8th_closest_to_0_cube_inverse',
+             'distance_9th_closest_to_0_cube_inverse',
+             'distance_10th_closest_to_0_cube_inverse',
+             'distance_closest_to_1_cube_inverse',
+             'distance_2nd_closest_to_1_cube_inverse',
+             'distance_3rd_closest_to_1_cube_inverse',
+             'distance_4th_closest_to_1_cube_inverse',
+             'distance_5th_closest_to_1_cube_inverse',
+             'distance_6th_closest_to_1_cube_inverse',
+             'distance_7th_closest_to_1_cube_inverse',
+             'distance_8th_closest_to_1_cube_inverse',
+             'distance_9th_closest_to_1_cube_inverse',
+             'distance_10th_closest_to_1_cube_inverse',
+           #  'distance_12th_closest_to_0_cube_inverse',
+           #  'distance_13th_closest_to_0_cube_inverse',
+           #  'distance_14th_closest_to_0_cube_inverse',
+           #  'distance_15th_closest_to_0_cube_inverse',
+           #  'distance_16th_closest_to_0_cube_inverse',
+           #  'distance_17th_closest_to_0_cube_inverse',
+           #  'distance_18th_closest_to_0_cube_inverse',
+           #  'distance_19th_closest_to_0_cube_inverse',
+           #  'distance_20th_closest_to_0_cube_inverse',
+           #  'distance_21st_closest_to_0_cube_inverse',
+           #  'distance_22nd_closest_to_0_cube_inverse',
+           #  'distance_23rd_closest_to_0_cube_inverse',
+           #  'distance_24th_closest_to_0_cube_inverse',
+           #  'distance_25th_closest_to_0_cube_inverse',
+           #  'distance_26th_closest_to_0_cube_inverse',
+           #  'distance_27th_closest_to_0_cube_inverse',
+           #  'distance_28th_closest_to_0_cube_inverse',
+           #  'distance_12th_closest_to_1_cube_inverse',
+           #  'distance_13th_closest_to_1_cube_inverse',
+           #  'distance_14th_closest_to_1_cube_inverse',
+           #  'distance_15th_closest_to_1_cube_inverse',
+           #  'distance_16th_closest_to_1_cube_inverse',
+           #  'distance_17th_closest_to_1_cube_inverse',
+           #  'distance_18th_closest_to_1_cube_inverse',
+           #  'distance_19th_closest_to_1_cube_inverse',
+           #  'distance_20th_closest_to_1_cube_inverse',
+           #  'distance_21st_closest_to_1_cube_inverse',
+           #  'distance_22nd_closest_to_1_cube_inverse',
+           #  'distance_23rd_closest_to_1_cube_inverse',
+           #  'distance_24th_closest_to_1_cube_inverse',
+           #  'distance_25th_closest_to_1_cube_inverse',
+           #  'distance_26th_closest_to_1_cube_inverse',
+           #  'distance_27th_closest_to_1_cube_inverse',
+           #  'distance_28th_closest_to_1_cube_inverse',
+             'closest_to_0_atomic_mass_x_cube_inv_dist',
+             'closest_to_0_valence_x_cube_inv_dist',
+             'closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '2nd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '2nd_closest_to_0_valence_x_cube_inv_dist',
+             #'2nd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '3rd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '3rd_closest_to_0_valence_x_cube_inv_dist',
+             #'3rd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '4th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '4th_closest_to_0_valence_x_cube_inv_dist',
+             #'4th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '5th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '5th_closest_to_0_valence_x_cube_inv_dist',
+             #'5th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '6th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '6th_closest_to_0_valence_x_cube_inv_dist',
+             #'6th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '7th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '7th_closest_to_0_valence_x_cube_inv_dist',
+             #'7th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '8th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '8th_closest_to_0_valence_x_cube_inv_dist',
+             #'8th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '9th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '9th_closest_to_0_valence_x_cube_inv_dist',
+             #'9th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '10th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             '10th_closest_to_0_valence_x_cube_inv_dist',
+             # '10th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             'closest_to_1_atomic_mass_x_cube_inv_dist',
+             'closest_to_1_valence_x_cube_inv_dist',
+             'closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '2nd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '2nd_closest_to_1_valence_x_cube_inv_dist',
+             #'2nd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '3rd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '3rd_closest_to_1_valence_x_cube_inv_dist',
+             #'3rd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '4th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '4th_closest_to_1_valence_x_cube_inv_dist',
+             #'4th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '5th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '5th_closest_to_1_valence_x_cube_inv_dist',
+             #'5th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '6th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '6th_closest_to_1_valence_x_cube_inv_dist',
+             #'6th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '7th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '7th_closest_to_1_valence_x_cube_inv_dist',
+             #'7th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '8th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '8th_closest_to_1_valence_x_cube_inv_dist',
+             #'8th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '9th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '9th_closest_to_1_valence_x_cube_inv_dist',
+             #'9th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '10th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             '10th_closest_to_1_valence_x_cube_inv_dist',
+             # '10th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '12th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '12th_closest_to_0_valence_x_cube_inv_dist',
+             # '12th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '13th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '13th_closest_to_0_valence_x_cube_inv_dist',
+             # '13th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '14th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '14th_closest_to_0_valence_x_cube_inv_dist',
+             # '14th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '15th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '15th_closest_to_0_valence_x_cube_inv_dist',
+             # '15th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '16th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '16th_closest_to_0_valence_x_cube_inv_dist',
+             # '16th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '17th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '17th_closest_to_0_valence_x_cube_inv_dist',
+             # '17th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '18th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '18th_closest_to_0_valence_x_cube_inv_dist',
+             # '18th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '19th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '19th_closest_to_0_valence_x_cube_inv_dist',
+             # '19th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '20th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '20th_closest_to_0_valence_x_cube_inv_dist',
+             # '20th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '21st_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '21st_closest_to_0_valence_x_cube_inv_dist',
+             # '21st_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '22nd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '22nd_closest_to_0_valence_x_cube_inv_dist',
+             # '22nd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '23rd_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '23rd_closest_to_0_valence_x_cube_inv_dist',
+             # '23rd_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '24th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '24th_closest_to_0_valence_x_cube_inv_dist',
+             # '24th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '25th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '25th_closest_to_0_valence_x_cube_inv_dist',
+             # '25th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '26th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '26th_closest_to_0_valence_x_cube_inv_dist',
+             # '26th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '27th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '27th_closest_to_0_valence_x_cube_inv_dist',
+             # '27th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '28th_closest_to_0_atomic_mass_x_cube_inv_dist',
+             # '28th_closest_to_0_valence_x_cube_inv_dist',
+             # '28th_closest_to_0_spin_multiplicity_x_cube_inv_dist',
+             '12th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '12th_closest_to_1_valence_x_cube_inv_dist',
+             # '12th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '13th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '13th_closest_to_1_valence_x_cube_inv_dist',
+             # '13th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '14th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '14th_closest_to_1_valence_x_cube_inv_dist',
+             # '14th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '15th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '15th_closest_to_1_valence_x_cube_inv_dist',
+             # '15th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '16th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '16th_closest_to_1_valence_x_cube_inv_dist',
+             # '16th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '17th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '17th_closest_to_1_valence_x_cube_inv_dist',
+             # '17th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '18th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '18th_closest_to_1_valence_x_cube_inv_dist',
+             # '18th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '19th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '19th_closest_to_1_valence_x_cube_inv_dist',
+             # '19th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '20th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '20th_closest_to_1_valence_x_cube_inv_dist',
+             # '20th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '21st_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '21st_closest_to_1_valence_x_cube_inv_dist',
+             # '21st_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '22nd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '22nd_closest_to_1_valence_x_cube_inv_dist',
+             # '22nd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '23rd_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '23rd_closest_to_1_valence_x_cube_inv_dist',
+             # '23rd_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '24th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '24th_closest_to_1_valence_x_cube_inv_dist',
+             # '24th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '25th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '25th_closest_to_1_valence_x_cube_inv_dist',
+             # '25th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '26th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '26th_closest_to_1_valence_x_cube_inv_dist',
+             # '26th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '27th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '27th_closest_to_1_valence_x_cube_inv_dist',
+             # '27th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             '28th_closest_to_1_atomic_mass_x_cube_inv_dist',
+             # '28th_closest_to_1_valence_x_cube_inv_dist',
+             # '28th_closest_to_1_spin_multiplicity_x_cube_inv_dist',
+             # 'mulliken_charge_0',
+             # 'mulliken_charge_1',
+             # 'mulliken_charge_closest_0',
+             # 'mulliken_charge_closest_1',
+             # 'mulliken_charge_2nd_closest_0',
+             # 'mulliken_charge_2nd_closest_1',
+             'feat_acsf_g1_H_10.0_atom0',
+             'feat_acsf_g2_H_[1, 2]_atom0',
+             'feat_acsf_g2_H_[0.1, 2]_atom0',
+             'feat_acsf_g2_H_[0.01, 2]_atom0',
+             'feat_acsf_g2_H_[1, 6]_atom0',
+             'feat_acsf_g2_H_[0.1, 6]_atom0',
+             'feat_acsf_g2_H_[0.01, 6]_atom0',
+             'feat_acsf_g1_C_10.0_atom0',
+             'feat_acsf_g2_C_[1, 2]_atom0',
+             'feat_acsf_g2_C_[0.1, 2]_atom0',
+             'feat_acsf_g2_C_[0.01, 2]_atom0',
+             'feat_acsf_g2_C_[1, 6]_atom0',
+             'feat_acsf_g2_C_[0.1, 6]_atom0',
+             'feat_acsf_g2_C_[0.01, 6]_atom0',
+             'feat_acsf_g1_N_10.0_atom0',
+             'feat_acsf_g2_N_[1, 2]_atom0',
+             'feat_acsf_g2_N_[0.1, 2]_atom0',
+             'feat_acsf_g2_N_[0.01, 2]_atom0',
+             'feat_acsf_g2_N_[1, 6]_atom0',
+             'feat_acsf_g2_N_[0.1, 6]_atom0',
+             'feat_acsf_g2_N_[0.01, 6]_atom0',
+             'feat_acsf_g1_O_10.0_atom0',
+             'feat_acsf_g2_O_[1, 2]_atom0',
+             'feat_acsf_g2_O_[0.1, 2]_atom0',
+             'feat_acsf_g2_O_[0.01, 2]_atom0',
+             'feat_acsf_g2_O_[1, 6]_atom0',
+             'feat_acsf_g2_O_[0.1, 6]_atom0',
+             'feat_acsf_g2_O_[0.01, 6]_atom0',
+             'feat_acsf_g1_F_10.0_atom0',
+             'feat_acsf_g2_F_[1, 2]_atom0',
+             'feat_acsf_g2_F_[0.1, 2]_atom0',
+             'feat_acsf_g2_F_[0.01, 2]_atom0',
+             'feat_acsf_g2_F_[1, 6]_atom0',
+             'feat_acsf_g2_F_[0.1, 6]_atom0',
+             'feat_acsf_g2_F_[0.01, 6]_atom0',
+             'feat_acsf_g4_H_H_[1, 4, 1]_atom0',
+             'feat_acsf_g4_H_H_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_H_H_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_H_H_[1, 4, -1]_atom0',
+             'feat_acsf_g4_H_H_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_H_H_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_C_H_[1, 4, 1]_atom0',
+             'feat_acsf_g4_C_H_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_C_H_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_C_H_[1, 4, -1]_atom0',
+             'feat_acsf_g4_C_H_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_C_H_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_C_C_[1, 4, 1]_atom0',
+             'feat_acsf_g4_C_C_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_C_C_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_C_C_[1, 4, -1]_atom0',
+             'feat_acsf_g4_C_C_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_C_C_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_N_H_[1, 4, 1]_atom0',
+             'feat_acsf_g4_N_H_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_N_H_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_N_H_[1, 4, -1]_atom0',
+             'feat_acsf_g4_N_H_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_N_H_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_N_C_[1, 4, 1]_atom0',
+             'feat_acsf_g4_N_C_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_N_C_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_N_C_[1, 4, -1]_atom0',
+             'feat_acsf_g4_N_C_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_N_C_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_N_N_[1, 4, 1]_atom0',
+             'feat_acsf_g4_N_N_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_N_N_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_N_N_[1, 4, -1]_atom0',
+             'feat_acsf_g4_N_N_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_N_N_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_O_H_[1, 4, 1]_atom0',
+             'feat_acsf_g4_O_H_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_O_H_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_O_H_[1, 4, -1]_atom0',
+             'feat_acsf_g4_O_H_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_O_H_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_O_C_[1, 4, 1]_atom0',
+             'feat_acsf_g4_O_C_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_O_C_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_O_C_[1, 4, -1]_atom0',
+             'feat_acsf_g4_O_C_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_O_C_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_O_N_[1, 4, 1]_atom0',
+             'feat_acsf_g4_O_N_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_O_N_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_O_N_[1, 4, -1]_atom0',
+             'feat_acsf_g4_O_N_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_O_N_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_O_O_[1, 4, 1]_atom0',
+             'feat_acsf_g4_O_O_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_O_O_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_O_O_[1, 4, -1]_atom0',
+             'feat_acsf_g4_O_O_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_O_O_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_F_H_[1, 4, 1]_atom0',
+             'feat_acsf_g4_F_H_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_F_H_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_F_H_[1, 4, -1]_atom0',
+             'feat_acsf_g4_F_H_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_F_H_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_F_C_[1, 4, 1]_atom0',
+             'feat_acsf_g4_F_C_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_F_C_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_F_C_[1, 4, -1]_atom0',
+             'feat_acsf_g4_F_C_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_F_C_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_F_N_[1, 4, 1]_atom0',
+             'feat_acsf_g4_F_N_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_F_N_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_F_N_[1, 4, -1]_atom0',
+             'feat_acsf_g4_F_N_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_F_N_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_F_O_[1, 4, 1]_atom0',
+             'feat_acsf_g4_F_O_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_F_O_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_F_O_[1, 4, -1]_atom0',
+             'feat_acsf_g4_F_O_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_F_O_[0.01, 4, -1]_atom0',
+             'feat_acsf_g4_F_F_[1, 4, 1]_atom0',
+             'feat_acsf_g4_F_F_[0.1, 4, 1]_atom0',
+             'feat_acsf_g4_F_F_[0.01, 4, 1]_atom0',
+             'feat_acsf_g4_F_F_[1, 4, -1]_atom0',
+             'feat_acsf_g4_F_F_[0.1, 4, -1]_atom0',
+             'feat_acsf_g4_F_F_[0.01, 4, -1]_atom0',
+             'feat_acsf_g1_H_10.0_atom1',
+             'feat_acsf_g2_H_[1, 2]_atom1',
+             'feat_acsf_g2_H_[0.1, 2]_atom1',
+             'feat_acsf_g2_H_[0.01, 2]_atom1',
+             'feat_acsf_g2_H_[1, 6]_atom1',
+             'feat_acsf_g2_H_[0.1, 6]_atom1',
+             'feat_acsf_g2_H_[0.01, 6]_atom1',
+             'feat_acsf_g1_C_10.0_atom1',
+             'feat_acsf_g2_C_[1, 2]_atom1',
+             'feat_acsf_g2_C_[0.1, 2]_atom1',
+             'feat_acsf_g2_C_[0.01, 2]_atom1',
+             'feat_acsf_g2_C_[1, 6]_atom1',
+             'feat_acsf_g2_C_[0.1, 6]_atom1',
+             'feat_acsf_g2_C_[0.01, 6]_atom1',
+             'feat_acsf_g1_N_10.0_atom1',
+             'feat_acsf_g2_N_[1, 2]_atom1',
+             'feat_acsf_g2_N_[0.1, 2]_atom1',
+             'feat_acsf_g2_N_[0.01, 2]_atom1',
+             'feat_acsf_g2_N_[1, 6]_atom1',
+             'feat_acsf_g2_N_[0.1, 6]_atom1',
+             'feat_acsf_g2_N_[0.01, 6]_atom1',
+             'feat_acsf_g1_O_10.0_atom1',
+             'feat_acsf_g2_O_[1, 2]_atom1',
+             'feat_acsf_g2_O_[0.1, 2]_atom1',
+             'feat_acsf_g2_O_[0.01, 2]_atom1',
+             'feat_acsf_g2_O_[1, 6]_atom1',
+             'feat_acsf_g2_O_[0.1, 6]_atom1',
+             'feat_acsf_g2_O_[0.01, 6]_atom1',
+             'feat_acsf_g1_F_10.0_atom1',
+             'feat_acsf_g2_F_[1, 2]_atom1',
+             'feat_acsf_g2_F_[0.1, 2]_atom1',
+             'feat_acsf_g2_F_[0.01, 2]_atom1',
+             'feat_acsf_g2_F_[1, 6]_atom1',
+             'feat_acsf_g2_F_[0.1, 6]_atom1',
+             'feat_acsf_g2_F_[0.01, 6]_atom1',
+             'feat_acsf_g4_H_H_[1, 4, 1]_atom1',
+             'feat_acsf_g4_H_H_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_H_H_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_H_H_[1, 4, -1]_atom1',
+             'feat_acsf_g4_H_H_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_H_H_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_C_H_[1, 4, 1]_atom1',
+             'feat_acsf_g4_C_H_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_C_H_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_C_H_[1, 4, -1]_atom1',
+             'feat_acsf_g4_C_H_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_C_H_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_C_C_[1, 4, 1]_atom1',
+             'feat_acsf_g4_C_C_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_C_C_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_C_C_[1, 4, -1]_atom1',
+             'feat_acsf_g4_C_C_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_C_C_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_N_H_[1, 4, 1]_atom1',
+             'feat_acsf_g4_N_H_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_N_H_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_N_H_[1, 4, -1]_atom1',
+             'feat_acsf_g4_N_H_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_N_H_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_N_C_[1, 4, 1]_atom1',
+             'feat_acsf_g4_N_C_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_N_C_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_N_C_[1, 4, -1]_atom1',
+             'feat_acsf_g4_N_C_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_N_C_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_N_N_[1, 4, 1]_atom1',
+             'feat_acsf_g4_N_N_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_N_N_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_N_N_[1, 4, -1]_atom1',
+             'feat_acsf_g4_N_N_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_N_N_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_O_H_[1, 4, 1]_atom1',
+             'feat_acsf_g4_O_H_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_O_H_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_O_H_[1, 4, -1]_atom1',
+             'feat_acsf_g4_O_H_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_O_H_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_O_C_[1, 4, 1]_atom1',
+             'feat_acsf_g4_O_C_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_O_C_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_O_C_[1, 4, -1]_atom1',
+             'feat_acsf_g4_O_C_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_O_C_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_O_N_[1, 4, 1]_atom1',
+             'feat_acsf_g4_O_N_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_O_N_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_O_N_[1, 4, -1]_atom1',
+             'feat_acsf_g4_O_N_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_O_N_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_O_O_[1, 4, 1]_atom1',
+             'feat_acsf_g4_O_O_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_O_O_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_O_O_[1, 4, -1]_atom1',
+             'feat_acsf_g4_O_O_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_O_O_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_F_H_[1, 4, 1]_atom1',
+             'feat_acsf_g4_F_H_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_F_H_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_F_H_[1, 4, -1]_atom1',
+             'feat_acsf_g4_F_H_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_F_H_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_F_C_[1, 4, 1]_atom1',
+             'feat_acsf_g4_F_C_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_F_C_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_F_C_[1, 4, -1]_atom1',
+             'feat_acsf_g4_F_C_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_F_C_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_F_N_[1, 4, 1]_atom1',
+             'feat_acsf_g4_F_N_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_F_N_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_F_N_[1, 4, -1]_atom1',
+             'feat_acsf_g4_F_N_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_F_N_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_F_O_[1, 4, 1]_atom1',
+             'feat_acsf_g4_F_O_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_F_O_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_F_O_[1, 4, -1]_atom1',
+             'feat_acsf_g4_F_O_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_F_O_[0.01, 4, -1]_atom1',
+             'feat_acsf_g4_F_F_[1, 4, 1]_atom1',
+             'feat_acsf_g4_F_F_[0.1, 4, 1]_atom1',
+             'feat_acsf_g4_F_F_[0.01, 4, 1]_atom1',
+             'feat_acsf_g4_F_F_[1, 4, -1]_atom1',
+             'feat_acsf_g4_F_F_[0.1, 4, -1]_atom1',
+             'feat_acsf_g4_F_F_[0.01, 4, -1]_atom1'
 ]
 
+# MODEL NUMBER
+MODEL_NUMBER = 'M046_2JHN'
+script_name = os.path.basename(__file__).split('.')[0]
+if script_name not in MODEL_NUMBER:
+    logger.error('Model Number is not same as script! Update before running')
+    raise SystemExit('Model Number is not same as script! Update before running')
+
+# Make a runid that is unique to the time this is run for easy tracking later
+run_id = "{:%m%d_%H%M}".format(datetime.now())
+LEARNING_RATE = 0.1
+RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = 'scalar_coupling_constant'
 N_ESTIMATORS = 500000
+N_META_ESTIMATORS = 50000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
-N_THREADS = 16
+N_THREADS = 48
 N_FOLDS = 2
+N_META_FOLDS = 2
 #EVAL_METRIC = 'group_mae'
 EVAL_METRIC = 'MAE'
 MODEL_TYPE = 'catboost'
@@ -807,24 +1314,96 @@ update_tracking(run_id, 'model_type', MODEL_TYPE)
 update_tracking(run_id, 'eval_metric', EVAL_METRIC)
 
 #####################
+# FUNCTION FOR META FEATURE CREATION
+######################
+
+META_DEPTH = 7
+
+def fit_meta_feature(X_train, X_valid, X_test, Meta_train,
+                     train_idx, bond_type, base_fold, feature='fc',
+                     N_META_FOLDS=N_META_FOLDS,
+                     N_META_ESTIMATORS=N_META_ESTIMATORS):
+    """
+    Adds meta features to train, test and val
+    """
+    logger.info(f'Creating meta feature {feature}')
+    logger.info('X_train, X_valid and X_test are shapes {} {} {}'.format(X_train.shape,
+                                                                         X_valid.shape,
+                                                                         X_test.shape))
+    folds = GroupKFold(n_splits=N_META_FOLDS)
+    fold_count = 1
+
+    # Init predictions
+    X_valid['meta_'+feature] = 0
+    X_test['meta_'+feature] = 0
+    X_train['meta_'+feature] = 0
+    X_train_oof = X_train[['meta_'+feature]].copy()
+    X_train = X_train.drop('meta_'+feature, axis=1)
+
+    for fold_n, (train_idx2, valid_idx2) in enumerate(folds.split(X_train, groups=mol_group_type.iloc[train_idx].values)):
+        logger.info('Running Meta Feature Type {} - Fold {} of {}'.format(feature, fold_count, folds.n_splits))
+        update_tracking(run_id, '{}_meta_{}_est'.format(bond_type, feature), N_META_ESTIMATORS)
+        update_tracking(run_id, '{}_meta_{}_metafolds'.format(bond_type, feature), N_META_FOLDS)
+
+        X_train2 = X_train.loc[X_train.reset_index().index.isin(train_idx2)]
+        X_valid2 = X_train.loc[X_train.reset_index().index.isin(valid_idx2)]
+        X_train2 = X_train2.copy()
+        X_valid2 = X_valid2.copy()
+        y_train2 = Meta_train.loc[Meta_train.reset_index().index.isin(train_idx2)][feature]
+        y_valid2 = Meta_train.loc[Meta_train.reset_index().index.isin(valid_idx2)][feature]
+        fold_count += 1
+
+        train_dataset = Pool(data=X_train2, label=y_train2)
+        metavalid_dataset = Pool(data=X_valid2, label=y_valid2)
+        valid_dataset = Pool(data=X_valid)
+        test_dataset = Pool(data=X_test)
+        model = CatBoostRegressor(iterations=N_META_ESTIMATORS,
+                                     learning_rate=LEARNING_RATE,
+                                     depth=META_DEPTH,
+                                     eval_metric=EVAL_METRIC,
+                                     verbose=VERBOSE,
+                                     random_state = RANDOM_STATE,
+                                     thread_count=N_THREADS,
+                                     # loss_function=EVAL_METRIC,
+                                     # bootstrap_type='Poisson',
+                                     # bagging_temperature=5,
+                                     task_type = "GPU") # Train on GPU
+
+        model.fit(train_dataset,
+                  eval_set=metavalid_dataset,
+                  early_stopping_rounds=EARLY_STOPPING_ROUNDS)
+        y_pred_meta_valid = model.predict(metavalid_dataset)
+        y_pred_valid = model.predict(valid_dataset)
+        y_pred = model.predict(test_dataset)
+
+        X_train_oof.loc[X_train_oof.reset_index().index.isin(valid_idx2), 'meta_'+feature] = y_pred_meta_valid
+        X_valid['meta_'+feature] += y_pred_valid
+        X_test['meta_'+feature] += y_pred
+
+    oof_score = mean_absolute_error(Meta_train[feature], X_train_oof['meta_'+feature])
+    update_tracking(run_id, '{}_meta_{}_mae_cv_f{}'.format(bond_type, feature, base_fold), oof_score)
+
+    X_valid['meta_'+feature] = X_valid['meta_'+feature] / N_META_FOLDS
+    X_test['meta_'+feature] = X_test['meta_'+feature] / N_META_FOLDS
+    X_train['meta_'+feature] = X_train_oof['meta_'+feature]
+    logger.info('Done creating meta features')
+    logger.info('X_train, X_valid and X_test are shapes {} {} {}'.format(X_train.shape, X_valid.shape, X_test.shape))
+    return X_train, X_valid, X_test
+
+
+#####################
 # TRAIN MODEL
 #####################
 logger.info('Training model....')
 logger.info('Using features {}'.format([x for x in FEATURES]))
-lgb_params = {'num_leaves': 128,
-              'min_child_samples': 64,
-              'objective': 'regression',
-              'max_depth': 6,
-              'learning_rate': LEARNING_RATE,
-              "boosting_type": "gbdt",
-              "subsample_freq": 1,
-              "subsample": 0.9,
-              "bagging_seed": 11,
-              "metric": 'mae',
-              "verbosity": -1,
-              'reg_alpha': 0.1,
-              'reg_lambda': 0.4,
-              'colsample_bytree': 1.0,
+lgb_params = {"boosting_type" : "gbdt",
+              "objective" : "regression_l2",
+              "learning_rate" : LEARNING_RATE,
+              "num_leaves" : 255,
+              "sub_feature" : 0.50,
+              "sub_row" : 0.75,
+              "bagging_freq" : 1,
+              "metric" : EVAL_METRIC,
               'random_state': RANDOM_STATE
               }
 
@@ -847,15 +1426,26 @@ gc.collect()
 test_pred_df['prediction'] = 0
 bond_count = 1
 
-types = ['3JHN', '2JHC', '3JHC', '2JHH', '2JHN', '1JHN', '3JHH', '1JHC']
-# types = ['1JHC']
-
+types = ['2JHN']
 number_of_bonds = len(types)
 
+#### CREATE FOLDERS FOR MODEL NUMBER IF THEY DONT EXIST
+
+if not os.path.exists('models/{}'.format(MODEL_NUMBER)):
+    os.makedirs('models/{}'.format(MODEL_NUMBER))
+if not os.path.exists('temp/{}'.format(MODEL_NUMBER)):
+    os.makedirs('temp/{}'.format(MODEL_NUMBER))
+
+### Load Scalar Coupling Components
+tr_scc = pd.read_parquet('data/tr_scc.parquet')
+
+### RUN MODEL
 for bond_type in types:
     # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet('data/FE016/FE016-train-{}.parquet'.format(bond_type)) 
-    test_df = pd.read_parquet('data/FE016/FE016-test-{}.parquet'.format(bond_type)) 
+    train_df = pd.read_parquet('data/FE018/FE018-train-{}.parquet'.format(bond_type))
+    test_df = pd.read_parquet('data/FE018/FE018-test-{}.parquet'.format(bond_type))
+    Meta = train_df[['molecule_name', 'atom_index_0', 'atom_index_1']].merge(
+        tr_scc, on=['molecule_name', 'atom_index_0', 'atom_index_1'])[['fc','sd','pso','dso']]
     X_type = train_df[FEATURES].copy()
     X_test_type = test_df[FEATURES].copy()
     y_type = train_df[TARGET].copy()
@@ -879,10 +1469,12 @@ for bond_type in types:
     prediction_type = np.zeros(len(X_test_type))
     bond_scores = []
     for fold_n, (train_idx, valid_idx) in enumerate(folds.split(X_type, groups=mol_group_type)):
+        Meta_train, Meta_valid = Meta.iloc[train_idx], Meta.iloc[valid_idx]
         fold_count += 1 # First fold is 1
         if RUN_SINGLE_FOLD is not False:
             if fold_count != RUN_SINGLE_FOLD:
-                logger.info('Running only for fold {}, skipping fold {}'.format(RUN_SINGLE_FOLD, fold_count))
+                logger.info('Running only for fold {}, skipping fold {}'.format(RUN_SINGLE_FOLD,
+                                                                                fold_count))
                 continue
         if MODEL_TYPE == 'lgbm':
             fold_start = timer()
@@ -890,15 +1482,19 @@ for bond_type in types:
                                                            fold_count, folds.n_splits))
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
             y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
+            X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid,
+                                                             X_test_type, Meta_train,
+                                                             train_idx, bond_type, fold_count)
             model = lgb.LGBMRegressor(**lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS)
-            model.fit(X_train.drop('type', axis=1), y_train,
-                      eval_set=[#(X_train.drop('type', axis=1), y_train),
-                                (X_valid.drop('type', axis=1), y_valid)],
+            model.fit(X_train, y_train,
+                      eval_set=[#(X_train, y_train),
+                                (X_valid, y_valid)],
                       eval_metric=EVAL_METRIC,
                       verbose=VERBOSE,
                       early_stopping_rounds=EARLY_STOPPING_ROUNDS)
             now = timer()
-            update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start), integer=True)
+            update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-fold_start), integer=True)
             logger.info('Saving model file')
             model.booster_.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
                                                                run_id,
@@ -906,20 +1502,22 @@ for bond_type in types:
                                                                fold_count))
             pred_start = timer()
             logger.info('Predicting on validation set')
-            y_pred_valid = model.predict(X_valid.drop('type', axis=1),
+            y_pred_valid = model.predict(X_valid,
                                          num_iteration=model.best_iteration_,
                                          n_jobs=N_THREADS)
             logger.info('Predicting on test set')
-            y_pred = model.predict(X_test_type.drop('type', axis=1),
+            y_pred = model.predict(X_test_type,
                                    num_iteration=model.best_iteration_)
             now = timer()
-            update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
-            update_tracking(run_id, '{}_f{}_best_iter'.format(bond_type, fold_n+1), model.best_iteration_, integer=True)
+            update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-pred_start), integer=True)
+            update_tracking(run_id, '{}_f{}_best_iter'.format(bond_type, fold_n+1),
+                            model.best_iteration_, integer=True)
 
             # feature importance
             logger.info('Storing the fold importance')
             fold_importance = pd.DataFrame()
-            fold_importance["feature"] = X_train.drop('type', axis=1).columns
+            fold_importance["feature"] = X_train.columns
             fold_importance["importance"] = model.feature_importances_
             fold_importance["type"] = bond_type
             fold_importance["fold"] = fold_n + 1
@@ -939,6 +1537,21 @@ for bond_type in types:
             X_train = X_train.copy()
             X_valid = X_valid.copy()
             y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
+
+            ### ADD META FEATURES
+            X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid,
+                                                             X_test_type, Meta_train,
+                                                             train_idx, bond_type,
+                                                             fold_count, feature='fc')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='sd')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='pso')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='dso')
             DEPTH = 7
             update_tracking(run_id, 'depth', DEPTH)
             train_dataset = Pool(data=X_train, label=y_train)
@@ -958,11 +1571,13 @@ for bond_type in types:
 
             model.fit(train_dataset,
                       eval_set=valid_dataset,
-                      early_stopping_rounds=500)
+                      early_stopping_rounds=EARLY_STOPPING_ROUNDS)
             now = timer()
-            update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1), (now-fold_start), integer=True)
+            update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-fold_start), integer=True)
             logger.info('Saving model file')
-            model.save_model('models/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
+            model.save_model('models/{}/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
+                                                                  MODEL_NUMBER,
                                                                run_id,
                                                                bond_type,
                                                                fold_count))
@@ -972,9 +1587,10 @@ for bond_type in types:
             logger.info('Predicting on test set')
             y_pred = model.predict(test_dataset)
             now = timer()
-            update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1), (now-pred_start), integer=True)
-            update_tracking(run_id, '{}_f{}_best_iter'.format(bond_type, fold_n+1), model.best_iteration_, integer=True)
-
+            update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-pred_start), integer=True)
+            update_tracking(run_id, '{}_f{}_best_iter'.format(bond_type, fold_n+1),
+                            model.best_iteration_, integer=True)
             # feature importance
             logger.info('Storing the fold importance')
             fold_importance = pd.DataFrame()
@@ -984,8 +1600,9 @@ for bond_type in types:
             fold_importance["fold"] = fold_n + 1
             feature_importance = pd.concat(
                 [feature_importance, fold_importance], axis=0)
-
-            bond_scores.append(mean_absolute_error(y_valid, y_pred_valid))
+            fold_score = mean_absolute_error(y_valid, y_pred_valid)
+            bond_scores.append(fold_score)
+            update_tracking(run_id, '{}cv_f{}'.format(bond_type, fold_n+1), fold_score, integer=False)
             logger.info('CV mean score: {0:.4f}, std: {1:.4f}.'.format(
                 np.mean(bond_scores), np.std(bond_scores)))
             oof[valid_idx] = y_pred_valid.reshape(-1,)
@@ -1002,31 +1619,61 @@ for bond_type in types:
         prediction_type /= folds.n_splits
     test_pred_df.loc[test_pred_df['type'] ==
                      bond_type, 'prediction'] = prediction_type
+
+    pred_pq_name = '{}_{}_sub_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+                                                                             run_id,
+                                                                             np.mean(bond_scores),
+                                                                             MODEL_TYPE,
+                                                                             N_FOLDS,
+                                                                             N_ESTIMATORS,
+                                                                             LEARNING_RATE)
+    test_pred_df.to_parquet('type_results/{}/{}'.format(bond_type, pred_pq_name))
+    oof_pq_name = '{}_{}_oof_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+                                                                            run_id,
+                                                                            np.mean(bond_scores),
+                                                                            MODEL_TYPE,
+                                                                            N_FOLDS,
+                                                                            N_ESTIMATORS,
+                                                                            LEARNING_RATE)
+    fi_pq_name = '{}_{}_fi_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+                                                                            run_id,
+                                                                            np.mean(bond_scores),
+                                                                            MODEL_TYPE,
+                                                                            N_FOLDS,
+                                                                            N_ESTIMATORS,
+                                                                            LEARNING_RATE)
+
+    oof_df.loc[oof_df['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type, oof_pq_name))
+    feature_importance.loc[feature_importance['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type,
+                                                                                                       fi_pq_name))
     now = timer()
     logger.info('Completed training and predicting for bond {} in {:0.4f} seconds'.format(bond_type,
                                                                                           now-bond_start))
     if bond_count != number_of_bonds:
         csv_save_start = timer()
         # Save the results inbetween bond type because it takes a long time
-        submission_csv_name = 'temp/temp{}of{}_{}_{}_submission_{}_{}folds_{}iter_{}lr.csv'.format(
-            bond_count, number_of_bonds, MODEL_NUMBER, run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
-        oof_csv_name = 'temp/temp{}of{}_{}_{}_oof_{}_{}folds_{}iter_{}lr.csv'.format(
-            bond_count, number_of_bonds, MODEL_NUMBER, run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
-        fi_csv_name = 'temp/temp{}of{}_{}_{}_fi_{}_{}folds_{}iter_{}lr.csv'.format(
-                bond_count, number_of_bonds, MODEL_NUMBER, run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
+        submission_csv_name = 'temp/{}/temp{}of{}_{}_{}_submission_{}_{}folds_{}iter_{}lr.csv'.format(
+            MODEL_NUMBER, bond_count, number_of_bonds, MODEL_NUMBER,
+            run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
+        oof_csv_name = 'temp/{}/temp{}of{}_{}_{}_oof_{}_{}folds_{}iter_{}lr.csv'.format(
+            MODEL_NUMBER, bond_count, number_of_bonds, MODEL_NUMBER,
+            run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
+        fi_csv_name = 'temp/{}/temp{}of{}_{}_{}_fi_{}_{}folds_{}iter_{}lr.csv'.format(
+                MODEL_NUMBER, bond_count, number_of_bonds, MODEL_NUMBER,
+            run_id, MODEL_TYPE, N_FOLDS, N_ESTIMATORS, LEARNING_RATE)
 
         logger.info('Saving Temporary LGB Submission files:')
         logger.info(submission_csv_name)
         ss = pd.read_csv('input/sample_submission.csv')
         ss['scalar_coupling_constant'] = test_pred_df['prediction']
         ss.to_csv(submission_csv_name, index=False)
-        ss.head()
         # OOF
         oof_df.to_csv(oof_csv_name, index=False)
         # Feature Importance
         feature_importance.to_csv(fi_csv_name, index=False)
         now = timer()
-        update_tracking(run_id, '{}_csv_save_sec'.format(bond_type), (now-csv_save_start), integer=True)
+        update_tracking(run_id, '{}_csv_save_sec'.format(bond_type),
+                        (now-csv_save_start), integer=True)
     bond_count += 1
 oof_score = mean_absolute_error(
     oof_df['scalar_coupling_constant'], oof_df['oof_preds'])
