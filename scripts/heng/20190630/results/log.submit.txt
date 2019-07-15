@@ -1,0 +1,66 @@
+
+--- [START 2019-06-29_23-29-55] ----------------------------------------------------------------
+
+	@common.py:  
+	set random seed
+		SEED = 1561822195
+	set cuda environment
+		torch.__version__              = 1.1.0
+		torch.version.cuda             = 9.0.176
+		torch.backends.cudnn.version() = 7501
+		os['CUDA_VISIBLE_DEVICES']     = 0
+		torch.cuda.device_count()      = 1
+
+
+
+** dataset setting **
+batch_size = 20
+test_dataset : 
+	mode   = train
+	split  = valid_split_by_mol.5000.npy
+	csv    = train
+	len    = 5000
+
+
+** net setting **
+	initial_checkpoint = /root/share/project/kaggle/2019/champs_scalar/result/backup/00370000_model.convert.pth
+<class 'model.Net'>
+
+	coupling_type = 1JHC
+	mae     =  0.441020
+	log_mae = -0.818665
+
+	coupling_type = 2JHC
+	mae     =  0.211050
+	log_mae = -1.555658
+
+	coupling_type = 3JHC
+	mae     =  0.294633
+	log_mae = -1.222025
+
+	coupling_type = 1JHN
+	mae     =  0.400749
+	log_mae = -0.914420
+
+	coupling_type = 2JHN
+	mae     =  0.157550
+	log_mae = -1.848011
+
+	coupling_type = 3JHN
+	mae     =  0.153896
+	log_mae = -1.871480
+
+	coupling_type = 2JHH
+	mae     =  0.158011
+	log_mae = -1.845093
+
+	coupling_type = 3JHH
+	mae     =  0.206471
+	log_mae = -1.577595
+
+
+-- final -------------
+	test_loss = -1.330047
+	mae       =  0.252923
+	log_mae   = -1.456618
+
