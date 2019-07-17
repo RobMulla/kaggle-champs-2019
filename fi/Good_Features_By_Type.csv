@@ -1,0 +1,312 @@
+feature,1JHC,1JHN,2JHC,2JHH,2JHN,3JHC,3JHH,3JHN
+10th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+10th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+10th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+10th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+12th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+12th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+13th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+14th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+21st_closest_to_0_atomic_mass_x_cube_inv_dist,False,True,,False,False,True,False,True
+2nd_closest_to_0_atomic_mass,True,True,True,False,True,True,True,True
+2nd_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+2nd_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+2nd_closest_to_0_valence,True,True,True,False,True,True,True,True
+2nd_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+2nd_closest_to_1_atomic_mass,True,True,False,False,True,True,True,True
+2nd_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+2nd_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+2nd_closest_to_1_valence,True,True,True,False,True,True,True,True
+2nd_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_0_atomic_mass,True,True,True,True,True,True,True,True
+3rd_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+3rd_closest_to_0_valence,True,True,True,True,True,True,True,True
+3rd_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_1_atomic_mass,True,True,True,True,True,True,False,True
+3rd_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+3rd_closest_to_1_valence,True,True,True,True,True,True,True,True
+3rd_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_0_atomic_mass,True,True,True,True,True,True,True,True
+4th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+4th_closest_to_0_valence,True,True,True,True,True,True,True,True
+4th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+4th_closest_to_1_valence,True,True,True,True,True,True,True,True
+4th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_0_atomic_mass,True,True,True,True,True,True,True,True
+5th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+5th_closest_to_0_valence,True,True,,True,True,True,False,True
+5th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_1_atomic_mass,True,False,True,True,True,True,True,True
+5th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+5th_closest_to_1_valence,True,True,True,True,True,True,True,True
+5th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+6th_closest_to_0_atomic_mass,True,True,True,True,True,True,True,True
+6th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+6th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+6th_closest_to_0_valence,True,False,False,True,True,True,False,True
+6th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+6th_closest_to_1_atomic_mass,True,True,,True,True,True,True,False
+6th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+6th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+6th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+7th_closest_to_0_atomic_mass,True,False,True,True,True,True,True,True
+7th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+7th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+7th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+7th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+7th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+7th_closest_to_1_valence,False,True,,True,True,True,True,True
+7th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+8th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+8th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+8th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+8th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+8th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+8th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+9th_closest_to_0_atomic_mass,True,True,True,False,True,True,True,True
+9th_closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+9th_closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+9th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+9th_closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+9th_closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+9th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+N1,True,True,True,True,True,True,True,True
+N2,True,True,True,True,True,True,True,True
+NH,True,True,True,True,True,True,False,True
+adC1,True,True,True,True,True,True,True,True
+adC2,True,True,True,True,True,True,True,True
+adC3,True,True,True,True,True,True,True,True
+adC4,True,True,True,True,True,True,True,True
+adH1,True,True,True,True,True,True,True,True
+adH2,True,True,True,True,True,True,True,True
+adN1,True,True,True,True,True,True,True,True
+adN2,True,True,True,True,True,True,True,True
+angle_0_10th0_1,True,True,True,True,True,True,True,True
+angle_0_10th1_1,True,False,True,False,True,True,False,True
+angle_0_1_2nd1,True,True,True,True,True,True,True,True
+angle_0_1_3rd1,True,True,True,True,True,True,True,True
+angle_0_1_4th1,True,True,True,True,True,True,True,True
+angle_0_1_5th1,True,True,True,True,True,True,True,True
+angle_0_1_closest1,True,True,True,True,True,True,True,True
+angle_0_2nd0_1,True,True,True,True,True,True,True,True
+angle_0_3rd0_1,True,True,True,True,True,True,True,True
+angle_0_3rd1_1,True,True,True,True,True,True,True,True
+angle_0_4th0_1,True,True,True,True,True,True,True,True
+angle_0_4th1_1,True,True,True,True,True,True,True,True
+angle_0_5th0_1,True,True,True,True,True,True,True,True
+angle_0_5th1_1,True,False,True,True,True,True,True,True
+angle_0_6th0_1,True,True,True,True,True,True,True,True
+angle_0_6th1_1,True,True,True,True,True,True,True,True
+angle_0_7th0_1,True,True,True,True,True,True,True,True
+angle_0_7th1_1,True,False,,True,True,True,True,True
+angle_0_8th0_1,True,True,True,True,True,True,True,True
+angle_0_8th1_1,True,True,True,True,True,True,True,True
+angle_0_9th0_1,True,True,True,True,True,True,True,True
+angle_0_9th1_1,True,False,True,True,True,True,False,True
+angle_0_closest1_1,True,False,True,True,True,True,True,True
+angle_1_0_10th0,True,True,True,True,True,True,True,True
+angle_1_0_10th1,False,True,True,True,True,True,True,True
+angle_1_0_11th0,True,True,True,True,True,True,True,True
+angle_1_0_11th1,True,True,True,True,True,True,True,True
+angle_1_0_2nd0,True,True,True,True,True,True,True,True
+angle_1_0_3rd0,True,True,True,True,True,True,True,True
+angle_1_0_4th0,True,True,True,True,True,True,True,True
+angle_1_0_5th0,True,True,True,True,True,True,True,True
+angle_1_0_6th0,True,True,True,True,True,True,True,True
+angle_1_0_6th1,False,True,True,True,True,True,True,True
+angle_1_0_7th0,True,True,True,True,True,True,True,True
+angle_1_0_7th1,True,True,True,True,True,True,True,True
+angle_1_0_8th0,True,True,True,True,True,True,True,True
+angle_1_0_8th1,True,True,True,True,True,True,True,True
+angle_1_0_9th0,True,True,True,True,True,True,True,True
+angle_1_0_9th1,False,True,True,True,True,True,True,True
+angle_clos_0_2nd,True,True,True,True,True,True,True,True
+angle_clos_1_2nd,True,True,True,True,True,True,True,True
+atom1_valence,True,True,True,False,True,True,False,True
+atomic_mass_not_0_max,True,True,True,True,True,True,True,True
+atomic_mass_not_1_max,True,True,True,True,True,True,True,True
+atomic_mass_not_1_mean,True,True,True,True,True,True,True,True
+atomic_mass_not_1_std,True,True,True,True,True,True,True,True
+closest_to_0_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+closest_to_0_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+closest_to_0_spin_multiplicity,True,True,True,False,True,True,True,True
+closest_to_0_valence,True,True,True,True,True,False,True,True
+closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+closest_to_1_atomic_mass_x_cube_inv_dist,True,True,True,True,True,True,True,True
+closest_to_1_dist_x_atomic_mass,True,True,True,True,True,True,True,True
+closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+coulomb_H.x,True,True,True,True,True,True,True,True
+coulomb_H.y,True,True,True,True,True,True,True,True
+distC0,True,,True,,,True,,
+distC1,True,,True,,,True,,
+dist_to_0_max,True,True,True,True,True,True,True,True
+dist_to_0_min,True,True,True,True,True,True,True,True
+dist_to_1_max,True,True,True,True,True,True,True,True
+dist_to_1_min,True,True,True,True,True,True,True,True
+distance,True,True,True,True,True,True,True,True
+distance_10th_closest_to_0,True,True,True,True,True,True,True,True
+distance_10th_closest_to_1,True,True,True,True,True,True,True,True
+distance_10th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_0,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_1,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_0,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_1,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_4th_closest_to_0,True,True,True,True,True,True,True,True
+distance_4th_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_4th_closest_to_1,True,True,True,True,True,True,True,True
+distance_4th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_5th_closest_to_0,True,True,True,True,True,True,True,True
+distance_5th_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_5th_closest_to_1,True,True,True,True,True,True,True,True
+distance_5th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_6th_closest_to_0,True,True,True,True,True,True,True,True
+distance_6th_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_6th_closest_to_1,True,True,True,True,True,True,True,True
+distance_6th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_7th_closest_to_1,True,True,True,True,True,True,True,True
+distance_7th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_8th_closest_to_1,True,True,True,True,True,True,True,True
+distance_8th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_9th_closest_to_0,True,True,True,True,True,True,True,True
+distance_9th_closest_to_1,True,True,True,True,True,True,True,True
+distance_9th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_closest_to_0,True,True,True,True,True,True,True,True
+distance_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_closest_to_1,True,True,True,True,True,True,True,True
+distance_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 6]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 6]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_F_[0.01, 6]_atom1",False,False,,False,False,True,False,False
+"feat_acsf_g2_H_[0.01, 2]_atom1",True,False,,True,True,True,True,True
+"feat_acsf_g2_H_[0.01, 6]_atom1",True,True,,True,True,True,True,True
+"feat_acsf_g2_H_[0.1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[0.1, 6]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[1, 6]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[1, 6]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_N_[0.01, 2]_atom0",True,True,True,False,True,True,True,True
+"feat_acsf_g2_N_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_N_[1, 6]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 6]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 6]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.01, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.01, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.01, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.01, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.01, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.01, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.01, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_N_[0.01, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_N_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.01, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.01, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.01, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.01, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[0.1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_O_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_O_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_O_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_O_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+inv_dist0E,True,True,True,True,True,True,True,True
+inv_dist0R,True,True,True,True,True,True,True,True
+inv_dist1,True,True,True,True,True,True,True,True
+inv_dist1E,True,True,True,True,True,True,True,True
+inv_dist1R,True,True,True,True,True,True,True,True
+inv_distP,True,True,True,True,True,True,True,True
+inv_distPE,True,True,True,True,True,True,True,True
+inv_distPR,True,True,True,True,True,True,True,True
+linkM0,True,True,True,True,True,True,True,True
+linkM1,True,True,True,True,True,True,True,True
+linkN,True,True,True,True,True,True,True,True
+max_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+max_molecule_atom_1_dist_xyz,True,True,True,True,True,True,True,True
+mean_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+mean_molecule_atom_1_dist_xyz,True,True,True,True,True,True,True,True
+meta_fc,True,True,True,True,True,True,True,True
+min_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+min_molecule_atom_1_dist_xyz,True,True,True,True,True,True,True,True
+sd_molecule_atom_1_dist_xyz,True,True,True,True,True,True,True,True
+tor_ang_2leftleft_count,True,True,,,,,,
+tor_ang_2leftleft_max,True,True,,,,,,
+tor_ang_2leftleft_mean,True,True,,,,,,
+tor_ang_2leftleft_min,True,True,,,,,,
+val_not_0_mean,True,True,True,True,True,True,True,True
+val_not_0_min,True,True,,False,True,False,False,True
+val_not_0_std,True,True,True,True,True,True,True,True
+val_not_1_mean,True,True,True,True,True,True,True,True
+val_not_1_std,True,True,True,True,True,True,True,True
+yukawa_C.x,True,True,True,True,True,True,True,True
+yukawa_H.x,True,True,True,True,True,True,True,True
+yukawa_H.y,True,True,True,True,True,True,True,True
+yukawa_N.x,True,True,True,True,True,True,True,True
+yukawa_O.x,True,True,True,True,True,True,True,True
