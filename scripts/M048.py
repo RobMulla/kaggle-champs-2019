@@ -4,15 +4,15 @@ Jul 12
 
 New Changes:
     - Features from FE019
+    - QM9 features
     - Save feature importance for FC
     - Use new formatting to save temp files.
+    - Best features per type
 Todo later:
     - XGBoost
     - Email updates.
     - Sync logs online?
-    - Best features per type
     - Lower learning rate
-    - QM9 features
 Old Changes:
     - Increased meta-feature folds
     - Import best features function
@@ -162,7 +162,7 @@ run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.1
 RUN_SINGLE_FOLD = False # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = 'scalar_coupling_constant'
-N_ESTIMATORS = 100 #500000
+N_ESTIMATORS = 500000
 N_META_ESTIMATORS = 300000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 500
@@ -414,10 +414,10 @@ def fit_meta_feature(X_train, X_valid, X_test, Meta_train,
     logger.info('X_train, X_valid and X_test are shapes {} {} {}'.format(X_train.shape, X_valid.shape, X_test.shape))
     return X_train, X_valid, X_test
 
-
-################
+#########################################
 ## FUNCTION FOR SAVING TYPE LEVEL RESULTS
-###################
+#########################################
+test = pd.read_csv('input/test.csv')
 def save_type_data(type_, oof, sub, fi, MODEL_NUMBER,
                    run_id, MODEL_TYPE, N_FOLDS,
                    N_ESTIMATORS, LEARNING_RATE):
@@ -445,9 +445,8 @@ def save_type_data(type_, oof, sub, fi, MODEL_NUMBER,
         return
         
     # Name Files and save
-    lr = [x for x in file.split('_oof')[1].split('_') if 'lr' in x][0].replace('.csv','')
-    fn_template = '../type_results/{}/{}_{}_{}_XXXXXXX_{:0.4f}MAE_{:0.4}LMAE_{}_{}_{}_{}.parquet'.format(type_,
-                                                                                                         MODEL_NUMBER,
+    fn_template = 'type_results/{}/{}_{}_{}_XXXXXXX_{:0.4f}MAE_{:0.4}LMAE_{}_{}folds_{}iter_{}lr.parquet'.format(type_,
+                                                                                                      MODEL_NUMBER,
                                                                                                          run_id,
                                                                                                          type_,
                                                                                                          score,
@@ -456,7 +455,7 @@ def save_type_data(type_, oof, sub, fi, MODEL_NUMBER,
                                                                                                          N_FOLDS,
                                                                                                          N_ESTIMATORS,
                                                                                                          LEARNING_RATE)
-    sub_name = fn_template.replace('XXXXXXX','submission')
+    sub_name = fn_template.replace('XXXXXXX','sub')
     oof_name = fn_template.replace('XXXXXXX','oof')
     sub_type.to_parquet(sub_name)
     oof_type.to_parquet(oof_name)
@@ -704,34 +703,34 @@ for bond_type in types:
     test_pred_df.loc[test_pred_df['type'] ==
                      bond_type, 'prediction'] = prediction_type
 
-    pred_pq_name = '{}_{}_sub_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
-                                                                             run_id,
-                                                                             np.mean(bond_scores),
-                                                                             MODEL_TYPE,
-                                                                             N_FOLDS,
-                                                                             N_ESTIMATORS,
-                                                                             LEARNING_RATE)
-    test_pred_df.loc[test_pred_df['type'] ==
-                     bond_type].to_parquet('type_results/{}/{}'.format(bond_type, pred_pq_name))
-    oof_pq_name = '{}_{}_oof_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
-                                                                            run_id,
-                                                                            np.mean(bond_scores),
-                                                                            MODEL_TYPE,
-                                                                            N_FOLDS,
-                                                                            N_ESTIMATORS,
-                                                                            LEARNING_RATE)
-    fi_pq_name = '{}_{}_fi_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
-                                                                            run_id,
-                                                                            np.mean(bond_scores),
-                                                                            MODEL_TYPE,
-                                                                            N_FOLDS,
-                                                                            N_ESTIMATORS,
-                                                                            LEARNING_RATE)
+#     pred_pq_name = '{}_{}_sub_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+#                                                                              run_id,
+#                                                                              np.mean(bond_scores),
+#                                                                              MODEL_TYPE,
+#                                                                              N_FOLDS,
+#                                                                              N_ESTIMATORS,
+#                                                                              LEARNING_RATE)
+#     test_pred_df.loc[test_pred_df['type'] ==
+#                      bond_type].to_parquet('type_results/{}/{}'.format(bond_type, pred_pq_name))
+#     oof_pq_name = '{}_{}_oof_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+#                                                                             run_id,
+#                                                                             np.mean(bond_scores),
+#                                                                             MODEL_TYPE,
+#                                                                             N_FOLDS,
+#                                                                             N_ESTIMATORS,
+#                                                                             LEARNING_RATE)
+#     fi_pq_name = '{}_{}_fi_{:0.4f}_{}_{}folds_{}iter_{}lr.parquet'.format(MODEL_NUMBER,
+#                                                                             run_id,
+#                                                                             np.mean(bond_scores),
+#                                                                             MODEL_TYPE,
+#                                                                             N_FOLDS,
+#                                                                             N_ESTIMATORS,
+#                                                                             LEARNING_RATE)
 
-    oof_df.loc[oof_df['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type, oof_pq_name))
-    feature_importance.loc[feature_importance['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type,
-                                                                                                       fi_pq_name))
-    now = timer()
+#     oof_df.loc[oof_df['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type, oof_pq_name))
+#     feature_importance.loc[feature_importance['type'] == bond_type].to_parquet('type_results/{}/{}'.format(bond_type,
+#                                                                                                        fi_pq_name))
+#     now = timer()
     logger.info('Completed training and predicting for bond {} in {:0.4f} seconds'.format(bond_type,
                                                                                           now-bond_start))
     
