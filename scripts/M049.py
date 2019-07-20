@@ -1,19 +1,19 @@
 '''
 Created by: Rob Mulla
-Jul 17
+Jul 18
 
 New Changes:
+    - XGBoost
+Todo later:
+    - Email updates.
+    - Sync logs online?
+    - Lower learning rate
+Old Changes:
     - Features from FE019
     - QM9 features
     - Save feature importance for FC
     - Use new formatting to save temp files.
     - Best features per type
-Todo later:
-    - XGBoost
-    - Email updates.
-    - Sync logs online?
-    - Lower learning rate
-Old Changes:
     - Increased meta-feature folds
     - Import best features function
     - 3 folds
@@ -47,6 +47,7 @@ from sklearn import metrics
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import mean_absolute_error
 import lightgbm as lgb
+import xgboost
 import warnings
 from datetime import datetime
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -289,7 +290,8 @@ META_DEPTH = 7
 def fit_meta_feature(X_train, X_valid, X_test, Meta_train,
                      train_idx, bond_type, base_fold, feature='fc',
                      N_META_FOLDS=N_META_FOLDS,
-                     N_META_ESTIMATORS=N_META_ESTIMATORS):
+                     N_META_ESTIMATORS=N_META_ESTIMATORS,
+                     model_type='catboost'):
     """
     Adds meta features to train, test and val
     """
@@ -319,42 +321,74 @@ def fit_meta_feature(X_train, X_valid, X_test, Meta_train,
         y_train2 = Meta_train.loc[Meta_train.reset_index().index.isin(train_idx2)][feature]
         y_valid2 = Meta_train.loc[Meta_train.reset_index().index.isin(valid_idx2)][feature]
         fold_count += 1
+        
+        if model_type == 'catboost':
+            train_dataset = Pool(data=X_train2, label=y_train2)
+            metavalid_dataset = Pool(data=X_valid2, label=y_valid2)
+            valid_dataset = Pool(data=X_valid)
+            test_dataset = Pool(data=X_test)
+            model = CatBoostRegressor(iterations=N_META_ESTIMATORS,
+                                         learning_rate=LEARNING_RATE,
+                                         depth=META_DEPTH,
+                                         eval_metric=EVAL_METRIC,
+                                         verbose=VERBOSE,
+                                         random_state = RANDOM_STATE,
+                                         thread_count=N_THREADS,
+                                         # loss_function=EVAL_METRIC,
+                                         # bootstrap_type='Poisson',
+                                         # bagging_temperature=5,
+                                         task_type = "GPU") # Train on GPU
 
-        train_dataset = Pool(data=X_train2, label=y_train2)
-        metavalid_dataset = Pool(data=X_valid2, label=y_valid2)
-        valid_dataset = Pool(data=X_valid)
-        test_dataset = Pool(data=X_test)
-        model = CatBoostRegressor(iterations=N_META_ESTIMATORS,
-                                     learning_rate=LEARNING_RATE,
-                                     depth=META_DEPTH,
-                                     eval_metric=EVAL_METRIC,
-                                     verbose=VERBOSE,
-                                     random_state = RANDOM_STATE,
-                                     thread_count=N_THREADS,
-                                     # loss_function=EVAL_METRIC,
-                                     # bootstrap_type='Poisson',
-                                     # bagging_temperature=5,
-                                     task_type = "GPU") # Train on GPU
+            model.fit(train_dataset,
+                      eval_set=metavalid_dataset,
+                      early_stopping_rounds=EARLY_STOPPING_ROUNDS)
+            y_pred_meta_valid = model.predict(metavalid_dataset)
+            y_pred_valid = model.predict(valid_dataset)
+            y_pred = model.predict(test_dataset)
 
-        model.fit(train_dataset,
-                  eval_set=metavalid_dataset,
-                  early_stopping_rounds=EARLY_STOPPING_ROUNDS)
-        y_pred_meta_valid = model.predict(metavalid_dataset)
-        y_pred_valid = model.predict(valid_dataset)
-        y_pred = model.predict(test_dataset)
+            X_train_oof.loc[X_train_oof.reset_index().index.isin(valid_idx2), 'meta_'+feature] = y_pred_meta_valid
+            X_valid['meta_'+feature] += y_pred_valid
+            X_test['meta_'+feature] += y_pred
 
-        X_train_oof.loc[X_train_oof.reset_index().index.isin(valid_idx2), 'meta_'+feature] = y_pred_meta_valid
-        X_valid['meta_'+feature] += y_pred_valid
-        X_test['meta_'+feature] += y_pred
+            fold_importance = pd.DataFrame()
+            fold_importance["feature"] = X_train.columns
+            fold_importance["importance"] = model.feature_importances_
+            fold_importance["type"] = bond_type
+            fold_importance["fold"] = fold_n + 1
+            feature_importance = pd.concat(
+                [feature_importance, fold_importance], axis=0)
+        elif model_type='xgboost':
+            model = xgboost.XGBRegressor(colsample_bytree=0.4,
+                                         gamma=0,                 
+                                         learning_rate=LEARNING_RATE,
+                                         max_depth=DEPTH,
+                                         min_child_weight=1.5,
+                                         n_estimators=N_ESTIMATORS,                                                                    
+                                         reg_alpha=0.75,
+                                         reg_lambda=0.45,
+                                         subsample=0.6,
+                                         seed=RANDOM_STATE,
+                                         tree_method='gpu_hist') # Train on GPU
+            model.fit(X_train2, y_train2,
+                      eval_metric=EVAL_METRIC,
+                      eval_set=(X_valid2, y_valid2),
+                      early_stopping_rounds=EARLY_STOPPING_ROUNDS)
 
-        fold_importance = pd.DataFrame()
-        fold_importance["feature"] = X_train.columns
-        fold_importance["importance"] = model.feature_importances_
-        fold_importance["type"] = bond_type
-        fold_importance["fold"] = fold_n + 1
-        feature_importance = pd.concat(
-            [feature_importance, fold_importance], axis=0)
+            y_pred_meta_valid = model.predict(X_valid2)
+            y_pred_valid = model.predict(X_valid)
+            y_pred = model.predict(X_test)
 
+            X_train_oof.loc[X_train_oof.reset_index().index.isin(valid_idx2), 'meta_'+feature] = y_pred_meta_valid
+            X_valid['meta_'+feature] += y_pred_valid
+            X_test['meta_'+feature] += y_pred
+
+            fold_importance = pd.DataFrame()
+            fold_importance["feature"] = X_train.columns
+            fold_importance["importance"] = model.feature_importances_
+            fold_importance["type"] = bond_type
+            fold_importance["fold"] = fold_n + 1
+            feature_importance = pd.concat(
+                [feature_importance, fold_importance], axis=0)
     oof_score = mean_absolute_error(Meta_train[feature], X_train_oof['meta_'+feature])
     log_oof_score = np.log(oof_score)
     logger.info(f'Meta feature {feature} has MAE {oof_score:0.4f} LMAE {log_oof_score:0.4f}')
@@ -665,11 +699,64 @@ for bond_type in types:
                                                                run_id,
                                                                bond_type,
                                                                fold_count))
+        elif MODEL_TYPE == 'xgboost':
+            fold_start = timer()
+            logger.info('Running Type {} - Fold {} of {}'.format(bond_type,
+                                                           fold_count, folds.n_splits))
+            X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
+            X_train = X_train.copy()
+            X_valid = X_valid.copy()
+            y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
+
+            ### ADD META FEATURES
+            X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid,
+                                                             X_test_type, Meta_train,
+                                                             train_idx, bond_type,
+                                                             fold_count, feature='fc',
+                                                             model_type='xgboost')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='sd')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='pso')
+#             X_train, X_valid, X_test_type = fit_meta_feature(X_train, X_valid, X_test_type,
+#                                                              Meta_train, train_idx, bond_type,
+#                                                              fold_count, feature='dso')
+            DEPTH = 7
+            update_tracking(run_id, 'depth', DEPTH)
+#             train_dataset = Pool(data=X_train, label=y_train)
+#             valid_dataset = Pool(data=X_valid, label=y_valid)
+#             test_dataset = Pool(data=X_test_type)
+            model = xgboost.XGBRegressor(colsample_bytree=0.4,
+                                         gamma=0,                 
+                                         learning_rate=LEARNING_RATE,
+                                         max_depth=DEPTH,
+                                         min_child_weight=1.5,
+                                         n_estimators=N_ESTIMATORS,                                                                    
+                                         reg_alpha=0.75,
+                                         reg_lambda=0.45,
+                                         subsample=0.6,
+                                         seed=RANDOM_STATE,
+                                         tree_method='gpu_hist') # Train on GPU
+            model.fit(X_train, y_train,
+                      eval_metric=EVAL_METRIC,
+                      eval_set=(X_valid, y_valid),
+                      early_stopping_rounds=EARLY_STOPPING_ROUNDS)
+            now = timer()
+            update_tracking(run_id, '{}_tr_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-fold_start), integer=True)
+            logger.info('Saving model file')
+            model.save_model('models/{}/{}-{}-{}-{}.model'.format(MODEL_NUMBER,
+                                                                  MODEL_NUMBER,
+                                                                  run_id,
+                                                                  bond_type,
+                                                                  fold_count))
             pred_start = timer()
             logger.info('Predicting on validation set')
-            y_pred_valid = model.predict(valid_dataset)
+            y_pred_valid = model.predict(X_valid)
             logger.info('Predicting on test set')
-            y_pred = model.predict(test_dataset)
+            y_pred = model.predict(X_test_type)
             now = timer()
             update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1),
                             (now-pred_start), integer=True)
@@ -781,7 +868,7 @@ logger.info('Out of fold group mean log mae score is {:.4f}'.format(oof_gml_scor
 # SAVE RESULTS
 #####################
 # Save Prediction and name appropriately
-submission_csv_name = 'submissions/{}_{}_submission_lgb_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(MODEL_NUMBER,
+submission_csv_name = 'submissions/{}_{}_submission_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(MODEL_NUMBER,
                                                                                                  run_id,
                                                                                                  N_FOLDS,
                                                                                                  oof_gml_score,
@@ -789,7 +876,7 @@ submission_csv_name = 'submissions/{}_{}_submission_lgb_{}folds_{:.4f}CV_{}iter_
                                                                                                  LEARNING_RATE)
 oof_csv_name = 'oof/{}_{}_oof_{}_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(
     MODEL_NUMBER, run_id, MODEL_TYPE, N_FOLDS, oof_gml_score, N_ESTIMATORS, LEARNING_RATE)
-fi_csv_name = 'fi/{}_{}_fi_lgb_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(
+fi_csv_name = 'fi/{}_{}_fi_{}folds_{:.4f}CV_{}iter_{}lr.csv'.format(
     MODEL_NUMBER, run_id, MODEL_TYPE, N_FOLDS, oof_gml_score, N_ESTIMATORS, LEARNING_RATE)
 
 logger.info('Saving LGB Submission as:')
