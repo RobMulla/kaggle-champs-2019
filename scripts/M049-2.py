@@ -111,6 +111,7 @@ xgb_params = {'colsample_bytree': 1,
          'seed': RANDOM_STATE,
          'n_jobs': N_THREADS,
          'tree_method': "gpu_hist",
+         "gpu_id": 1
         }
 
 lgb_params = {
@@ -128,7 +129,8 @@ lgb_params = {
 # Order shortest to longest
 # types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 # types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
-types = ["3JHH", "1JHC"] #, "2JHC","3JHC"]
+# types = ["3JHH", "1JHC", "2JHC","3JHC"]
+types = ["2JHC","3JHC"]
 
 
 #####################

@@ -503,7 +503,8 @@ bond_count = 1
 
 # Order shortest to longest
 # types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
-types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
+# types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
+types = ['2JHC', '3JHC']
 number_of_bonds = len(types)
 
 #### CREATE FOLDERS FOR MODEL NUMBER IF THEY DONT EXIST
