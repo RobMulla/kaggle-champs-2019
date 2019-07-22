@@ -130,7 +130,8 @@ lgb_params = {
 # types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 # types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 # types = ["3JHH", "1JHC", "2JHC","3JHC"]
-types = ["2JHC","3JHC"]
+# types = ["2JHC","3JHC"]
+types = ["3JHC"]
 
 
 #####################
@@ -1010,38 +1011,38 @@ logger.info("Out of fold group mean log mae score is {:.4f}".format(oof_gml_scor
 # SAVE RESULTS
 #####################
 # Save Prediction and name appropriately
-submission_csv_name = "submissions/{}_{}_submission_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-    MODEL_NUMBER, run_id, N_FOLDS, oof_gml_score, N_ESTIMATORS, LEARNING_RATE
-)
-oof_csv_name = "oof/{}_{}_oof_{}_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-    MODEL_NUMBER,
-    run_id,
-    MODEL_TYPE,
-    N_FOLDS,
-    oof_gml_score,
-    N_ESTIMATORS,
-    LEARNING_RATE,
-)
-fi_csv_name = "fi/{}_{}_fi_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-    MODEL_NUMBER,
-    run_id,
-    MODEL_TYPE,
-    N_FOLDS,
-    oof_gml_score,
-    N_ESTIMATORS,
-    LEARNING_RATE,
-)
+# submission_csv_name = "submissions/{}_{}_submission_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
+#     MODEL_NUMBER, run_id, N_FOLDS, oof_gml_score, N_ESTIMATORS, LEARNING_RATE
+# )
+# oof_csv_name = "oof/{}_{}_oof_{}_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
+#     MODEL_NUMBER,
+#     run_id,
+#     MODEL_TYPE,
+#     N_FOLDS,
+#     oof_gml_score,
+#     N_ESTIMATORS,
+#     LEARNING_RATE,
+# )
+# fi_csv_name = "fi/{}_{}_fi_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
+#     MODEL_NUMBER,
+#     run_id,
+#     MODEL_TYPE,
+#     N_FOLDS,
+#     oof_gml_score,
+#     N_ESTIMATORS,
+#     LEARNING_RATE,
+# )
 
-logger.info("Saving LGB Submission as:")
-logger.info(submission_csv_name)
-ss = pd.read_csv("input/sample_submission.csv")
-ss["scalar_coupling_constant"] = test_pred_df["prediction"]
-ss.to_csv(submission_csv_name, index=False)
-ss.head()
-# OOF
-oof_df.to_csv(oof_csv_name, index=False)
-# Feature Importance
-feature_importance.to_csv(fi_csv_name, index=False)
+# logger.info("Saving LGB Submission as:")
+# logger.info(submission_csv_name)
+# ss = pd.read_csv("input/sample_submission.csv")
+# ss["scalar_coupling_constant"] = test_pred_df["prediction"]
+# ss.to_csv(submission_csv_name, index=False)
+# ss.head()
+# # OOF
+# oof_df.to_csv(oof_csv_name, index=False)
+# # Feature Importance
+# feature_importance.to_csv(fi_csv_name, index=False)
 end = timer()
 update_tracking(run_id, "training_time", (end - start), integer=True)
 logger.info("==== Training done in {} seconds ======".format(end - start))

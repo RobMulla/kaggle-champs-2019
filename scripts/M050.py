@@ -4,6 +4,7 @@ Jul 18
 
 New Changes:
     - XGBoost
+    - Higher Features Importance Threshold
 Todo later:
     - Email updates.
     - Sync logs online?
@@ -71,7 +72,7 @@ start = timer()
 #####################
 
 # MODEL NUMBER
-MODEL_NUMBER = "M049"
+MODEL_NUMBER = "M050"
 # script_name = os.path.basename(__file__).split('.')[0]
 # if script_name not in MODEL_NUMBER:
 #     logger.error('Model Number is not same as script! Update before running')
@@ -126,10 +127,10 @@ lgb_params = {
 }
 
 # Order shortest to longest
-# types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
+types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 # types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 # types = ["3JHH", "1JHC"] #, "2JHC","3JHC"]
-types = ['2JHN'] #, '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
+#types = ['2JHN'] #, '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
 
 
 #####################
@@ -226,94 +227,6 @@ def update_tracking(
     df.loc[run_id, field] = value  # Model number is index
     df.to_csv(csv_file)
 
-NEW_FEATURES = [
-    "dist_C_0_x",
-    "dist_C_1_x",
-    "dist_C_2_x",
-    "dist_C_3_x",
-    "dist_C_4_x",
-    "dist_F_0_x",
-    "dist_F_1_x",
-    "dist_F_2_x",
-    "dist_F_3_x",
-    "dist_F_4_x",
-    "dist_H_0_x",
-    "dist_H_1_x",
-    "dist_H_2_x",
-    "dist_H_3_x",
-    "dist_H_4_x",
-    "dist_N_0_x",
-    "dist_N_1_x",
-    "dist_N_2_x",
-    "dist_N_3_x",
-    "dist_N_4_x",
-    "dist_O_0_x",
-    "dist_O_1_x",
-    "dist_O_2_x",
-    "dist_O_3_x",
-    "dist_O_4_x",
-    "dist_C_0_y",
-    "dist_C_1_y",
-    "dist_C_2_y",
-    "dist_C_3_y",
-    "dist_C_4_y",
-    "dist_F_0_y",
-    "dist_F_1_y",
-    "dist_F_2_y",
-    "dist_F_3_y",
-    "dist_F_4_y",
-    "dist_H_0_y",
-    "dist_H_1_y",
-    "dist_H_2_y",
-    "dist_H_3_y",
-    "dist_H_4_y",
-    "dist_N_0_y",
-    "dist_N_1_y",
-    "dist_N_2_y",
-    "dist_N_3_y",
-    "dist_N_4_y",
-    "dist_O_0_y",
-    "dist_O_1_y",
-    "dist_O_2_y",
-    "dist_O_3_y",
-    "dist_O_4_y",
-    "dist",
-    "dist_inv2",
-    "distance_closest_0",
-    "distance_closest_1",
-    "distance_farthest_0",
-    "distance_farthest_1",
-    "molecule_atom_index_0_dist_mean",
-    "molecule_atom_index_0_dist_mean_diff",
-    "molecule_atom_index_0_dist_min",
-    "molecule_atom_index_0_dist_min_diff",
-    "molecule_atom_index_0_dist_std",
-    "molecule_atom_index_1_dist_mean",
-    "molecule_atom_index_1_dist_mean_diff",
-    "molecule_atom_index_1_dist_min",
-    "molecule_atom_index_1_dist_min_diff",
-    "molecule_atom_index_1_dist_std",
-    "molecule_type_dist_mean",
-    "molecule_type_dist_mean_diff",
-    "rc_A",
-    "rc_B",
-    "rc_C",
-    "mu",
-    "alpha",
-    "homo",
-    "lumo",
-    "gap",
-    "zpve",
-    "Cv",
-    "freqs_min",
-    "freqs_max",
-    "freqs_mean",
-    "mulliken_min",
-    "mulliken_max",
-    "mulliken_atom_0",
-    "mulliken_atom_1",
-]
-
 update_tracking(run_id, "model_number", MODEL_NUMBER)
 update_tracking(run_id, "n_estimators", N_ESTIMATORS)
 update_tracking(run_id, "early_stopping_rounds", EARLY_STOPPING_ROUNDS)
@@ -328,7 +241,7 @@ def get_good_features(bond_type):
     """
     Read csv with stored best features
     """
-    good_feats = pd.read_csv("fi/Good_Features_By_Type.csv", index_col=0)
+    good_feats = pd.read_csv("fi/FI_ANALYSIS_M049_GOODFEATS.csv", index_col=0)
     good_feats = good_feats.fillna(False)
     return good_feats.loc[good_feats[bond_type]].index.tolist()
 
@@ -407,9 +320,6 @@ def fit_meta_feature(
                 verbose=VERBOSE,
                 random_state=RANDOM_STATE,
                 thread_count=N_THREADS,
-                # loss_function=EVAL_METRIC,
-                # bootstrap_type='Poisson',
-                # bagging_temperature=5,
                 task_type="GPU",
             )  # Train on GPU
 
@@ -676,33 +586,30 @@ for bond_type in types:
     test_df = pd.read_parquet(
         "data/FE019/FE019-test-{}.parquet".format(bond_type)
     )
+    if MODEL_TYPE == "xgboost":
+        train_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in train_df.columns]
+        test_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in test_df.columns]
+
     Meta = train_df[["molecule_name", "atom_index_0", "atom_index_1"]].merge(
         tr_scc, on=["molecule_name", "atom_index_0", "atom_index_1"]
     )[["fc", "sd", "pso", "dso"]]
 
     FEATURES = get_good_features(bond_type)
-    FEATURES = [f for f in FEATURES if 'meta' not in f] + NEW_FEATURES
+    FEATURES = [f for f in FEATURES if 'meta' not in f] # Drop meta feature
     # FEATURES = GOOD_FEATURES
     update_tracking(run_id, "{}_features".format(bond_type), len(FEATURES))
-
-    # logger.info('Using features {}'.format([x for x in FEATURES]))
-
+    logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
     X_type = train_df[FEATURES].copy()
     X_test_type = test_df[FEATURES].copy()
     y_type = train_df[TARGET].copy()
-    if MODEL_TYPE == "xgboost":
-        X_type.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in X_type.columns]
-        X_test_type.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in X_test_type.columns]
-#         X_type.columns = [f"var_{x}" for x in range(0, len(X_type.columns))]
-#         X_test_type.columns = [f"var_{x}" for x in range(0, len(X_test_type.columns))]
     del train_df
     del test_df
     gc.collect()
     # Remove colmns that have all nulls
-    logger.info("{} Features before dropping null columns".format(len(X_type.columns)))
+    logger.info("{}: {} Features before dropping null columns".format(bond_type, len(X_type.columns)))
     X_type = X_type.dropna(how="all", axis=1)
     X_test_type = X_test_type[X_type.columns]
-    logger.info("{} Features after dropping null columns".format(len(X_type.columns)))
+    logger.info("{}: {} Features after dropping null columns".format(bond_type, len(X_type.columns)))
     # Start training for type
     bond_start = timer()
     fold_count = 0  # Will be incremented at the start of the fold
@@ -722,16 +629,16 @@ for bond_type in types:
         if RUN_SINGLE_FOLD is not False:
             if fold_count != RUN_SINGLE_FOLD:
                 logger.info(
-                    "Running only for fold {}, skipping fold {}".format(
-                        RUN_SINGLE_FOLD, fold_count
+                    "{}: Running only for fold {}, skipping fold {}".format(
+                        bond_type, RUN_SINGLE_FOLD, fold_count
                     )
                 )
                 continue
         if MODEL_TYPE == "lgbm":
             fold_start = timer()
             logger.info(
-                "Running Type {} - Fold {} of {}".format(
-                    bond_type, fold_count, folds.n_splits
+                "{}: Running Type {} - Fold {} of {}".format(
+                    bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
@@ -764,18 +671,18 @@ for bond_type in types:
                 (now - fold_start),
                 integer=True,
             )
-            logger.info("Saving model file")
+            logger.info("{}: Saving model file".format(bond_type))
             model.booster_.save_model(
                 "models/{}-{}-{}-{}.model".format(
                     MODEL_NUMBER, run_id, bond_type, fold_count
                 )
             )
             pred_start = timer()
-            logger.info("Predicting on validation set")
+            logger.info("{}: Predicting on validation set".format(bond_type))
             y_pred_valid = model.predict(
                 X_valid, num_iteration=model.best_iteration_, n_jobs=N_THREADS
             )
-            logger.info("Predicting on test set")
+            logger.info("{}: Predicting on test set".format(bond_type))
             y_pred = model.predict(X_test_type, num_iteration=model.best_iteration_)
             now = timer()
             update_tracking(
@@ -792,7 +699,7 @@ for bond_type in types:
             )
 
             # feature importance
-            logger.info("Storing the fold importance")
+            logger.info("{}: Storing the fold importance".format(bond_type))
             fold_importance = pd.DataFrame()
             fold_importance["feature"] = X_train.columns
             fold_importance["importance"] = model.feature_importances_
@@ -804,8 +711,8 @@ for bond_type in types:
 
             bond_scores.append(mean_absolute_error(y_valid, y_pred_valid))
             logger.info(
-                "CV mean score: {0:.4f}, std: {1:.4f}.".format(
-                    np.mean(bond_scores), np.std(bond_scores)
+                "{}: CV mean score: {:.4f}, std: {:.4f}.".format(
+                    bond_type, np.mean(bond_scores), np.std(bond_scores)
                 )
             )
             oof[valid_idx] = y_pred_valid.reshape(-1)
@@ -813,8 +720,8 @@ for bond_type in types:
         elif MODEL_TYPE == "catboost":
             fold_start = timer()
             logger.info(
-                "Running Type {} - Fold {} of {}".format(
-                    bond_type, fold_count, folds.n_splits
+                "{}: Running Type {} - Fold {} of {}".format(
+                    bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
@@ -865,7 +772,7 @@ for bond_type in types:
                 (now - fold_start),
                 integer=True,
             )
-            logger.info("Saving model file")
+            logger.info("{}: Saving model file".format(bond_type))
             model.save_model(
                 "models/{}/{}-{}-{}-{}.model".format(
                     MODEL_NUMBER, MODEL_NUMBER, run_id, bond_type, fold_count
@@ -874,8 +781,8 @@ for bond_type in types:
         elif MODEL_TYPE == "xgboost":
             fold_start = timer()
             logger.info(
-                "Running Type {} - Fold {} of {}".format(
-                    bond_type, fold_count, folds.n_splits
+                "{}: Running Type {} - Fold {} of {}".format(
+                    bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
             X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
@@ -912,16 +819,16 @@ for bond_type in types:
                 (now - fold_start),
                 integer=True,
             )
-            logger.info("Saving model file")
+            logger.info("{}: Saving model file".format(bond_type))
             model.save_model(
                 "models/{}/{}-{}-{}-{}.model".format(
                     MODEL_NUMBER, MODEL_NUMBER, run_id, bond_type, fold_count
                 )
             )
             pred_start = timer()
-            logger.info("Predicting on validation set")
+            logger.info("{}: Predicting on validation set".format(bond_type))
             y_pred_valid = model.predict(X_valid)
-            logger.info("Predicting on test set")
+            logger.info("{}: Predicting on test set".format(bond_type))
             y_pred = model.predict(X_test_type)
             now = timer()
             update_tracking(
@@ -937,7 +844,7 @@ for bond_type in types:
                 integer=True,
             )
             # feature importance
-            logger.info("Storing the fold importance")
+            logger.info("{}: Storing the fold importance".format(bond_type))
             fold_importance = pd.DataFrame()
             fold_importance["feature"] = X_train.columns
             fold_importance["importance"] = model.feature_importances_
@@ -955,16 +862,16 @@ for bond_type in types:
                 integer=False,
             )
             logger.info(
-                "CV mean score: {0:.4f}, std: {1:.4f}.".format(
-                    np.mean(bond_scores), np.std(bond_scores)
+                "{}: CV mean score: {:.4f}, std: {:.4f}.".format(
+                    bond_type, np.mean(bond_scores), np.std(bond_scores)
                 )
             )
             oof[valid_idx] = y_pred_valid.reshape(-1)
             prediction_type += y_pred
         now = timer()
         logger.info(
-            "Completed training and predicting for bond {} fold {}-of-{} in {:0.4f} seconds".format(
-                bond_type, fold_count, N_FOLDS, now - fold_start
+            "{}: Completed training and predicting for bond {} fold {}-of-{} in {:0.4f} seconds".format(
+                bond_type, bond_type, fold_count, N_FOLDS, now - fold_start
             )
         )
     update_tracking(run_id, f"{bond_type}_mae_cv", np.mean(bond_scores), digits=4)
