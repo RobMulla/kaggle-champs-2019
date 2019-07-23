@@ -136,3 +136,4 @@ dmypy.json
 *.tmp
 *.csv.gz
 *.logs
+*.npy
