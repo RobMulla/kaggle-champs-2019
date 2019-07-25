@@ -4,7 +4,7 @@ Jul 23
 
 New Changes:
     - Catboost
-    - Depth = 4
+    - Depth = 10
     - Learning rate 0.01 - See how low we can take it.
 Todo later:
     - Email updates.
@@ -74,7 +74,7 @@ start = timer()
 #####################
 
 # MODEL NUMBER
-MODEL_NUMBER = "M051"
+MODEL_NUMBER = "M052"
 script_name = os.path.basename(__file__).split('.')[0]
 if script_name not in MODEL_NUMBER:
     logger.error('Model Number is not same as script! Update before running')
@@ -93,8 +93,8 @@ VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 50
 RANDOM_STATE = 529
 N_THREADS = 48
-DEPTH = 4
-META_DEPTH = 4
+DEPTH = 10
+META_DEPTH = 10
 N_FOLDS = 3
 N_META_FOLDS = 2
 # EVAL_METRIC = 'group_mae'
@@ -532,7 +532,7 @@ def fit_meta_feature(
             log_oof_score,
         )
     )
-    
+
     X_test.to_parquet(
         "type_results/{}/meta/{}_{}_{}_X_test_meta_{}_f{}_{:0.4f}MAE_{:0.4f}LMAE.parquet".format(
             bond_type,
@@ -612,7 +612,7 @@ def save_type_data(
     oof_name = fn_template.replace("XXXXXXX", "oof")
     sub_type.to_parquet(sub_name)
     oof_type.to_parquet(oof_name)
-    
+
     logger.info(f'{type_}: Saving sub to {sub_name}')
     logger.info(f'{type_}: Saving oof to {oof_name}')
 
@@ -718,9 +718,9 @@ for bond_type in types:
         X_valid = X_type.loc[X_type['id'].isin(valid_ids)].drop('id', axis=1)
         X_train = X_train.copy()
         X_valid = X_valid.copy()
-        y_train = y_type.loc[y_type['id'].isin(train_ids)].drop('id', axis=1) 
-        y_valid = y_type.loc[y_type['id'].isin(valid_ids)].drop('id', axis=1) 
-        
+        y_train = y_type.loc[y_type['id'].isin(train_ids)].drop('id', axis=1)
+        y_valid = y_type.loc[y_type['id'].isin(valid_ids)].drop('id', axis=1)
+
         fold_count += 1  # First fold is 1
         if RUN_SINGLE_FOLD is not False:
             if fold_count != RUN_SINGLE_FOLD:
@@ -1023,3 +1023,4 @@ end = timer()
 update_tracking(run_id, "training_time", (end - start), integer=True)
 logger.info("==== Training done in {} seconds ======".format(end - start))
 logger.info("Done!")
+
