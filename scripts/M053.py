@@ -74,7 +74,7 @@ start = timer()
 #####################
 
 # MODEL NUMBER
-MODEL_NUMBER = "M052"
+MODEL_NUMBER = "M053"
 script_name = os.path.basename(__file__).split('.')[0]
 if script_name not in MODEL_NUMBER:
     logger.error('Model Number is not same as script! Update before running')
@@ -82,7 +82,7 @@ if script_name not in MODEL_NUMBER:
 
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.1
 RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
@@ -90,11 +90,11 @@ TARGET = "scalar_coupling_constant"
 N_ESTIMATORS = 500000
 N_META_ESTIMATORS = 500000
 VERBOSE = 1000
-EARLY_STOPPING_ROUNDS = 50
+EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
 N_THREADS = 48
-DEPTH = 10
-META_DEPTH = 10
+DEPTH = 5
+META_DEPTH = 5
 N_FOLDS = 3
 N_META_FOLDS = 2
 # EVAL_METRIC = 'group_mae'
