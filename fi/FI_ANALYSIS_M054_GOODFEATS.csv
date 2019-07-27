@@ -1,0 +1,1039 @@
+feature,1JHC,1JHN,2JHC,2JHH,2JHN,3JHC,3JHH,3JHN
+10th_closest_to_0,False,False,False,False,False,False,False,True
+10th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+10th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+10th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+10th_closest_to_0_valence,False,False,False,False,False,False,False,False
+10th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,True,False,True
+10th_closest_to_1,False,False,False,False,False,False,False,False
+10th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+10th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+10th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+10th_closest_to_1_valence,False,False,False,False,False,False,False,False
+10th_closest_to_1_valence_x_cube_inv_dist,True,False,True,False,False,True,False,True
+11th_closest_to_0,False,False,False,False,False,False,False,True
+11th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+11th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+11th_closest_to_0_valence,False,False,False,False,False,False,False,False
+11th_closest_to_1,False,False,False,False,False,False,False,False
+11th_closest_to_1_exact_mass,False,True,False,False,False,False,False,False
+11th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+11th_closest_to_1_valence,False,False,False,False,False,False,False,False
+12th_closest_to_0,False,False,False,False,False,False,False,False
+12th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+12th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+12th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+12th_closest_to_0_valence,False,False,False,False,False,False,False,False
+12th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,True,False,True
+12th_closest_to_1,False,False,False,False,False,False,False,False
+12th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+12th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+12th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+12th_closest_to_1_valence,True,False,False,False,False,False,False,False
+12th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,True,False,False,True
+13th_closest_to_0,False,False,False,False,False,False,False,False
+13th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+13th_closest_to_0_spin_multiplicity,False,True,False,False,False,False,False,False
+13th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+13th_closest_to_0_valence,False,False,False,False,False,False,False,False
+13th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,True
+13th_closest_to_1,False,False,False,False,False,False,False,False
+13th_closest_to_1_exact_mass,True,True,False,False,False,False,False,False
+13th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+13th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,True,False,False,False,False
+13th_closest_to_1_valence,False,False,False,False,False,False,False,False
+13th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,True
+14th_closest_to_0,False,False,False,False,False,False,False,False
+14th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+14th_closest_to_0_spin_multiplicity,False,False,False,True,False,False,False,False
+14th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+14th_closest_to_0_valence,False,False,False,False,False,False,False,False
+14th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,True
+14th_closest_to_1,False,False,False,False,False,False,False,False
+14th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+14th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+14th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+14th_closest_to_1_valence,False,False,False,False,False,False,False,False
+14th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+15th_closest_to_0,False,False,False,False,False,False,False,False
+15th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+15th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+15th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+15th_closest_to_0_valence,False,False,False,False,False,False,False,False
+15th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+15th_closest_to_1,False,True,False,False,False,False,False,False
+15th_closest_to_1_exact_mass,False,True,False,False,False,False,False,False
+15th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+15th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+15th_closest_to_1_valence,False,False,False,False,False,False,False,False
+15th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+16th_closest_to_0,False,False,False,False,False,False,False,False
+16th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+16th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+16th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+16th_closest_to_0_valence,False,False,False,False,False,False,False,False
+16th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+16th_closest_to_1,False,False,False,False,False,False,False,False
+16th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+16th_closest_to_1_spin_multiplicity,False,True,False,False,False,False,False,False
+16th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+16th_closest_to_1_valence,False,False,False,True,False,False,False,False
+16th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+17th_closest_to_0,False,False,False,False,False,False,False,False
+17th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+17th_closest_to_0_spin_multiplicity,True,False,False,False,False,False,False,False
+17th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+17th_closest_to_0_valence,True,False,False,False,False,False,False,False
+17th_closest_to_0_valence_x_cube_inv_dist,True,False,False,False,False,False,False,False
+17th_closest_to_1,False,False,False,False,False,False,False,False
+17th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+17th_closest_to_1_spin_multiplicity,True,True,False,False,False,False,False,False
+17th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,True,False,False,False,False,False,False
+17th_closest_to_1_valence,False,False,False,False,False,False,False,False
+17th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+18th_closest_to_0,False,True,False,False,False,False,False,False
+18th_closest_to_0_exact_mass,True,False,False,False,False,False,False,False
+18th_closest_to_0_spin_multiplicity,False,False,False,True,False,False,False,False
+18th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,True,False,False,False,False,False,False
+18th_closest_to_0_valence,False,False,False,False,False,False,False,False
+18th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+18th_closest_to_1,False,False,False,False,False,False,False,False
+18th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+18th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+18th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+18th_closest_to_1_valence,False,False,False,False,False,False,False,False
+18th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+19th_closest_to_0,False,False,False,False,False,False,False,False
+19th_closest_to_0_exact_mass,False,False,False,True,False,False,False,False
+19th_closest_to_0_spin_multiplicity,True,False,False,False,False,False,False,False
+19th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,True,False,False,False,False
+19th_closest_to_0_valence,False,False,False,False,False,False,False,False
+19th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+19th_closest_to_1,False,False,False,False,False,False,False,False
+19th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+19th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+19th_closest_to_1_spin_multiplicity_x_cube_inv_dist,True,False,False,False,False,False,False,False
+19th_closest_to_1_valence,False,False,False,True,False,False,False,False
+19th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+20th_closest_to_0,False,False,False,False,False,False,False,False
+20th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+20th_closest_to_0_spin_multiplicity,True,False,False,False,False,False,False,False
+20th_closest_to_0_spin_multiplicity_x_cube_inv_dist,True,False,False,False,False,False,False,False
+20th_closest_to_0_valence,False,False,False,False,False,False,False,False
+20th_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+20th_closest_to_1,False,False,False,False,False,False,False,False
+20th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+20th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+20th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+20th_closest_to_1_valence,False,False,False,False,False,False,False,False
+20th_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+21st_closest_to_0,False,False,False,False,False,False,False,False
+21st_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+21st_closest_to_0_spin_multiplicity,True,True,False,False,False,False,False,False
+21st_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+21st_closest_to_0_valence,False,False,False,False,False,False,False,False
+21st_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+21st_closest_to_1,False,False,False,False,False,False,False,False
+21st_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+21st_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+21st_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,True,False,True,False,False,False,False
+21st_closest_to_1_valence,False,False,False,False,False,False,False,False
+21st_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+22nd_closest_to_0,False,False,False,False,False,False,False,False
+22nd_closest_to_0_exact_mass,False,True,False,False,False,False,False,False
+22nd_closest_to_0_spin_multiplicity,False,True,False,True,False,False,False,False
+22nd_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,True,False,False,False,False,False,False
+22nd_closest_to_0_valence,False,False,False,False,False,False,False,False
+22nd_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+22nd_closest_to_1,False,False,False,False,False,False,False,False
+22nd_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+22nd_closest_to_1_spin_multiplicity,True,False,False,False,False,False,False,False
+22nd_closest_to_1_spin_multiplicity_x_cube_inv_dist,True,False,False,False,False,False,False,False
+22nd_closest_to_1_valence,False,False,False,False,False,False,False,False
+22nd_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+23rd_closest_to_0,False,False,False,False,False,False,False,False
+23rd_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+23rd_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+23rd_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+23rd_closest_to_0_valence,False,False,False,False,False,False,False,False
+23rd_closest_to_0_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+23rd_closest_to_1,False,False,False,False,False,False,False,False
+23rd_closest_to_1_exact_mass,False,True,False,False,False,False,False,False
+23rd_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+23rd_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,True,False,False,False,False,False,False
+23rd_closest_to_1_valence,False,True,False,False,False,False,False,False
+23rd_closest_to_1_valence_x_cube_inv_dist,False,False,False,False,False,False,False,False
+24th_closest_to_0,False,,False,False,False,False,False,False
+24th_closest_to_0_exact_mass,False,,False,False,False,False,False,False
+24th_closest_to_0_spin_multiplicity,False,,False,False,False,False,False,False
+24th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,,False,False,False,False,False,False
+24th_closest_to_0_valence,False,,False,False,False,False,False,False
+24th_closest_to_0_valence_x_cube_inv_dist,False,,False,False,False,False,False,False
+24th_closest_to_1,False,,False,False,False,False,False,False
+24th_closest_to_1_exact_mass,False,,False,False,False,False,False,False
+24th_closest_to_1_spin_multiplicity,True,,False,False,False,False,False,False
+24th_closest_to_1_spin_multiplicity_x_cube_inv_dist,True,,False,False,False,False,False,False
+24th_closest_to_1_valence,False,,False,False,False,False,False,False
+24th_closest_to_1_valence_x_cube_inv_dist,False,,False,False,False,False,False,False
+25th_closest_to_0,False,,False,False,False,False,False,False
+25th_closest_to_0_exact_mass,False,,False,False,False,False,False,False
+25th_closest_to_0_spin_multiplicity,False,,False,False,False,False,False,False
+25th_closest_to_0_spin_multiplicity_x_cube_inv_dist,True,,False,False,False,False,False,False
+25th_closest_to_0_valence,False,,False,False,False,False,False,False
+25th_closest_to_0_valence_x_cube_inv_dist,False,,False,False,False,False,False,False
+25th_closest_to_1,False,,False,False,False,False,False,False
+25th_closest_to_1_exact_mass,False,,False,False,False,False,False,False
+25th_closest_to_1_spin_multiplicity,False,,False,False,False,False,False,False
+25th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,,False,False,False,False,False,False
+25th_closest_to_1_valence,False,,False,False,False,False,False,False
+25th_closest_to_1_valence_x_cube_inv_dist,False,,False,False,False,False,False,False
+26th_closest_to_0,False,,False,False,,False,False,
+26th_closest_to_0_exact_mass,False,,False,False,,False,False,
+26th_closest_to_0_spin_multiplicity,False,,False,False,,False,False,
+26th_closest_to_0_spin_multiplicity_x_cube_inv_dist,True,,False,False,,False,False,
+26th_closest_to_0_valence,False,,False,False,,False,False,
+26th_closest_to_0_valence_x_cube_inv_dist,False,,False,False,,False,False,
+26th_closest_to_1,False,,False,False,,False,False,
+26th_closest_to_1_exact_mass,False,,False,False,,False,False,
+26th_closest_to_1_spin_multiplicity,False,,False,False,,False,False,
+26th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,,False,False,,False,False,
+26th_closest_to_1_valence,False,,False,False,,False,False,
+26th_closest_to_1_valence_x_cube_inv_dist,False,,False,False,,False,False,
+27th_closest_to_0,False,,False,False,,False,False,
+27th_closest_to_0_exact_mass,False,,False,False,,False,False,
+27th_closest_to_0_spin_multiplicity,False,,False,False,,False,False,
+27th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,,False,False,,False,False,
+27th_closest_to_0_valence,False,,False,False,,False,False,
+27th_closest_to_0_valence_x_cube_inv_dist,False,,False,False,,False,False,
+27th_closest_to_1,False,,False,False,,False,False,
+27th_closest_to_1_exact_mass,False,,False,False,,False,False,
+27th_closest_to_1_spin_multiplicity,False,,False,False,,False,False,
+27th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,,False,False,,False,False,
+27th_closest_to_1_valence,False,,False,False,,False,False,
+27th_closest_to_1_valence_x_cube_inv_dist,False,,False,False,,False,False,
+28th_closest_to_0,False,,False,False,,False,False,
+28th_closest_to_0_exact_mass,False,,False,False,,False,False,
+28th_closest_to_0_spin_multiplicity,False,,False,False,,False,False,
+28th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,,False,False,,False,False,
+28th_closest_to_0_valence,False,,False,False,,False,False,
+28th_closest_to_0_valence_x_cube_inv_dist,False,,False,False,,False,False,
+28th_closest_to_1,False,,False,False,,False,False,
+28th_closest_to_1_exact_mass,False,,False,False,,False,False,
+28th_closest_to_1_spin_multiplicity,False,,False,False,,False,False,
+28th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,,False,False,,False,False,
+28th_closest_to_1_valence,False,,False,False,,False,False,
+28th_closest_to_1_valence_x_cube_inv_dist,False,,False,False,,False,False,
+2nd_closest_to_0,False,False,True,False,False,False,False,True
+2nd_closest_to_0_exact_mass,True,True,True,False,True,True,True,True
+2nd_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+2nd_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,True,False,False
+2nd_closest_to_0_valence,True,True,True,False,True,True,True,True
+2nd_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+2nd_closest_to_1,True,False,False,False,False,False,False,False
+2nd_closest_to_1_exact_mass,True,True,True,False,True,True,True,True
+2nd_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+2nd_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,False,False,True
+2nd_closest_to_1_valence,True,True,True,False,True,True,True,True
+2nd_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_0,False,False,False,True,False,False,False,False
+3rd_closest_to_0_exact_mass,True,True,True,True,True,True,True,True
+3rd_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+3rd_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,True,True,True,False,True
+3rd_closest_to_0_valence,True,True,True,True,True,True,True,True
+3rd_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+3rd_closest_to_1,True,True,False,True,True,False,False,True
+3rd_closest_to_1_exact_mass,True,True,True,True,True,True,True,True
+3rd_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+3rd_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,True,False,True,False,False
+3rd_closest_to_1_valence,False,True,True,True,True,True,True,True
+3rd_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_0,False,True,True,False,False,False,True,True
+4th_closest_to_0_exact_mass,True,True,True,False,True,False,False,False
+4th_closest_to_0_spin_multiplicity,False,False,True,False,False,True,False,False
+4th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,True,True,False,True,True,True
+4th_closest_to_0_valence,True,False,True,True,True,True,True,True
+4th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+4th_closest_to_1,False,False,False,False,False,True,False,True
+4th_closest_to_1_exact_mass,True,True,True,False,True,True,True,True
+4th_closest_to_1_spin_multiplicity,False,False,False,True,False,False,False,False
+4th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,True,False,False,False,False
+4th_closest_to_1_valence,True,True,True,True,True,True,True,True
+4th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_0,True,False,False,True,False,True,False,True
+5th_closest_to_0_exact_mass,True,True,True,True,True,True,False,True
+5th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+5th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+5th_closest_to_0_valence,True,True,True,True,True,False,False,True
+5th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+5th_closest_to_1,True,False,False,False,False,False,False,False
+5th_closest_to_1_exact_mass,True,True,True,True,False,True,False,True
+5th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+5th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,False,False,False
+5th_closest_to_1_valence,True,True,True,True,False,True,False,False
+5th_closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+6th_closest_to_0,False,False,False,False,False,False,False,True
+6th_closest_to_0_exact_mass,True,False,True,True,False,True,False,True
+6th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+6th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,True
+6th_closest_to_0_valence,True,False,False,True,False,True,False,True
+6th_closest_to_0_valence_x_cube_inv_dist,True,False,True,True,True,True,True,True
+6th_closest_to_1,False,False,False,False,False,False,False,True
+6th_closest_to_1_exact_mass,True,False,False,True,False,True,True,True
+6th_closest_to_1_spin_multiplicity,False,True,False,False,False,False,False,False
+6th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+6th_closest_to_1_valence,False,True,True,False,False,True,False,False
+6th_closest_to_1_valence_x_cube_inv_dist,True,False,True,True,False,True,True,True
+7th_closest_to_0,False,False,False,False,False,False,False,True
+7th_closest_to_0_exact_mass,True,False,True,False,False,False,False,False
+7th_closest_to_0_spin_multiplicity,False,False,False,False,False,False,False,False
+7th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,True,True,False,False
+7th_closest_to_0_valence,False,True,False,True,False,False,False,False
+7th_closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+7th_closest_to_1,False,False,False,False,False,False,False,False
+7th_closest_to_1_exact_mass,True,False,True,False,False,True,False,True
+7th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+7th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,False,False,False
+7th_closest_to_1_valence,False,False,False,False,False,False,False,False
+7th_closest_to_1_valence_x_cube_inv_dist,True,False,True,True,False,True,True,True
+8th_closest_to_0,False,False,False,False,False,True,False,False
+8th_closest_to_0_exact_mass,False,False,False,False,False,False,False,False
+8th_closest_to_0_spin_multiplicity,False,True,False,False,False,False,False,False
+8th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,True,True,False,False
+8th_closest_to_0_valence,True,False,False,True,False,False,False,False
+8th_closest_to_0_valence_x_cube_inv_dist,True,False,True,False,False,True,True,True
+8th_closest_to_1,False,False,False,False,False,False,False,True
+8th_closest_to_1_exact_mass,False,False,False,False,False,True,False,False
+8th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+8th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+8th_closest_to_1_valence,False,False,False,False,False,False,False,False
+8th_closest_to_1_valence_x_cube_inv_dist,True,False,True,False,True,True,True,True
+9th_closest_to_0,False,False,False,False,False,False,False,True
+9th_closest_to_0_exact_mass,True,True,False,False,False,False,False,False
+9th_closest_to_0_spin_multiplicity,False,True,False,False,False,False,False,False
+9th_closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,True,False,False
+9th_closest_to_0_valence,True,False,False,False,False,False,False,False
+9th_closest_to_0_valence_x_cube_inv_dist,True,False,True,False,False,True,False,True
+9th_closest_to_1,False,False,False,False,False,False,False,True
+9th_closest_to_1_exact_mass,False,False,False,False,False,False,False,False
+9th_closest_to_1_spin_multiplicity,False,False,False,False,False,False,False,False
+9th_closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,False,False,False,False,False,False
+9th_closest_to_1_valence,False,True,False,False,False,False,False,False
+9th_closest_to_1_valence_x_cube_inv_dist,True,False,True,False,True,True,False,True
+Cv,True,False,False,False,False,False,False,False
+N1,False,True,False,True,False,True,False,True
+N2,False,True,False,True,False,False,False,False
+NC,False,False,False,False,False,False,False,False
+NF,False,False,False,False,False,False,False,False
+NH,False,False,False,False,False,False,False,False
+NN,False,False,False,False,False,False,False,False
+NO,False,False,False,False,False,False,False,False
+a0_nb_degree,True,True,True,False,True,True,True,True
+a0_nb_hybridization,True,True,True,True,True,True,True,True
+a0_nb_inring,True,True,True,True,True,True,True,True
+a0_nb_inring3,True,True,True,True,True,True,True,True
+a0_nb_inring4,True,False,True,True,True,True,True,True
+a0_nb_inring5,True,True,True,True,True,True,True,True
+a0_nb_inring6,True,True,True,True,True,True,True,True
+a0_nb_inring7,False,True,True,True,False,True,True,True
+a0_nb_inring8,False,False,False,False,False,True,False,False
+a0_nb_nb_c,True,True,True,True,True,True,True,True
+a0_nb_nb_h,True,True,True,True,True,False,True,True
+a0_nb_nb_n,True,True,True,True,False,True,True,True
+a0_nb_nb_na,False,False,False,False,False,False,False,False
+a0_nb_nb_o,True,False,True,True,True,True,True,False
+a1_degree,True,True,True,False,True,True,False,True
+a1_hybridization,True,True,True,False,True,True,False,True
+a1_inring,True,True,True,False,True,True,False,True
+a1_inring3,True,True,True,False,True,True,False,True
+a1_inring4,True,True,True,False,False,True,False,True
+a1_inring5,True,True,True,False,True,True,False,True
+a1_inring6,True,True,True,False,False,True,False,True
+a1_inring7,False,False,False,False,False,True,False,True
+a1_inring8,False,False,False,False,False,True,False,False
+a1_nb_c,True,False,True,True,True,True,True,True
+a1_nb_degree,False,False,False,False,False,True,True,True
+a1_nb_h,True,True,True,False,True,False,False,True
+a1_nb_hybridization,False,True,True,False,True,False,True,True
+a1_nb_inring,False,False,False,True,True,False,True,True
+a1_nb_inring3,False,False,False,False,False,False,True,False
+a1_nb_inring4,False,False,False,True,False,True,True,False
+a1_nb_inring5,False,True,False,True,True,False,True,True
+a1_nb_inring6,False,False,False,True,False,False,True,True
+a1_nb_inring7,False,False,False,True,False,False,False,False
+a1_nb_inring8,False,False,False,True,False,False,False,False
+a1_nb_n,True,True,True,True,True,True,False,True
+a1_nb_na,False,False,True,False,False,False,False,False
+a1_nb_nb_c,False,False,False,True,False,False,True,False
+a1_nb_nb_h,False,False,False,True,False,False,True,False
+a1_nb_nb_n,False,False,False,True,False,False,True,False
+a1_nb_nb_na,False,False,False,False,False,False,False,False
+a1_nb_nb_o,False,False,False,True,False,False,True,False
+a1_nb_o,True,False,True,False,True,True,False,True
+adC1,True,True,True,True,True,True,True,True
+adC2,True,True,True,True,True,True,True,True
+adC3,True,True,True,True,True,True,True,True
+adC4,True,True,True,True,True,True,True,True
+adH1,True,True,True,True,True,True,True,True
+adH2,True,False,True,True,False,True,True,True
+adH3,False,False,False,False,False,False,False,False
+adH4,False,False,False,False,False,False,False,False
+adN1,True,True,True,True,True,True,True,True
+adN2,True,True,True,True,True,True,False,False
+adN3,False,False,False,False,False,False,False,False
+adN4,False,True,False,False,False,False,False,False
+alpha,True,False,False,False,False,False,False,False
+angle_0_10th0_1,False,False,True,False,False,True,False,True
+angle_0_10th1_1,True,False,False,False,False,False,False,False
+angle_0_11th0_1,False,False,True,False,False,True,True,True
+angle_0_11th1_1,True,False,True,False,False,False,False,False
+angle_0_1_2nd1,True,True,True,False,True,True,True,True
+angle_0_1_3rd1,True,True,True,True,True,True,True,True
+angle_0_1_4th1,True,True,True,True,True,True,True,True
+angle_0_1_5th1,True,True,True,True,True,True,True,True
+angle_0_1_closest1,False,False,True,True,True,True,True,True
+angle_0_2nd0_1,True,True,True,True,True,True,True,True
+angle_0_2nd1_1,True,True,True,False,True,True,True,True
+angle_0_3rd0_1,True,True,True,True,True,True,True,True
+angle_0_3rd1_1,True,True,True,True,True,True,True,True
+angle_0_4th0_1,True,True,True,True,True,True,True,True
+angle_0_4th1_1,True,True,True,True,True,True,True,True
+angle_0_5th0_1,True,False,True,True,True,True,True,True
+angle_0_5th1_1,True,False,True,True,False,True,False,True
+angle_0_6th0_1,True,True,True,True,True,True,True,True
+angle_0_6th1_1,True,False,True,True,False,True,False,True
+angle_0_7th0_1,True,False,True,True,True,True,True,True
+angle_0_7th1_1,True,True,False,True,False,True,False,True
+angle_0_8th0_1,True,False,True,False,False,True,True,True
+angle_0_8th1_1,True,False,False,False,False,True,False,True
+angle_0_9th0_1,False,False,True,False,False,True,False,True
+angle_0_9th1_1,True,False,False,True,False,False,True,True
+angle_0_closest0_1,False,False,True,True,True,True,True,True
+angle_0_closest1_1,False,False,True,True,True,True,True,True
+angle_1_0_10th0,True,False,True,False,False,True,False,True
+angle_1_0_10th1,True,False,True,False,False,True,False,True
+angle_1_0_11th0,True,False,False,False,False,True,False,True
+angle_1_0_11th1,True,True,True,False,False,True,False,True
+angle_1_0_2nd0,True,True,True,False,True,True,True,True
+angle_1_0_3rd0,True,True,True,True,True,True,True,True
+angle_1_0_4th0,True,True,True,True,True,True,True,True
+angle_1_0_5th0,True,True,True,True,True,True,True,True
+angle_1_0_6th0,True,True,True,True,True,True,True,True
+angle_1_0_6th1,True,True,True,True,False,True,True,True
+angle_1_0_7th0,True,False,True,True,False,True,True,True
+angle_1_0_7th1,True,False,True,True,False,True,True,True
+angle_1_0_8th0,True,False,True,True,True,True,True,True
+angle_1_0_8th1,True,False,True,True,False,True,True,True
+angle_1_0_9th0,True,False,True,True,False,True,True,True
+angle_1_0_9th1,True,False,True,False,False,True,False,True
+angle_1_0_closest0,False,False,True,True,True,True,True,True
+angle_clos_0_2nd,True,True,True,True,True,True,True,True
+angle_clos_1_2nd,True,True,True,True,True,True,True,True
+atom0_spin_multiplicity,False,False,False,False,False,False,False,False
+atom0_valence,False,False,False,False,False,False,False,False
+atom1_spin_multiplicity,False,False,True,False,False,True,False,False
+atom1_valence,True,True,True,False,True,True,False,True
+atom_index_1.1,False,True,True,False,False,True,False,True
+atomic_mass_not_0_max,True,False,True,False,False,True,False,True
+atomic_mass_not_0_mean,False,False,False,False,False,False,False,False
+atomic_mass_not_0_min,False,False,False,False,False,False,False,False
+atomic_mass_not_0_std,False,False,False,False,False,False,False,True
+atomic_mass_not_1_max,True,False,True,False,False,True,False,True
+atomic_mass_not_1_mean,True,False,False,False,False,False,False,False
+atomic_mass_not_1_min,False,False,False,False,False,False,False,False
+atomic_mass_not_1_std,False,False,False,False,False,False,False,True
+closest_to_0,True,False,False,False,False,True,False,True
+closest_to_0_exact_mass,False,False,False,True,True,True,False,True
+closest_to_0_spin_multiplicity,False,True,False,False,False,True,False,False
+closest_to_0_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,True,False,False
+closest_to_0_valence,True,True,True,False,True,True,True,True
+closest_to_0_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+closest_to_1,False,False,False,False,False,False,True,True
+closest_to_1_exact_mass,False,False,True,False,True,True,True,True
+closest_to_1_spin_multiplicity,False,False,False,False,False,True,False,False
+closest_to_1_spin_multiplicity_x_cube_inv_dist,False,False,True,False,False,True,False,True
+closest_to_1_valence,False,False,True,False,True,False,True,True
+closest_to_1_valence_x_cube_inv_dist,True,True,True,True,True,True,True,True
+coulomb_C.x,False,False,False,False,False,False,False,False
+coulomb_C.y,False,False,False,False,False,False,False,False
+coulomb_F.x,False,False,False,False,False,False,False,False
+coulomb_F.y,False,False,False,False,False,False,False,False
+coulomb_H.x,False,False,False,False,False,False,False,False
+coulomb_H.y,True,False,False,False,False,False,False,False
+coulomb_N.x,False,False,False,False,False,False,False,True
+coulomb_N.y,True,False,False,False,False,False,False,False
+coulomb_O.x,False,False,False,False,False,True,False,False
+coulomb_O.y,False,False,False,False,False,False,False,True
+dist,True,True,True,True,True,True,True,True
+distC0,True,,True,,,True,,
+distC1,True,,True,,,True,,
+dist_C_0_x,False,False,False,False,False,False,False,False
+dist_C_0_y,True,False,True,False,False,False,False,True
+dist_C_1_x,False,False,False,False,False,False,False,True
+dist_C_1_y,True,False,False,False,False,False,False,False
+dist_C_2_x,True,False,False,False,False,False,False,False
+dist_C_2_y,False,False,False,False,False,False,False,False
+dist_C_3_x,False,False,False,False,False,False,False,True
+dist_C_3_y,False,False,False,False,False,False,False,True
+dist_C_4_x,False,False,False,False,False,False,False,True
+dist_C_4_y,False,False,False,False,False,False,False,False
+dist_F_0_x,False,False,False,False,False,False,False,False
+dist_F_0_y,False,False,False,False,False,False,False,False
+dist_F_1_x,False,False,False,False,False,False,False,False
+dist_F_1_y,False,False,False,False,False,False,False,False
+dist_F_2_x,False,False,False,False,False,False,False,False
+dist_F_2_y,False,False,False,False,False,False,False,False
+dist_F_3_x,False,False,False,False,False,False,False,False
+dist_F_3_y,False,False,False,False,False,False,False,False
+dist_F_4_x,False,False,False,False,False,False,False,False
+dist_F_4_y,False,False,False,False,False,False,False,False
+dist_H_0_x,False,True,True,False,True,True,False,True
+dist_H_0_y,True,False,False,True,False,True,True,True
+dist_H_1_x,True,True,False,True,True,False,False,True
+dist_H_1_y,True,False,False,False,False,False,False,True
+dist_H_2_x,True,False,False,True,False,False,False,True
+dist_H_2_y,False,True,False,True,False,False,False,False
+dist_H_3_x,False,False,False,False,False,False,False,True
+dist_H_3_y,False,False,False,False,False,False,False,False
+dist_H_4_x,False,False,False,True,False,False,False,True
+dist_H_4_y,False,False,False,True,False,False,False,True
+dist_N_0_x,False,False,False,False,False,False,False,False
+dist_N_0_y,False,False,False,False,False,False,False,False
+dist_N_1_x,False,False,False,False,False,False,False,False
+dist_N_1_y,False,False,False,False,False,False,False,False
+dist_N_2_x,False,False,False,False,False,False,False,False
+dist_N_2_y,False,False,False,False,False,False,False,False
+dist_N_3_x,False,False,False,False,False,False,False,False
+dist_N_3_y,False,False,False,False,False,False,False,False
+dist_N_4_x,False,False,False,False,False,False,False,False
+dist_N_4_y,False,False,False,False,False,False,False,False
+dist_O_0_x,False,False,False,False,False,False,False,False
+dist_O_0_y,False,False,False,False,False,True,False,True
+dist_O_1_x,False,True,False,False,False,False,False,False
+dist_O_1_y,False,False,False,False,False,False,False,False
+dist_O_2_x,False,False,False,False,False,False,False,False
+dist_O_2_y,False,False,False,False,False,False,False,False
+dist_O_3_x,False,False,False,False,False,False,False,False
+dist_O_3_y,False,False,False,False,False,False,False,False
+dist_O_4_x,False,False,False,False,False,False,False,False
+dist_O_4_y,False,False,False,False,False,False,False,False
+dist_inv2,True,True,True,True,True,True,True,True
+dist_to_0_max,True,False,True,False,False,True,False,True
+dist_to_0_mean,False,False,False,False,True,False,False,True
+dist_to_0_min,False,True,True,True,True,True,True,True
+dist_to_0_std,False,False,False,False,False,False,False,True
+dist_to_1_max,False,False,True,False,True,True,False,True
+dist_to_1_mean,True,False,False,True,False,False,False,True
+dist_to_1_min,True,True,True,True,True,True,True,True
+dist_to_1_std,False,False,False,False,False,True,False,True
+dist_xyz,True,True,True,True,True,True,True,True
+distance,True,True,True,True,True,True,True,True
+distance_10th_closest_to_0,True,True,False,False,False,True,False,True
+distance_10th_closest_to_0_cube_inverse,True,False,False,False,True,True,False,True
+distance_10th_closest_to_1,True,False,True,False,False,True,False,False
+distance_10th_closest_to_1_cube_inverse,True,False,True,False,True,True,False,True
+distance_12th_closest_to_0,False,False,False,False,False,True,False,False
+distance_12th_closest_to_0_cube_inverse,True,False,True,False,False,True,False,True
+distance_12th_closest_to_1,True,True,False,False,False,False,False,False
+distance_12th_closest_to_1_cube_inverse,True,False,True,False,False,True,False,True
+distance_13th_closest_to_0,False,True,False,False,False,False,False,False
+distance_13th_closest_to_0_cube_inverse,False,False,True,False,False,False,False,True
+distance_13th_closest_to_1,False,False,False,False,False,False,False,False
+distance_13th_closest_to_1_cube_inverse,True,False,True,False,False,True,False,True
+distance_14th_closest_to_0,False,False,False,False,False,False,False,False
+distance_14th_closest_to_0_cube_inverse,False,False,True,False,False,False,False,True
+distance_14th_closest_to_1,False,False,False,False,False,False,False,False
+distance_14th_closest_to_1_cube_inverse,True,False,True,False,False,True,False,False
+distance_15th_closest_to_0,False,False,False,False,False,False,False,False
+distance_15th_closest_to_0_cube_inverse,False,False,True,False,False,False,False,False
+distance_15th_closest_to_1,False,False,False,False,False,False,False,False
+distance_15th_closest_to_1_cube_inverse,False,True,False,False,False,False,False,False
+distance_16th_closest_to_0,False,False,False,False,False,False,False,False
+distance_16th_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_16th_closest_to_1,False,False,False,False,False,False,False,False
+distance_16th_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_17th_closest_to_0,False,False,False,False,False,False,False,False
+distance_17th_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_17th_closest_to_1,True,False,False,False,False,False,False,False
+distance_17th_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_18th_closest_to_0,False,False,False,False,False,False,False,False
+distance_18th_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_18th_closest_to_1,False,False,False,False,False,False,False,False
+distance_18th_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_19th_closest_to_0,False,False,False,False,False,False,False,False
+distance_19th_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_19th_closest_to_1,False,False,False,False,False,False,False,False
+distance_19th_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_20th_closest_to_0,False,False,False,False,False,False,False,False
+distance_20th_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_20th_closest_to_1,False,False,False,False,False,False,False,False
+distance_20th_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_21st_closest_to_0,False,False,False,False,False,False,False,False
+distance_21st_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_21st_closest_to_1,False,False,False,False,False,False,False,False
+distance_21st_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_22nd_closest_to_0,False,False,False,False,False,False,False,False
+distance_22nd_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_22nd_closest_to_1,True,False,False,False,False,False,False,False
+distance_22nd_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_23rd_closest_to_0,False,False,False,False,False,False,False,False
+distance_23rd_closest_to_0_cube_inverse,False,False,False,False,False,False,False,False
+distance_23rd_closest_to_1,False,False,False,False,False,False,False,False
+distance_23rd_closest_to_1_cube_inverse,False,False,False,False,False,False,False,False
+distance_24th_closest_to_0,False,,False,False,False,False,False,False
+distance_24th_closest_to_0_cube_inverse,False,,False,False,False,False,False,False
+distance_24th_closest_to_1,False,,False,False,False,False,False,False
+distance_24th_closest_to_1_cube_inverse,False,,False,False,False,False,False,False
+distance_25th_closest_to_0,False,,False,False,False,False,False,False
+distance_25th_closest_to_0_cube_inverse,False,,False,False,False,False,False,False
+distance_25th_closest_to_1,False,,False,False,False,False,False,False
+distance_25th_closest_to_1_cube_inverse,False,,False,False,False,False,False,False
+distance_26th_closest_to_0,False,,False,False,,False,False,
+distance_26th_closest_to_0_cube_inverse,False,,False,False,,False,False,
+distance_26th_closest_to_1,False,,False,False,,False,False,
+distance_26th_closest_to_1_cube_inverse,False,,False,False,,False,False,
+distance_27th_closest_to_0,False,,False,False,,False,False,
+distance_27th_closest_to_0_cube_inverse,False,,False,False,,False,False,
+distance_27th_closest_to_1,False,,False,False,,False,False,
+distance_27th_closest_to_1_cube_inverse,False,,False,False,,False,False,
+distance_28th_closest_to_0,False,,False,False,,False,False,
+distance_28th_closest_to_0_cube_inverse,False,,False,False,,False,False,
+distance_28th_closest_to_1,False,,False,False,,False,False,
+distance_28th_closest_to_1_cube_inverse,False,,False,False,,False,False,
+distance_2nd_closest_to_0,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_1,True,True,True,True,True,True,True,True
+distance_2nd_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_0,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_1,True,True,True,True,True,True,True,True
+distance_3rd_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_4th_closest_to_0,True,True,True,True,True,True,True,True
+distance_4th_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_4th_closest_to_1,True,True,True,True,True,True,True,True
+distance_4th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_5th_closest_to_0,True,True,True,True,True,True,True,True
+distance_5th_closest_to_0_cube_inverse,True,True,True,True,True,True,False,True
+distance_5th_closest_to_1,True,True,True,True,True,True,False,True
+distance_5th_closest_to_1_cube_inverse,True,True,True,True,True,True,False,True
+distance_6th_closest_to_0,True,True,True,True,True,True,True,True
+distance_6th_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_6th_closest_to_1,True,True,True,True,True,True,True,True
+distance_6th_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_7th_closest_to_0,True,True,True,True,False,True,True,True
+distance_7th_closest_to_0_cube_inverse,True,False,True,True,True,True,True,True
+distance_7th_closest_to_1,True,False,False,True,True,True,True,True
+distance_7th_closest_to_1_cube_inverse,True,True,False,True,True,True,True,True
+distance_8th_closest_to_0,True,True,True,False,True,True,True,True
+distance_8th_closest_to_0_cube_inverse,True,True,True,False,True,True,False,True
+distance_8th_closest_to_1,True,False,True,True,True,True,False,True
+distance_8th_closest_to_1_cube_inverse,True,False,True,True,True,True,False,True
+distance_9th_closest_to_0,True,True,False,False,True,True,True,True
+distance_9th_closest_to_0_cube_inverse,True,True,False,False,True,True,False,True
+distance_9th_closest_to_1,True,True,True,False,True,True,False,True
+distance_9th_closest_to_1_cube_inverse,True,False,True,False,True,True,False,True
+distance_closest_0,False,True,True,True,True,True,True,True
+distance_closest_1,True,True,True,True,True,True,True,True
+distance_closest_to_0,True,True,True,True,True,True,True,True
+distance_closest_to_0_cube_inverse,True,True,True,True,True,True,True,True
+distance_closest_to_1,True,True,True,True,True,True,True,True
+distance_closest_to_1_cube_inverse,True,True,True,True,True,True,True,True
+distance_farthest_0,True,True,True,True,True,True,True,True
+distance_farthest_1,True,True,True,True,True,True,True,True
+exact_mass_x,False,False,False,False,False,False,False,False
+exact_mass_y,False,False,False,False,False,False,False,False
+feat_acsf_g1_C_10.0_atom0,False,False,False,False,False,False,False,False
+feat_acsf_g1_C_10.0_atom1,False,False,False,False,False,False,False,False
+feat_acsf_g1_F_10.0_atom0,False,False,False,False,False,False,False,False
+feat_acsf_g1_F_10.0_atom1,False,False,False,False,False,False,False,False
+feat_acsf_g1_H_10.0_atom0,False,False,False,False,False,False,False,False
+feat_acsf_g1_H_10.0_atom1,False,False,False,False,False,False,False,False
+feat_acsf_g1_N_10.0_atom0,True,False,False,False,False,False,False,False
+feat_acsf_g1_N_10.0_atom1,False,False,False,False,False,False,False,False
+feat_acsf_g1_O_10.0_atom0,False,False,False,False,False,False,False,False
+feat_acsf_g1_O_10.0_atom1,False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.01, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.01, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.01, 6]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.01, 6]_atom1",False,True,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.1, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.1, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.1, 6]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[0.1, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_C_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_C_[1, 6]_atom0",True,True,True,True,False,True,False,True
+"feat_acsf_g2_C_[1, 6]_atom1",True,False,True,True,False,True,False,True
+"feat_acsf_g2_F_[0.01, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.01, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.01, 6]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.01, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.1, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.1, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.1, 6]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[0.1, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[1, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[1, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_F_[1, 6]_atom0",False,False,False,False,False,True,False,False
+"feat_acsf_g2_F_[1, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.01, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.01, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.01, 6]_atom0",True,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.01, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.1, 2]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.1, 2]_atom1",True,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[0.1, 6]_atom0",False,False,True,False,False,False,False,False
+"feat_acsf_g2_H_[0.1, 6]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_H_[1, 2]_atom0",True,False,False,True,True,True,False,True
+"feat_acsf_g2_H_[1, 2]_atom1",False,True,True,True,True,True,True,True
+"feat_acsf_g2_H_[1, 6]_atom0",False,False,False,False,False,True,False,True
+"feat_acsf_g2_H_[1, 6]_atom1",False,False,True,False,False,True,False,True
+"feat_acsf_g2_N_[0.01, 2]_atom0",True,False,False,False,False,False,False,False
+"feat_acsf_g2_N_[0.01, 2]_atom1",True,False,False,False,False,False,False,False
+"feat_acsf_g2_N_[0.01, 6]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g2_N_[0.01, 6]_atom1",False,False,False,False,False,True,False,False
+"feat_acsf_g2_N_[0.1, 2]_atom0",False,False,False,False,False,False,False,True
+"feat_acsf_g2_N_[0.1, 2]_atom1",False,True,False,False,False,False,False,False
+"feat_acsf_g2_N_[0.1, 6]_atom0",False,False,False,False,False,False,False,True
+"feat_acsf_g2_N_[0.1, 6]_atom1",False,False,False,False,False,True,False,False
+"feat_acsf_g2_N_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_N_[1, 2]_atom1",True,True,True,True,False,True,True,True
+"feat_acsf_g2_N_[1, 6]_atom0",False,False,True,False,False,True,False,True
+"feat_acsf_g2_N_[1, 6]_atom1",False,False,True,False,False,True,False,True
+"feat_acsf_g2_O_[0.01, 2]_atom0",False,True,False,False,False,False,False,False
+"feat_acsf_g2_O_[0.01, 2]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g2_O_[0.01, 6]_atom0",False,True,True,True,False,True,False,False
+"feat_acsf_g2_O_[0.01, 6]_atom1",False,False,False,True,False,False,True,False
+"feat_acsf_g2_O_[0.1, 2]_atom0",False,False,True,False,False,False,False,False
+"feat_acsf_g2_O_[0.1, 2]_atom1",True,False,False,False,False,True,False,False
+"feat_acsf_g2_O_[0.1, 6]_atom0",True,False,False,False,False,False,True,True
+"feat_acsf_g2_O_[0.1, 6]_atom1",False,False,False,False,False,True,True,True
+"feat_acsf_g2_O_[1, 2]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 2]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g2_O_[1, 6]_atom0",True,False,True,True,False,True,True,True
+"feat_acsf_g2_O_[1, 6]_atom1",True,True,True,True,False,True,True,True
+"feat_acsf_g4_C_C_[0.01, 4, -1]_atom0",True,True,True,True,True,True,False,True
+"feat_acsf_g4_C_C_[0.01, 4, -1]_atom1",True,True,True,True,True,True,False,True
+"feat_acsf_g4_C_C_[0.01, 4, 1]_atom0",True,False,False,False,False,True,False,True
+"feat_acsf_g4_C_C_[0.01, 4, 1]_atom1",True,True,False,False,False,False,False,False
+"feat_acsf_g4_C_C_[0.1, 4, -1]_atom0",True,True,True,True,True,True,False,True
+"feat_acsf_g4_C_C_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.1, 4, 1]_atom0",False,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[0.1, 4, 1]_atom1",False,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.01, 4, -1]_atom0",False,False,True,False,True,False,False,True
+"feat_acsf_g4_C_H_[0.01, 4, -1]_atom1",False,True,False,True,True,True,False,True
+"feat_acsf_g4_C_H_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_C_H_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_C_H_[0.1, 4, -1]_atom0",True,True,True,True,True,True,False,True
+"feat_acsf_g4_C_H_[0.1, 4, -1]_atom1",True,True,True,False,True,True,False,True
+"feat_acsf_g4_C_H_[0.1, 4, 1]_atom0",True,True,False,True,True,True,True,True
+"feat_acsf_g4_C_H_[0.1, 4, 1]_atom1",False,False,False,False,False,False,True,True
+"feat_acsf_g4_C_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_C_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_F_C_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.01, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[0.1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_C_[1, 4, -1]_atom1",False,False,True,False,False,False,False,False
+"feat_acsf_g4_F_C_[1, 4, 1]_atom0",False,False,True,False,False,False,False,False
+"feat_acsf_g4_F_C_[1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.01, 4, -1]_atom1",False,True,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[0.1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_F_[1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.01, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[0.1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_H_[1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.01, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[0.1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_N_[1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.01, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[0.1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[1, 4, -1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[1, 4, -1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[1, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_F_O_[1, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_H_H_[0.01, 4, -1]_atom0",False,False,True,True,True,True,False,True
+"feat_acsf_g4_H_H_[0.01, 4, -1]_atom1",True,False,False,False,False,False,False,True
+"feat_acsf_g4_H_H_[0.01, 4, 1]_atom0",False,False,False,True,False,False,False,False
+"feat_acsf_g4_H_H_[0.01, 4, 1]_atom1",True,False,False,True,False,False,False,False
+"feat_acsf_g4_H_H_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[0.1, 4, 1]_atom0",True,False,False,True,False,False,False,True
+"feat_acsf_g4_H_H_[0.1, 4, 1]_atom1",True,False,True,True,False,False,False,True
+"feat_acsf_g4_H_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_H_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.01, 4, -1]_atom0",True,True,False,False,False,False,False,True
+"feat_acsf_g4_N_C_[0.01, 4, -1]_atom1",False,True,True,False,False,False,False,False
+"feat_acsf_g4_N_C_[0.01, 4, 1]_atom0",True,False,False,False,False,False,False,True
+"feat_acsf_g4_N_C_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_N_C_[0.1, 4, -1]_atom0",True,True,True,False,True,True,False,True
+"feat_acsf_g4_N_C_[0.1, 4, -1]_atom1",True,True,True,True,True,False,False,True
+"feat_acsf_g4_N_C_[0.1, 4, 1]_atom0",True,False,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[0.1, 4, 1]_atom1",False,False,True,True,False,True,True,False
+"feat_acsf_g4_N_C_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[0.01, 4, -1]_atom0",False,True,False,False,True,False,False,True
+"feat_acsf_g4_N_H_[0.01, 4, -1]_atom1",False,False,False,True,False,False,False,False
+"feat_acsf_g4_N_H_[0.01, 4, 1]_atom0",False,False,False,False,False,True,False,True
+"feat_acsf_g4_N_H_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_N_H_[0.1, 4, -1]_atom0",False,True,True,False,True,True,False,True
+"feat_acsf_g4_N_H_[0.1, 4, -1]_atom1",False,True,True,False,False,True,False,True
+"feat_acsf_g4_N_H_[0.1, 4, 1]_atom0",True,False,True,True,False,True,False,True
+"feat_acsf_g4_N_H_[0.1, 4, 1]_atom1",True,False,True,True,False,True,False,False
+"feat_acsf_g4_N_H_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, -1]_atom1",True,False,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_H_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_N_N_[0.01, 4, -1]_atom0",False,False,False,False,False,False,False,True
+"feat_acsf_g4_N_N_[0.01, 4, -1]_atom1",False,False,False,False,False,False,False,True
+"feat_acsf_g4_N_N_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_N_N_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_N_N_[0.1, 4, -1]_atom0",False,True,True,False,True,False,False,True
+"feat_acsf_g4_N_N_[0.1, 4, -1]_atom1",True,False,True,False,False,True,False,True
+"feat_acsf_g4_N_N_[0.1, 4, 1]_atom0",False,False,False,False,False,True,False,True
+"feat_acsf_g4_N_N_[0.1, 4, 1]_atom1",False,False,False,False,False,True,False,True
+"feat_acsf_g4_N_N_[1, 4, -1]_atom0",False,True,True,True,True,False,False,True
+"feat_acsf_g4_N_N_[1, 4, -1]_atom1",True,False,True,False,False,True,False,False
+"feat_acsf_g4_N_N_[1, 4, 1]_atom0",False,True,False,True,True,True,True,True
+"feat_acsf_g4_N_N_[1, 4, 1]_atom1",False,True,False,True,False,True,True,False
+"feat_acsf_g4_O_C_[0.01, 4, -1]_atom0",True,True,False,True,True,True,False,True
+"feat_acsf_g4_O_C_[0.01, 4, -1]_atom1",True,False,True,True,True,True,False,True
+"feat_acsf_g4_O_C_[0.01, 4, 1]_atom0",False,True,True,False,False,True,True,True
+"feat_acsf_g4_O_C_[0.01, 4, 1]_atom1",False,False,False,False,False,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, -1]_atom1",True,True,True,True,True,True,False,True
+"feat_acsf_g4_O_C_[0.1, 4, 1]_atom0",False,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[0.1, 4, 1]_atom1",True,False,True,True,False,True,True,True
+"feat_acsf_g4_O_C_[1, 4, -1]_atom0",True,True,True,True,False,True,True,True
+"feat_acsf_g4_O_C_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_C_[1, 4, 1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[0.01, 4, -1]_atom0",True,True,True,False,False,False,False,True
+"feat_acsf_g4_O_H_[0.01, 4, -1]_atom1",True,False,False,False,True,False,False,True
+"feat_acsf_g4_O_H_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,True
+"feat_acsf_g4_O_H_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_O_H_[0.1, 4, -1]_atom0",True,True,True,True,False,True,False,True
+"feat_acsf_g4_O_H_[0.1, 4, -1]_atom1",True,True,True,True,True,True,False,True
+"feat_acsf_g4_O_H_[0.1, 4, 1]_atom0",True,True,True,True,False,True,False,True
+"feat_acsf_g4_O_H_[0.1, 4, 1]_atom1",False,False,True,True,False,True,False,True
+"feat_acsf_g4_O_H_[1, 4, -1]_atom0",True,False,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, -1]_atom1",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, 1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_H_[1, 4, 1]_atom1",True,True,True,True,False,True,True,True
+"feat_acsf_g4_O_N_[0.01, 4, -1]_atom0",False,True,False,False,True,False,False,True
+"feat_acsf_g4_O_N_[0.01, 4, -1]_atom1",True,False,False,False,False,False,False,True
+"feat_acsf_g4_O_N_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,True
+"feat_acsf_g4_O_N_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,True
+"feat_acsf_g4_O_N_[0.1, 4, -1]_atom0",False,True,False,False,True,True,False,True
+"feat_acsf_g4_O_N_[0.1, 4, -1]_atom1",True,False,True,False,False,True,False,True
+"feat_acsf_g4_O_N_[0.1, 4, 1]_atom0",False,True,True,True,False,True,True,True
+"feat_acsf_g4_O_N_[0.1, 4, 1]_atom1",True,False,True,True,False,True,True,True
+"feat_acsf_g4_O_N_[1, 4, -1]_atom0",True,True,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[1, 4, -1]_atom1",True,True,True,False,True,True,True,False
+"feat_acsf_g4_O_N_[1, 4, 1]_atom0",False,False,True,True,True,True,True,True
+"feat_acsf_g4_O_N_[1, 4, 1]_atom1",True,True,True,True,False,True,True,True
+"feat_acsf_g4_O_O_[0.01, 4, -1]_atom0",False,False,False,True,False,True,False,False
+"feat_acsf_g4_O_O_[0.01, 4, -1]_atom1",True,False,True,True,False,True,False,False
+"feat_acsf_g4_O_O_[0.01, 4, 1]_atom0",False,False,False,False,False,False,False,False
+"feat_acsf_g4_O_O_[0.01, 4, 1]_atom1",False,False,False,False,False,False,False,False
+"feat_acsf_g4_O_O_[0.1, 4, -1]_atom0",True,False,True,True,False,True,False,True
+"feat_acsf_g4_O_O_[0.1, 4, -1]_atom1",True,False,True,True,False,True,False,False
+"feat_acsf_g4_O_O_[0.1, 4, 1]_atom0",False,False,True,True,False,True,False,False
+"feat_acsf_g4_O_O_[0.1, 4, 1]_atom1",False,False,True,True,False,True,False,True
+"feat_acsf_g4_O_O_[1, 4, -1]_atom0",True,True,True,True,False,True,True,False
+"feat_acsf_g4_O_O_[1, 4, -1]_atom1",True,False,True,True,False,True,False,False
+"feat_acsf_g4_O_O_[1, 4, 1]_atom0",True,False,True,True,False,True,False,True
+"feat_acsf_g4_O_O_[1, 4, 1]_atom1",False,False,True,True,False,True,False,False
+freqs_max,True,False,False,True,False,True,False,True
+freqs_mean,False,False,False,False,False,False,False,False
+freqs_min,True,False,True,True,False,True,True,True
+gap,True,True,True,True,True,True,True,True
+homo,True,False,True,True,True,True,True,True
+inv_dist0,True,False,False,False,True,True,False,True
+inv_dist0E,True,True,False,True,False,True,False,True
+inv_dist0R,True,True,True,True,True,True,True,True
+inv_dist1,True,True,True,True,True,True,True,True
+inv_dist1E,True,False,False,True,False,True,True,True
+inv_dist1R,True,True,True,True,True,True,True,True
+inv_distP,True,True,True,True,True,True,False,True
+inv_distPE,True,False,False,True,True,True,False,True
+inv_distPR,True,True,True,True,True,True,True,True
+is_bond,False,False,False,False,False,False,False,False
+is_bond_10th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_10th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_12th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_12th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_13th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_13th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_14th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_14th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_15th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_15th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_16th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_16th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_17th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_17th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_18th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_18th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_19th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_19th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_20th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_20th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_21st_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_21st_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_22nd_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_22nd_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_23rd_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_23rd_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_24th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_24th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_25th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_25th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_26th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_26th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_27th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_27th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_28th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_28th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_2nd_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_2nd_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_3rd_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_3rd_closest_to_1,True,True,True,False,True,False,False,True
+is_bond_4th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_4th_closest_to_1,True,True,True,False,True,True,False,True
+is_bond_5th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_5th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_6th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_6th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_7th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_7th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_8th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_8th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_9th_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_9th_closest_to_1,False,False,False,False,False,False,False,False
+is_bond_closest_to_0,False,False,False,False,False,False,False,False
+is_bond_closest_to_1,False,False,False,False,False,False,False,False
+is_closest_pair,False,False,False,False,False,False,False,False
+link0,False,True,True,True,False,True,True,True
+link1,False,False,False,True,False,True,True,True
+linkM0,True,True,True,True,True,True,True,True
+linkM1,True,True,True,True,True,True,True,True
+linkN,False,True,True,True,False,True,True,True
+lumo,True,False,True,True,True,True,True,True
+max_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+max_molecule_atom_1_dist_xyz,True,False,True,True,True,True,True,True
+mean_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+mean_molecule_atom_1_dist_xyz,True,True,False,True,False,True,False,True
+min_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+min_molecule_atom_1_dist_xyz,True,True,True,True,True,True,True,True
+mol_wt,False,False,False,False,False,False,False,False
+molecule_atom_index_0_dist_mean,True,True,True,True,True,True,True,True
+molecule_atom_index_0_dist_mean_diff,False,False,True,True,True,True,True,True
+molecule_atom_index_0_dist_min,True,True,True,True,True,True,True,True
+molecule_atom_index_0_dist_min_diff,False,False,True,True,True,True,True,True
+molecule_atom_index_0_dist_std,False,False,True,True,True,True,True,True
+molecule_atom_index_1_dist_mean,True,True,True,True,True,True,True,True
+molecule_atom_index_1_dist_mean_diff,True,True,True,True,True,True,True,True
+molecule_atom_index_1_dist_min,True,True,True,True,True,False,True,True
+molecule_atom_index_1_dist_min_diff,True,True,True,True,True,True,True,True
+molecule_atom_index_1_dist_std,False,False,True,True,True,True,True,True
+molecule_type_dist_mean,True,True,True,False,True,True,False,True
+molecule_type_dist_mean_diff,True,True,True,True,True,True,True,True
+mu,False,True,True,True,True,True,False,True
+mulliken_atom_0,True,True,True,True,True,True,True,True
+mulliken_atom_1,True,True,True,True,True,True,True,True
+mulliken_max,True,False,True,True,False,True,True,True
+mulliken_min,True,True,False,True,False,True,False,True
+num_atoms,False,False,False,False,False,False,False,False
+num_bonds,False,False,False,False,False,False,False,False
+rc_A,True,False,True,False,False,True,False,True
+rc_B,False,False,True,False,False,True,False,True
+rc_C,True,False,True,False,False,True,False,True
+sd_molecule_atom_0_dist_xyz,True,True,True,True,True,True,True,True
+sd_molecule_atom_1_dist_xyz,True,False,True,True,False,True,True,True
+tor_ang_2leftleft_count,True,True,,,,,,
+tor_ang_2leftleft_max,True,False,,,,,,
+tor_ang_2leftleft_mean,False,False,,,,,,
+tor_ang_2leftleft_min,True,False,,,,,,
+type0,False,False,False,False,False,False,False,False
+type1,False,False,False,False,False,False,False,False
+type2,False,False,False,False,False,False,False,False
+type3,False,False,False,False,False,False,False,False
+val_not_0_max,False,True,False,False,False,False,False,False
+val_not_0_mean,True,False,True,True,False,True,True,True
+val_not_0_min,False,False,False,False,False,False,False,False
+val_not_0_std,False,False,False,True,False,True,True,True
+val_not_1_max,False,False,False,True,False,False,False,False
+val_not_1_mean,True,False,True,True,True,True,True,True
+val_not_1_min,False,False,False,False,False,False,False,False
+val_not_1_std,True,True,True,True,False,True,False,True
+x0,False,False,False,False,False,False,False,True
+x1,False,False,False,False,False,True,False,True
+x_a0_nb,False,False,False,False,False,False,False,True
+x_a1_nb,False,False,False,False,False,False,False,True
+y0,False,False,False,False,False,True,False,True
+y1,False,False,False,False,False,True,False,True
+y_a0_nb,False,False,False,False,False,True,False,True
+y_a1_nb,False,False,False,False,False,True,False,True
+yukawa_C.x,False,False,False,False,False,True,False,True
+yukawa_C.y,False,False,False,False,True,False,True,True
+yukawa_F.x,False,False,False,False,False,False,False,False
+yukawa_F.y,False,False,False,False,False,False,False,False
+yukawa_H.x,True,True,True,True,True,False,False,True
+yukawa_H.y,True,True,True,True,False,False,False,True
+yukawa_N.x,True,False,False,False,False,True,False,True
+yukawa_N.y,False,True,True,False,False,True,False,False
+yukawa_O.x,False,False,False,False,False,True,True,False
+yukawa_O.y,True,False,True,False,True,True,False,True
+z0,False,False,False,False,False,False,False,True
+z1,False,False,False,False,False,False,False,False
+z_a0_nb,False,False,False,False,False,False,False,True
+z_a1_nb,False,False,False,False,False,False,False,True
+zpve,False,False,False,False,False,False,False,False

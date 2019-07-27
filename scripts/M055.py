@@ -5,13 +5,9 @@ Jul 26
 New Changes:
     - Features from: FE020
     - Catboost
+    - Best features from M055 with 0.01 Feature importance threshold
     - Depth = 7
     - Learning rate 0.1
-    - 10000 iterations to get good features so we can filter for next run
-Todo later:
-    - Email updates.
-    - Sync logs online?
-    - Lower learning rate
 Old Changes:
     - Features from FE019
     - QM9 features
@@ -64,19 +60,12 @@ from catboost import CatBoostRegressor, Pool
 from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
-
-# #### DELAY 2.5 Hours
-# DELAY_HOURS = 0.001
-# logger.info('Delaying for {:0.4f} Hours'.format(DELAY_HOURS))
-# time.sleep(60 * 60 * DELAY_HOURS)
-# logger.info('Done waiting! Starting program.')
-
 ####################
 # CONFIGURABLES
 #####################
 
 # MODEL NUMBER
-MODEL_NUMBER = "M054"
+MODEL_NUMBER = "M055"
 script_name = os.path.basename(__file__).split('.')[0]
 if script_name not in MODEL_NUMBER:
     logger.error('Model Number is not same as script! Update before running')
@@ -89,8 +78,8 @@ RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = "scalar_coupling_constant"
-N_ESTIMATORS = 10000
-N_META_ESTIMATORS = 10000
+N_ESTIMATORS = 500000
+N_META_ESTIMATORS = 500000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
@@ -136,10 +125,7 @@ lgb_params = {
 }
 
 # Order to run types
-# types = ['1JHC', '3JHN', '2JHC', '3JHC', '2JHH', '1JHN', '3JHH', '2JHN']
-# types = ['3JHC', '2JHH', '1JHN', '3JHH', '2JHN']
-# types = ['2JHH', '1JHN', '3JHH', '2JHN']
-types = ['3JHC'] # , '2JHH', '1JHN', '3JHH', '2JHN']
+types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
 
 #####################
 ## SETUP LOGGER
@@ -159,7 +145,6 @@ def get_logger():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
-
 
 logger = get_logger()
 
@@ -198,7 +183,7 @@ def reduce_mem_usage(df, verbose=True):
                     df[col] = df[col].astype(np.float64)
     end_mem = df.memory_usage().sum() / 1024 ** 2
     if verbose:
-        print(
+        logger.info(
             "Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)".format(
                 end_mem, 100 * (start_mem - end_mem) / start_mem
             )
@@ -209,17 +194,6 @@ def reduce_mem_usage(df, verbose=True):
 def group_mean_log_mae(y_true, y_pred, groups, floor=1e-9):
     maes = (y_true - y_pred).abs().groupby(groups).mean()
     return np.log(maes.map(lambda x: max(x, floor))).mean()
-
-
-#####################
-# READ INPUT FILES
-#####################
-logger.info("Reading input files....")
-path = "input/"
-# train_df = pd.read_parquet(f'{path}FE009_train_pandas.parquet')
-# test_df = pd.read_parquet(f'{path}FE009_test_pandas.parquet')
-ss = pd.read_csv("input/sample_submission.csv")
-
 
 ##########################
 # Tracking Sheet function
@@ -249,7 +223,7 @@ def get_good_features(bond_type):
     """
     Read csv with stored best features
     """
-    good_feats = pd.read_csv("fi/Good_Features_By_Type.csv", index_col=0)
+    good_feats = pd.read_csv("fi/FI_ANALYSIS_M054_GOODFEATS.csv", index_col=0)
     good_feats = good_feats.fillna(False)
     return good_feats.loc[good_feats[bond_type]].index.tolist()
 
@@ -272,10 +246,10 @@ def fit_meta_feature(
     """
     Adds meta features to train, test and val
     """
-    logger.info(f"Creating meta feature {feature}")
+    logger.info(f"{bond_type}: Creating meta feature {feature}")
     logger.info(
-        "X_train, X_valid and X_test are shapes {} {} {}".format(
-            X_train.shape, X_valid.shape, X_test.shape
+        "{}: X_train, X_valid and X_test are shapes {} {} {}".format(
+            bond_type, X_train.shape, X_valid.shape, X_test.shape
         )
     )
     folds = GroupKFold(n_splits=N_META_FOLDS)
@@ -292,8 +266,8 @@ def fit_meta_feature(
         folds.split(X_train, groups=mol_group_type.iloc[train_idx].values)
     ):
         logger.info(
-            "Running Meta Feature Type {} - Fold {} of {}".format(
-                feature, fold_count, folds.n_splits
+            "{}: Running Meta Feature Type {} - Fold {} of {}".format(
+                bond_type, feature, fold_count, folds.n_splits
             )
         )
         update_tracking(
@@ -390,7 +364,7 @@ def fit_meta_feature(
     oof_score = mean_absolute_error(Meta_train[feature], X_train_oof["meta_" + feature])
     log_oof_score = np.log(oof_score)
     logger.info(
-        f"Meta feature {feature} has MAE {oof_score:0.4f} LMAE {log_oof_score:0.4f}"
+        f"{bond_type} Meta feature {feature} has MAE {oof_score:0.4f} LMAE {log_oof_score:0.4f}"
     )
     update_tracking(
         run_id, "{}_meta_{}_mae_cv_f{}".format(bond_type, feature, base_fold), oof_score
@@ -467,10 +441,10 @@ def fit_meta_feature(
             log_oof_score,
         )
     )
-    logger.info("Done creating meta features")
+    logger.info(f"{bond_type} Done creating meta features")
     logger.info(
-        "X_train, X_valid and X_test are shapes {} {} {}".format(
-            X_train.shape, X_valid.shape, X_test.shape
+        "{} X_train, X_valid and X_test are shapes {} {} {}".format(
+            bond_type, X_train.shape, X_valid.shape, X_test.shape
         )
     )
     return X_train, X_valid, X_test
@@ -580,36 +554,37 @@ if not os.path.exists('temp/{}'.format(MODEL_NUMBER)):
 
 ## Load Scalar Coupling Components
 tr_scc = pd.read_parquet('data/tr_scc.parquet')
-# tr_scc = pd.read_csv(
-#     "input/scalar_coupling_contributions.csv")
 
 #####################
 # TRAIN MODEL
 #####################
-logger.info("Training model....")
 
 for bond_type in types:
+    logger.info(f"{bond_type}: Reading input feature files....")
     # Read the files and make X, X_test, and y
     train_df = pd.read_parquet(
         "data/FE020/FE020-train-{}.parquet".format(bond_type)
     )
-    train_df = reduce_mem_usage(train_df)
+    if bond_type == '3JHC':
+        train_df = reduce_mem_usage(train_df)
     test_df = pd.read_parquet(
         "data/FE020/FE020-test-{}.parquet".format(bond_type)
     )
-    test_df = reduce_mem_usage(test_df)
+    if bond_type == '3JHC':
+        test_df = reduce_mem_usage(test_df)
     if MODEL_TYPE == "xgboost":
-        train_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in train_df.columns]
-        test_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in test_df.columns]
+        train_df.columns = [x.replace('[','_').replace(']','_') \
+                                .replace(', ','_').replace(' ','_') \
+                                .replace('.','') for x in train_df.columns]
+        test_df.columns = [x.replace('[','_').replace(']','_') \
+                               .replace(', ','_').replace(' ','_') \
+                               .replace('.','') for x in test_df.columns]
 
     Meta = train_df[["id", "molecule_name", "atom_index_0", "atom_index_1"]].merge(
         tr_scc, on=["id", "molecule_name", "atom_index_0", "atom_index_1"]
     )[["id", "fc", "sd", "pso", "dso"]]
-
-    # FEATURES = get_good_features(bond_type)
-    # FEATURES = [f for f in FEATURES if 'meta' not in f] + NEW_FEATURES # Drop meta feature
-    # FEATURES = GOOD_FEATURES
-    FEATURES = train_df.drop(DROP_FEATURES, axis=1).columns.tolist()
+    logger.info(f"{bond_type}: Getting good features...")
+    FEATURES = get_good_features(bond_type)
     update_tracking(run_id, "{}_features".format(bond_type), len(FEATURES))
     logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
     X_type = train_df[FEATURES + ['id']].copy()
