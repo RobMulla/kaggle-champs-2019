@@ -125,7 +125,8 @@ lgb_params = {
 }
 
 # Order to run types
-types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
+# types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
+types = ['2JHH', '1JHN', '3JHC']
 
 #####################
 ## SETUP LOGGER
