@@ -1,41 +1,12 @@
 '''
 Created by: Rob Mulla
-Jul 26
+Jul 28
 
 New Changes:
     - Features from: FE020
-    - Catboost
-    - Best features from M055 with 0.01 Feature importance threshold
-    - Depth = 7
-    - Learning rate 0.1
-Old Changes:
-    - Features from FE019
-    - QM9 features
-    - Save feature importance for FC
-    - Use new formatting to save temp files.
-    - Best features per type
-    - Increased meta-feature folds
-    - Import best features function
-    - 3 folds
-    - Calculate meta feature for FC
-    - Calculated within fold
-    - Features from FE018
-    - Features from FE017
-    - Remove features per type if feature is all nulls
-    - change logging timestamp
-    - update code to check for model number being same as filename
-    - FE010 !
-    - Load feature data each fold
-    - N_THREADS when using predict
-    - Remove useless features
-    - Delete and gc train and test df after copied
-    - Fixed OOF error by using GroupKFold
-    - Adding type column to feature importance dataframe/csv
-    - Tracking sheet set percision
-    - New features created from openbabel
-    - Switch to GroupShuffleSplit
-    - CV by molecule type. Reduce overfitting of CV score
-    - Caclulate group mean log mae score also
+    - XGboost
+    - Best features from M054 with 0.01 Feature importance threshold
+    - Run in kernels
 '''
 
 import numpy as np  # linear algebra
@@ -60,17 +31,21 @@ from catboost import CatBoostRegressor, Pool
 from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
-####################
-# CONFIGURABLES
-#####################
-
 # MODEL NUMBER
-MODEL_NUMBER = "M055"
-script_name = os.path.basename(__file__).split('.')[0]
-if script_name not in MODEL_NUMBER:
-    logger.error('Model Number is not same as script! Update before running')
-    raise SystemExit('Model Number is not same as script! Update before running')
+KERNEL_RUN = True
+MODEL_NUMBER = "M056"
+INPUT_DIR = '../input/champs-scalar-coupling/'
+FE_DIR = '../input/molecule-fe021/'
+FOLDS_DIR = '../input/champs-3fold-ids/'
 
+if not KERNEL_RUN:
+    script_name = os.path.basename(__file__).split('.')[0]
+    if script_name not in MODEL_NUMBER:
+        logger.error('Model Number is not same as script! Update before running')
+        raise SystemExit('Model Number is not same as script! Update before running')
+
+# Order to run types
+types = ['1JHN'] #, '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
 LEARNING_RATE = 0.1
@@ -89,8 +64,13 @@ META_DEPTH = 7
 N_FOLDS = 3
 N_META_FOLDS = 2
 # EVAL_METRIC = 'group_mae'
-EVAL_METRIC = "MAE"
-MODEL_TYPE = "catboost"
+MODEL_TYPE = "xgboost"
+if MODEL_TYPE == 'xgboost':
+    EVAL_METRIC = "mae"
+elif MODEL_TYPE == 'lgbm':
+    EVAL_METRIC = 'mae'
+elif MODEL_TYPE == 'catboost':
+    EVAL_METRIC = "MAE"
 
 # THESE COLUMNS APPEAR IN THE FE PARQUET FILE BUT ARE NOT FEATURES
 DROP_FEATURES = ['id','scalar_coupling_constant','molecule_name',
@@ -123,10 +103,6 @@ lgb_params = {
     "metric": EVAL_METRIC,
     "random_state": RANDOM_STATE,
 }
-
-# Order to run types
-# types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
-types = ['2JHH', '1JHN', '3JHC']
 
 #####################
 ## SETUP LOGGER
@@ -196,13 +172,24 @@ def group_mean_log_mae(y_true, y_pred, groups, floor=1e-9):
     maes = (y_true - y_pred).abs().groupby(groups).mean()
     return np.log(maes.map(lambda x: max(x, floor))).mean()
 
+def make_dir_if_not_exists(directory):
+    if not os.path.exists(directory):
+        logger.info(f'Directory {directory} does not exist, creating it.')
+        os.makedirs(directory)
+    return
+
+make_dir_if_not_exists('tracking')
+
 ##########################
 # Tracking Sheet function
 #########################
 def update_tracking(
     run_id, field, value, csv_file="tracking/tracking.csv", integer=False, digits=None
 ):
-    df = pd.read_csv(csv_file, index_col=[0])
+    try:
+        df = pd.read_csv(csv_file, index_col=[0])
+    except FileNotFoundError:
+        df = pd.DataFrame()
     if integer:
         value = round(value)
     elif digits is not None:
@@ -329,6 +316,9 @@ def fit_meta_feature(
             feature_importance = pd.concat(
                 [feature_importance, fold_importance], axis=0
             )
+            update_tracking(run_id, '{}_f{}-{}_meta{}_best_iter'.format(bond_type, base_fold,
+                                                                        fold_count, feature),
+                            model.best_iteration_, integer=True)
         elif model_type == "xgboost":
             model = xgboost.XGBRegressor(**xgb_params)
             model.fit(
@@ -342,7 +332,7 @@ def fit_meta_feature(
 
             y_pred_meta_valid = model.predict(X_valid2)
             y_pred_valid = model.predict(X_valid.drop("meta_" + feature, axis=1))
-            y_pred = model.predict(X_test.drop("meta_" + feature, axis=1))
+            y_pred = model.predict(X_test.drop(["meta_" + feature, 'id'], axis=1))
 
             X_train_oof.loc[
                 X_train_oof.reset_index().index.isin(valid_idx2), "meta_" + feature
@@ -360,7 +350,7 @@ def fit_meta_feature(
             )
             update_tracking(run_id, '{}_f{}-{}_meta{}_best_iter'.format(bond_type, base_fold,
                                                                         fold_count, feature),
-                            model.best_iteration_, integer=True)
+                            model.get_booster().best_iteration, integer=True)
 
     oof_score = mean_absolute_error(Meta_train[feature], X_train_oof["meta_" + feature])
     log_oof_score = np.log(oof_score)
@@ -453,7 +443,7 @@ def fit_meta_feature(
 #########################################
 ## FUNCTION FOR SAVING TYPE LEVEL RESULTS
 #########################################
-test = pd.read_csv("input/test.csv")
+test = pd.read_csv(f"{INPUT_DIR}/test.csv")
 
 
 def save_type_data(
@@ -519,28 +509,22 @@ def save_type_data(
         print(fi_name)
         fi_type.to_parquet(fi_name)
 
-
-###############
+#####################
 # PREPARE MODEL DATA
-################
+#####################
 folds = GroupKFold(n_splits=N_FOLDS)
 
 # Setup arrays for storing results
-train_df = pd.read_csv("input/train.csv")
-oof_df = train_df[["id", "type", "scalar_coupling_constant"]].copy()
-mol_group = train_df[["molecule_name", "type"]].copy()
-del train_df
-gc.collect()
+train_raw = pd.read_csv(f"{INPUT_DIR}/train.csv")
+test_raw = pd.read_csv(f"{INPUT_DIR}/test.csv")
+oof_df = train_raw[["id", "type", "scalar_coupling_constant"]].copy()
+mol_group = train_raw[["molecule_name", "type"]].copy()
 
 oof_df["oof_preds"] = 0
-test_df = pd.read_csv(
-    "input/test.csv"
-)  # only loading for skeleton not features
+test_df = pd.read_csv(f"{INPUT_DIR}/test.csv")  # loading for skeleton not features
 prediction = np.zeros(len(test_df))
 feature_importance = pd.DataFrame()
-test_pred_df = test_df[["id", "type", "molecule_name"]].copy()
-del test_df
-gc.collect()
+test_pred_df = test_raw[["id", "type", "molecule_name"]].copy()
 test_pred_df["prediction"] = 0
 bond_count = 1
 
@@ -554,7 +538,11 @@ if not os.path.exists('temp/{}'.format(MODEL_NUMBER)):
     os.makedirs('temp/{}'.format(MODEL_NUMBER))
 
 ## Load Scalar Coupling Components
-tr_scc = pd.read_parquet('data/tr_scc.parquet')
+tr_scc = pd.read_csv(f'{INPUT_DIR}/scalar_coupling_contributions.csv')
+tr_scc = tr_scc.merge(train_raw, on=['molecule_name','atom_index_0','atom_index_1','type'])
+
+make_dir_if_not_exists('type_results')
+make_dir_if_not_exists(f'models/{MODEL_NUMBER}')
 
 #####################
 # TRAIN MODEL
@@ -562,16 +550,19 @@ tr_scc = pd.read_parquet('data/tr_scc.parquet')
 
 for bond_type in types:
     logger.info(f"{bond_type}: Reading input feature files....")
+    make_dir_if_not_exists(f'type_results/{bond_type}')
+    make_dir_if_not_exists(f'type_results/{bond_type}/meta')
+
     # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet(
-        "data/FE020/FE020-train-{}.parquet".format(bond_type)
-    )
-    if bond_type == '3JHC':
+    train_df = pd.read_parquet(f"{FE_DIR}/FE021-train-{bond_type}.parquet")
+    train_raw_type = train_raw.loc[train_raw['type'] == bond_type].reset_index(drop=True)
+    train_df = pd.concat([train_raw_type, train_df], axis=1)
+    if bond_type in ['1JHC', '3JHC']:
         train_df = reduce_mem_usage(train_df)
-    test_df = pd.read_parquet(
-        "data/FE020/FE020-test-{}.parquet".format(bond_type)
-    )
-    if bond_type == '3JHC':
+    test_df = pd.read_parquet(f"{FE_DIR}/FE021-test-{bond_type}.parquet")
+    test_raw_type = test_raw.loc[test_raw['type'] == bond_type].reset_index(drop=True)
+    test_df = pd.concat([test_raw_type, test_df], axis=1)
+    if bond_type in ['1JHC', '3JHC']:
         test_df = reduce_mem_usage(test_df)
     if MODEL_TYPE == "xgboost":
         train_df.columns = [x.replace('[','_').replace(']','_') \
@@ -584,8 +575,9 @@ for bond_type in types:
     Meta = train_df[["id", "molecule_name", "atom_index_0", "atom_index_1"]].merge(
         tr_scc, on=["id", "molecule_name", "atom_index_0", "atom_index_1"]
     )[["id", "fc", "sd", "pso", "dso"]]
-    logger.info(f"{bond_type}: Getting good features...")
-    FEATURES = get_good_features(bond_type)
+    #logger.info(f"{bond_type}: Getting good features...")
+    #FEATURES = get_good_features(bond_type)
+    FEATURES = [x for x in train_df.columns if x not in DROP_FEATURES]
     update_tracking(run_id, "{}_features".format(bond_type), len(FEATURES))
     logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
     X_type = train_df[FEATURES + ['id']].copy()
@@ -593,6 +585,8 @@ for bond_type in types:
     y_type = train_df[[TARGET] + ['id']].copy()
     del train_df
     del test_df
+    del train_raw
+    del test_raw
     gc.collect()
     # Remove colmns that have all nulls
     logger.info("{}: {} Features before dropping null columns".format(bond_type, len(X_type.columns)))
@@ -611,8 +605,8 @@ for bond_type in types:
     ):
         # Loading Fold ids from numpy arrays for consistency
         logger.info(f'{bond_type}: Loading numpy arrays with ids for this fold')
-        train_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-train_ids.npy')
-        valid_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-valid_ids.npy')
+        train_ids = np.load(f'{FOLDS_DIR}/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-train_ids.npy')
+        valid_ids = np.load(f'{FOLDS_DIR}/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-valid_ids.npy')
         Meta_train = Meta.loc[Meta['id'].isin(train_ids)].drop('id', axis=1)
         Meta_valid = Meta.loc[Meta['id'].isin(valid_ids)].drop('id', axis=1)
         X_train = X_type.loc[X_type['id'].isin(train_ids)].drop('id', axis=1)
@@ -705,11 +699,8 @@ for bond_type in types:
             )
 
             bond_scores.append(mean_absolute_error(y_valid, y_pred_valid))
-            logger.info(
-                "{}: CV mean score: {:.4f}, std: {:.4f}.".format(
-                    bond_type, np.mean(bond_scores), np.std(bond_scores)
-                )
-            )
+            logger.info('{}: CV mean score: {:.4f}, std: {:.4f}. - Log MAE {:0.4f}'.format(
+                bond_type, np.mean(bond_scores), np.std(bond_scores), np.log(np.mean(bond_scores))))
             oof[valid_idx] = y_pred_valid.reshape(-1)
             prediction_type += y_pred
         elif MODEL_TYPE == "catboost":
@@ -786,8 +777,8 @@ for bond_type in types:
             fold_score = mean_absolute_error(y_valid, y_pred_valid)
             bond_scores.append(fold_score)
             update_tracking(run_id, '{}cv_f{}'.format(bond_type, fold_n+1), fold_score, integer=False)
-            logger.info('{}: CV mean score: {:.4f}, std: {:.4f}.'.format(
-                bond_type, np.mean(bond_scores), np.std(bond_scores)))
+            logger.info('{}: CV mean score: {:.4f}, std: {:.4f}. - Log MAE {:0.4f}'.format(
+                bond_type, np.mean(bond_scores), np.std(bond_scores), np.log(np.mean(bond_scores))))
             oof[valid_idx] = y_pred_valid.reshape(-1,)
             prediction_type += y_pred
 
@@ -837,7 +828,7 @@ for bond_type in types:
             logger.info("{}: Predicting on validation set".format(bond_type))
             y_pred_valid = model.predict(X_valid)
             logger.info("{}: Predicting on test set".format(bond_type))
-            y_pred = model.predict(X_test_type)
+            y_pred = model.predict(X_test_type.drop('id', axis=1))
             now = timer()
             update_tracking(
                 run_id,
@@ -869,11 +860,8 @@ for bond_type in types:
                 fold_score,
                 integer=False,
             )
-            logger.info(
-                "{}: CV mean score: {:.4f}, std: {:.4f}.".format(
-                    bond_type, np.mean(bond_scores), np.std(bond_scores)
-                )
-            )
+            logger.info('{}: CV mean score: {:.4f}, std: {:.4f}. - Log MAE {:0.4f}'.format(
+                bond_type, np.mean(bond_scores), np.std(bond_scores), np.log(np.mean(bond_scores))))
             oof[valid_idx] = y_pred_valid.reshape(-1)
             prediction_type += y_pred
         now = timer()
@@ -896,7 +884,7 @@ for bond_type in types:
     )
 
     ## SAVE OOF, PREDS AND FI FOR TYPE
-    sub = pd.read_csv("input/sample_submission.csv")
+    sub = pd.read_csv(f"{INPUT_DIR}/sample_submission.csv")
     sub["scalar_coupling_constant"] = test_pred_df["prediction"]
     save_type_data(
         bond_type,
@@ -924,4 +912,3 @@ end = timer()
 update_tracking(run_id, "training_time", (end - start), integer=True)
 logger.info("==== Training done in {} seconds ======".format(end - start))
 logger.info("Done!")
-
