@@ -45,13 +45,14 @@ else:
     
 if not KERNEL_RUN:
     script_name = os.path.basename(__file__).split('.')[0]
-    if script_name not in MODEL_NUMBER:
+    if MODEL_NUMBER not in script_name:
         logger.error('Model Number is not same as script! Update before running')
         raise SystemExit('Model Number is not same as script! Update before running')
 
 # Order to run types
 # types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
-types = ['1JHC', '2JHH', '2JHC', '3JHH', '3JHC']
+# types = ['1JHC', '2JHH', '2JHC', '3JHH', '3JHC']
+types = ['3JHH', '3JHC']
 
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
@@ -97,6 +98,7 @@ xgb_params = {'colsample_bytree': 1,
          'seed': RANDOM_STATE,
          'n_jobs': N_THREADS,
          'tree_method': "gpu_hist",
+         'gpu_id': 1
         }
 
 lgb_params = {

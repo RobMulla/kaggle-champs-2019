@@ -10,6 +10,7 @@ CHAMPS (CHemistry And Mathematics in Phase Space)
 - `/fi/` - feature importance CSV files
 - `/submission/` - submission CSV files
 - `/oof/` - out of fold CSV files
+- `/lb/` - screenshots of the leaderboard
 
 ## Syntax
 - `FE` - Notebooks or scripts for feature engineer
