@@ -137,3 +137,5 @@ dmypy.json
 *.csv.gz
 *.logs
 *.npy
+
+*.hdf5
