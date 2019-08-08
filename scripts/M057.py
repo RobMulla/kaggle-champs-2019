@@ -1,43 +1,13 @@
 '''
 Created by: Rob Mulla
-Jul 18
+Aug 4
 
 New Changes:
-    - XGBoost
-    - Higher Features Importance Threshold
-Todo later:
-    - Email updates.
-    - Sync logs online?
-    - Lower learning rate
-Old Changes:
-    - Features from FE019
-    - QM9 features
-    - Save feature importance for FC
-    - Use new formatting to save temp files.
-    - Best features per type
-    - Increased meta-feature folds
-    - Import best features function
-    - 3 folds
-    - Calculate meta feature for FC
-    - Calculated within fold
-    - Features from FE018
-    - Features from FE017
-    - Remove features per type if feature is all nulls
-    - change logging timestamp
-    - update code to check for model number being same as filename
-    - FE010 !
-    - Load feature data each fold
-    - N_THREADS when using predict
-    - Remove useless features
-    - Delete and gc train and test df after copied
-    - Fixed OOF error by using GroupKFold
-    - Adding type column to feature importance dataframe/csv
-    - Tracking sheet set percision
-    - New features created from openbabel
-    - Switch to GroupShuffleSplit
-    - CV by molecule type. Reduce overfitting of CV score
-    - Caclulate group mean log mae score also
+    - Features from: FE022
+    - Catboost
+    - More angle Features
 '''
+
 import numpy as np  # linear algebra
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
@@ -60,45 +30,43 @@ from catboost import CatBoostRegressor, Pool
 from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
-
-# #### DELAY 2.5 Hours
-# DELAY_HOURS = 0.001
-# logger.info('Delaying for {:0.4f} Hours'.format(DELAY_HOURS))
-# time.sleep(60 * 60 * DELAY_HOURS)
-# logger.info('Done waiting! Starting program.')
-
 ####################
 # CONFIGURABLES
 #####################
 
 # MODEL NUMBER
-MODEL_NUMBER = "M050"
-# script_name = os.path.basename(__file__).split('.')[0]
-# if script_name not in MODEL_NUMBER:
-#     logger.error('Model Number is not same as script! Update before running')
-#     raise SystemExit('Model Number is not same as script! Update before running')
+MODEL_NUMBER = "M057"
+script_name = os.path.basename(__file__).split('.')[0]
+if script_name not in MODEL_NUMBER:
+    logger.error('Model Number is not same as script! Update before running')
+    raise SystemExit('Model Number is not same as script! Update before running')
 
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.005
+LEARNING_RATE = 0.1
 RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = "scalar_coupling_constant"
-N_ESTIMATORS = 500000  # 500000
-N_META_ESTIMATORS = 300000  # 300000
+N_ESTIMATORS = 500000
+N_META_ESTIMATORS = 500000
 VERBOSE = 1000
-EARLY_STOPPING_ROUNDS = 50
+EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
 N_THREADS = 48
-DEPTH = 9
-META_DEPTH = 9
+DEPTH = 7
+META_DEPTH = 7
 N_FOLDS = 3
 N_META_FOLDS = 2
 # EVAL_METRIC = 'group_mae'
-EVAL_METRIC = "mae"
-MODEL_TYPE = "xgboost"
-META_DEPTH = 7
+EVAL_METRIC = "MAE"
+MODEL_TYPE = "catboost"
+
+# THESE COLUMNS APPEAR IN THE FE PARQUET FILE BUT ARE NOT FEATURES
+DROP_FEATURES = ['id','scalar_coupling_constant','molecule_name',
+                 'molecule_name.1',
+                 'atom_index_0','atom_index_1','type',
+                 'atom1','atom2']
 
 xgb_params = {'colsample_bytree': 1,
          'gamma': 0,
@@ -126,12 +94,9 @@ lgb_params = {
     "random_state": RANDOM_STATE,
 }
 
-# Order shortest to longest
-types = ['3JHN', '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
-# types = ['3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
-# types = ["3JHH", "1JHC"] #, "2JHC","3JHC"]
-#types = ['2JHN'] #, '2JHH', '1JHN', '3JHH', '1JHC', '2JHN', '2JHC', '3JHC']
-
+# Order to run types
+# types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
+types = ['2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC','3JHH','1JHC']
 
 #####################
 ## SETUP LOGGER
@@ -151,7 +116,6 @@ def get_logger():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
-
 
 logger = get_logger()
 
@@ -180,7 +144,7 @@ def reduce_mem_usage(df, verbose=True):
                     c_min > np.finfo(np.float16).min
                     and c_max < np.finfo(np.float16).max
                 ):
-                    df[col] = df[col].astype(np.float16)
+                    df[col] = df[col].astype(np.float32)
                 elif (
                     c_min > np.finfo(np.float32).min
                     and c_max < np.finfo(np.float32).max
@@ -190,7 +154,7 @@ def reduce_mem_usage(df, verbose=True):
                     df[col] = df[col].astype(np.float64)
     end_mem = df.memory_usage().sum() / 1024 ** 2
     if verbose:
-        print(
+        logger.info(
             "Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)".format(
                 end_mem, 100 * (start_mem - end_mem) / start_mem
             )
@@ -201,17 +165,6 @@ def reduce_mem_usage(df, verbose=True):
 def group_mean_log_mae(y_true, y_pred, groups, floor=1e-9):
     maes = (y_true - y_pred).abs().groupby(groups).mean()
     return np.log(maes.map(lambda x: max(x, floor))).mean()
-
-
-#####################
-# READ INPUT FILES
-#####################
-logger.info("Reading input files....")
-path = "input/"
-# train_df = pd.read_parquet(f'{path}FE009_train_pandas.parquet')
-# test_df = pd.read_parquet(f'{path}FE009_test_pandas.parquet')
-ss = pd.read_csv("input/sample_submission.csv")
-
 
 ##########################
 # Tracking Sheet function
@@ -241,7 +194,7 @@ def get_good_features(bond_type):
     """
     Read csv with stored best features
     """
-    good_feats = pd.read_csv("fi/FI_ANALYSIS_M049_GOODFEATS.csv", index_col=0)
+    good_feats = pd.read_csv("fi/FI_ANALYSIS_M054_GOODFEATS.csv", index_col=0)
     good_feats = good_feats.fillna(False)
     return good_feats.loc[good_feats[bond_type]].index.tolist()
 
@@ -264,10 +217,10 @@ def fit_meta_feature(
     """
     Adds meta features to train, test and val
     """
-    logger.info(f"Creating meta feature {feature}")
+    logger.info(f"{bond_type}: Creating meta feature {feature}")
     logger.info(
-        "X_train, X_valid and X_test are shapes {} {} {}".format(
-            X_train.shape, X_valid.shape, X_test.shape
+        "{}: X_train, X_valid and X_test are shapes {} {} {}".format(
+            bond_type, X_train.shape, X_valid.shape, X_test.shape
         )
     )
     folds = GroupKFold(n_splits=N_META_FOLDS)
@@ -284,8 +237,8 @@ def fit_meta_feature(
         folds.split(X_train, groups=mol_group_type.iloc[train_idx].values)
     ):
         logger.info(
-            "Running Meta Feature Type {} - Fold {} of {}".format(
-                feature, fold_count, folds.n_splits
+            "{}: Running Meta Feature Type {} - Fold {} of {}".format(
+                bond_type, feature, fold_count, folds.n_splits
             )
         )
         update_tracking(
@@ -294,7 +247,7 @@ def fit_meta_feature(
         update_tracking(
             run_id, "{}_meta_{}_metafolds".format(bond_type, feature), N_META_FOLDS
         )
-
+        # Load fold IDs from files for consistancy
         X_train2 = X_train.loc[X_train.reset_index().index.isin(train_idx2)]
         X_valid2 = X_train.loc[X_train.reset_index().index.isin(valid_idx2)]
         X_train2 = X_train2.copy()
@@ -375,10 +328,14 @@ def fit_meta_feature(
             feature_importance = pd.concat(
                 [feature_importance, fold_importance], axis=0
             )
+            update_tracking(run_id, '{}_f{}-{}_meta{}_best_iter'.format(bond_type, base_fold,
+                                                                        fold_count, feature),
+                            model.best_iteration_, integer=True)
+
     oof_score = mean_absolute_error(Meta_train[feature], X_train_oof["meta_" + feature])
     log_oof_score = np.log(oof_score)
     logger.info(
-        f"Meta feature {feature} has MAE {oof_score:0.4f} LMAE {log_oof_score:0.4f}"
+        f"{bond_type} Meta feature {feature} has MAE {oof_score:0.4f} LMAE {log_oof_score:0.4f}"
     )
     update_tracking(
         run_id, "{}_meta_{}_mae_cv_f{}".format(bond_type, feature, base_fold), oof_score
@@ -388,7 +345,9 @@ def fit_meta_feature(
         "{}_meta_{}_lmae_cv_f{}".format(bond_type, feature, base_fold),
         log_oof_score,
     )
-
+    X_valid["meta_" + feature] = X_valid["meta_" + feature] / N_META_FOLDS
+    X_test["meta_" + feature] = X_test["meta_" + feature] / N_META_FOLDS
+    X_train["meta_" + feature] = X_train_oof["meta_" + feature]
     feature_importance.to_parquet(
         "type_results/{}/meta/{}_{}_{}_fi_meta_{}_f{}_{:0.4f}MAE_{:0.4f}LMAE.parquet".format(
             bond_type,
@@ -441,8 +400,8 @@ def fit_meta_feature(
         )
     )
 
-    X_valid.to_parquet(
-        "type_results/{}/meta/{}_{}_{}_X_valid_meta_{}_f{}_{:0.4f}MAE_{:0.4f}LMAE.parquet".format(
+    X_test.to_parquet(
+        "type_results/{}/meta/{}_{}_{}_X_test_meta_{}_f{}_{:0.4f}MAE_{:0.4f}LMAE.parquet".format(
             bond_type,
             MODEL_NUMBER,
             run_id,
@@ -453,14 +412,10 @@ def fit_meta_feature(
             log_oof_score,
         )
     )
-
-    X_valid["meta_" + feature] = X_valid["meta_" + feature] / N_META_FOLDS
-    X_test["meta_" + feature] = X_test["meta_" + feature] / N_META_FOLDS
-    X_train["meta_" + feature] = X_train_oof["meta_" + feature]
-    logger.info("Done creating meta features")
+    logger.info(f"{bond_type} Done creating meta features")
     logger.info(
-        "X_train, X_valid and X_test are shapes {} {} {}".format(
-            X_train.shape, X_valid.shape, X_test.shape
+        "{} X_train, X_valid and X_test are shapes {} {} {}".format(
+            bond_type, X_train.shape, X_valid.shape, X_test.shape
         )
     )
     return X_train, X_valid, X_test
@@ -492,8 +447,7 @@ def save_type_data(
     )
     logscore = np.log(score)
     if score > 1:
-        print(f"No predictions for {type_}")
-        return
+        logger.error(f"No predictions for {type_}")
     print(
         f"===== Saving results for for type {type_} - mae {score} - log mae {logscore}"
     )
@@ -503,12 +457,10 @@ def save_type_data(
     sub_type = test[["id", "molecule_name", "type"]].merge(sub, on="id")
     sub_type = sub_type.loc[sub_type["type"] == type_]
     if np.sum(sub_type["scalar_coupling_constant"] == 0) > 10:
-        print("ERROR! Sub has to many zero predictions")
-        return
+        logger.error("ERROR! Sub has too many zero predictions")
     expected_len = len(test.loc[test["type"] == type_])
     if expected_len != len(sub_type):
-        print("ERRROR LENGTHS NOT THE SAME")
-        return
+        logger.error("ERRROR LENGTHS NOT THE SAME")
 
     # Name Files and save
     fn_template = "type_results/{}/{}_{}_{}_XXXXXXX_{:0.4f}MAE_{:0.4}LMAE_{}_{}folds_{}iter_{}lr.parquet".format(
@@ -527,6 +479,9 @@ def save_type_data(
     oof_name = fn_template.replace("XXXXXXX", "oof")
     sub_type.to_parquet(sub_name)
     oof_type.to_parquet(oof_name)
+
+    logger.info(f'{type_}: Saving sub to {sub_name}')
+    logger.info(f'{type_}: Saving oof to {oof_name}')
 
     if fi is not None:
         fi_type = fi.loc[fi["type"] == type_]
@@ -563,45 +518,50 @@ number_of_bonds = len(types)
 
 #### CREATE FOLDERS FOR MODEL NUMBER IF THEY DONT EXIST
 
-# if not os.path.exists('models/{}'.format(MODEL_NUMBER)):
-#     os.makedirs('models/{}'.format(MODEL_NUMBER))
-# if not os.path.exists('temp/{}'.format(MODEL_NUMBER)):
-#     os.makedirs('temp/{}'.format(MODEL_NUMBER))
+if not os.path.exists('models/{}'.format(MODEL_NUMBER)):
+    os.makedirs('models/{}'.format(MODEL_NUMBER))
+if not os.path.exists('temp/{}'.format(MODEL_NUMBER)):
+    os.makedirs('temp/{}'.format(MODEL_NUMBER))
 
-### Load Scalar Coupling Components
-# tr_scc = pd.read_parquet('data/tr_scc.parquet')
-tr_scc = pd.read_csv(
-    "input/scalar_coupling_contributions.csv")
+## Load Scalar Coupling Components
+tr_scc = pd.read_parquet('data/tr_scc.parquet')
 
 #####################
 # TRAIN MODEL
 #####################
-logger.info("Training model....")
 
 for bond_type in types:
+    logger.info(f"{bond_type}: Reading input feature files....")
     # Read the files and make X, X_test, and y
     train_df = pd.read_parquet(
-        "data/FE019/FE019-train-{}.parquet".format(bond_type)
+        "data/FE022/FE022-train-{}.parquet".format(bond_type)
     )
+    if bond_type == '3JHC':
+        train_df = reduce_mem_usage(train_df)
     test_df = pd.read_parquet(
-        "data/FE019/FE019-test-{}.parquet".format(bond_type)
+        "data/FE022/FE022-test-{}.parquet".format(bond_type)
     )
+    if bond_type == '3JHC':
+        test_df = reduce_mem_usage(test_df)
     if MODEL_TYPE == "xgboost":
-        train_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in train_df.columns]
-        test_df.columns = [x.replace('[','_').replace(']','_').replace(', ','_').replace(' ','_').replace('.','') for x in test_df.columns]
-
-    Meta = train_df[["molecule_name", "atom_index_0", "atom_index_1"]].merge(
-        tr_scc, on=["molecule_name", "atom_index_0", "atom_index_1"]
-    )[["fc", "sd", "pso", "dso"]]
-
-    FEATURES = get_good_features(bond_type)
-    FEATURES = [f for f in FEATURES if 'meta' not in f] # Drop meta feature
-    # FEATURES = GOOD_FEATURES
+        train_df.columns = [x.replace('[','_').replace(']','_') \
+                                .replace(', ','_').replace(' ','_') \
+                                .replace('.','') for x in train_df.columns]
+        test_df.columns = [x.replace('[','_').replace(']','_') \
+                               .replace(', ','_').replace(' ','_') \
+                               .replace('.','') for x in test_df.columns]
+    Meta = train_df[["id", "molecule_name", "atom_index_0", "atom_index_1"]].merge(
+        tr_scc, on=["id", "molecule_name", "atom_index_0", "atom_index_1"]
+        )[["id", "fc", "sd", "pso", "dso"]]
+    logger.info(f"{bond_type}: Getting good features...")
+    # FEATURES = get_good_features(bond_type)
+    FEATURES = [x for x in train_df if x not in DROP_FEATURES]
+    FEATURES = [x for x in FEATURES if 'shortest_path_atoms_' not in x]
     update_tracking(run_id, "{}_features".format(bond_type), len(FEATURES))
     logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
-    X_type = train_df[FEATURES].copy()
-    X_test_type = test_df[FEATURES].copy()
-    y_type = train_df[TARGET].copy()
+    X_type = train_df[FEATURES + ['id']].copy()
+    X_test_type = test_df[FEATURES + ['id']].copy()
+    y_type = train_df[[TARGET] + ['id']].copy()
     del train_df
     del test_df
     gc.collect()
@@ -613,10 +573,6 @@ for bond_type in types:
     # Start training for type
     bond_start = timer()
     fold_count = 0  # Will be incremented at the start of the fold
-    # Train the model
-    # X_type = X.loc[X['type'] == bond_type]
-    # y_type = y.iloc[X_type.index]
-    # X_test_type = X_test.loc[X_test['type'] == bond_type]
     mol_group_type = mol_group.loc[mol_group["type"] == bond_type]["molecule_name"]
     oof = np.zeros(len(X_type))
     prediction_type = np.zeros(len(X_test_type))
@@ -624,7 +580,19 @@ for bond_type in types:
     for fold_n, (train_idx, valid_idx) in enumerate(
         folds.split(X_type, groups=mol_group_type)
     ):
-        Meta_train, Meta_valid = Meta.iloc[train_idx], Meta.iloc[valid_idx]
+        # Loading Fold ids from numpy arrays for consistency
+        logger.info(f'{bond_type}: Loading numpy arrays with ids for this fold')
+        train_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-train_ids.npy')
+        valid_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-valid_ids.npy')
+        Meta_train = Meta.loc[Meta['id'].isin(train_ids)].drop('id', axis=1)
+        Meta_valid = Meta.loc[Meta['id'].isin(valid_ids)].drop('id', axis=1)
+        X_train = X_type.loc[X_type['id'].isin(train_ids)].drop('id', axis=1)
+        X_valid = X_type.loc[X_type['id'].isin(valid_ids)].drop('id', axis=1)
+        X_train = X_train.copy()
+        X_valid = X_valid.copy()
+        y_train = y_type.loc[y_type['id'].isin(train_ids)].drop('id', axis=1)
+        y_valid = y_type.loc[y_type['id'].isin(valid_ids)].drop('id', axis=1)
+
         fold_count += 1  # First fold is 1
         if RUN_SINGLE_FOLD is not False:
             if fold_count != RUN_SINGLE_FOLD:
@@ -641,8 +609,6 @@ for bond_type in types:
                     bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
-            X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
-            y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
             X_train, X_valid, X_test_type = fit_meta_feature(
                 X_train,
                 X_valid,
@@ -724,11 +690,6 @@ for bond_type in types:
                     bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
-            X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
-            X_train = X_train.copy()
-            X_valid = X_valid.copy()
-            y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
-
             ### ADD META FEATURES
             X_train, X_valid, X_test_type = fit_meta_feature(
                 X_train,
@@ -741,7 +702,6 @@ for bond_type in types:
                 feature="fc",
                 model_type=MODEL_TYPE,
             )
-            DEPTH = 7
             update_tracking(run_id, "depth", DEPTH)
             train_dataset = Pool(data=X_train, label=y_train)
             valid_dataset = Pool(data=X_valid, label=y_valid)
@@ -754,11 +714,8 @@ for bond_type in types:
                 verbose=VERBOSE,
                 random_state=RANDOM_STATE,
                 thread_count=N_THREADS,
-                # loss_function=EVAL_METRIC,
-                # bootstrap_type='Poisson',
-                # bagging_temperature=5,
                 task_type="GPU",
-            )  # Train on GPU
+            )
 
             model.fit(
                 train_dataset,
@@ -778,6 +735,33 @@ for bond_type in types:
                     MODEL_NUMBER, MODEL_NUMBER, run_id, bond_type, fold_count
                 )
             )
+            pred_start = timer()
+            logger.info(f'{bond_type}: Predicting on validation set')
+            y_pred_valid = model.predict(valid_dataset)
+            logger.info(f'{bond_type}: Predicting on test set')
+            y_pred = model.predict(test_dataset)
+            now = timer()
+            update_tracking(run_id, '{}_pred_sec_f{}'.format(bond_type, fold_n+1),
+                            (now-pred_start), integer=True)
+            update_tracking(run_id, '{}_f{}_best_iter'.format(bond_type, fold_n+1),
+                            model.best_iteration_, integer=True)
+            # feature importance
+            logger.info(f'{bond_type}: Storing the fold importance')
+            fold_importance = pd.DataFrame()
+            fold_importance["feature"] = model.feature_names_
+            fold_importance["importance"] = model.get_feature_importance()
+            fold_importance["type"] = bond_type
+            fold_importance["fold"] = fold_n + 1
+            feature_importance = pd.concat(
+                [feature_importance, fold_importance], axis=0)
+            fold_score = mean_absolute_error(y_valid, y_pred_valid)
+            bond_scores.append(fold_score)
+            update_tracking(run_id, '{}cv_f{}'.format(bond_type, fold_n+1), fold_score, integer=False)
+            logger.info('{}: CV mean score: {:.4f}, std: {:.4f}.'.format(
+                bond_type, np.mean(bond_scores), np.std(bond_scores)))
+            oof[valid_idx] = y_pred_valid.reshape(-1,)
+            prediction_type += y_pred
+
         elif MODEL_TYPE == "xgboost":
             fold_start = timer()
             logger.info(
@@ -785,11 +769,6 @@ for bond_type in types:
                     bond_type, bond_type, fold_count, folds.n_splits
                 )
             )
-            X_train, X_valid = X_type.iloc[train_idx], X_type.iloc[valid_idx]
-            X_train = X_train.copy()
-            X_valid = X_valid.copy()
-            y_train, y_valid = y_type.iloc[train_idx], y_type.iloc[valid_idx]
-
             ### ADD META FEATURES
             X_train, X_valid, X_test_type = fit_meta_feature(
                 X_train,
@@ -876,6 +855,7 @@ for bond_type in types:
         )
     update_tracking(run_id, f"{bond_type}_mae_cv", np.mean(bond_scores), digits=4)
     update_tracking(run_id, f"{bond_type}_std_mae_cv", np.std(bond_scores), digits=6)
+    logger.info(f'{bond_type}: Creating final OOF and Prediction dataframes')
     oof_df.loc[oof_df["type"] == bond_type, "oof_preds"] = oof
     if RUN_SINGLE_FOLD is False:
         prediction_type /= folds.n_splits
@@ -911,44 +891,8 @@ oof_gml_score = group_mean_log_mae(
 )
 update_tracking(run_id, "gml_oof_score", oof_gml_score, digits=4)
 logger.info("Out of fold group mean log mae score is {:.4f}".format(oof_gml_score))
-
-#####################
-# SAVE RESULTS
-#####################
-# Save Prediction and name appropriately
-# submission_csv_name = "submissions/{}_{}_submission_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-#     MODEL_NUMBER, run_id, N_FOLDS, oof_gml_score, N_ESTIMATORS, LEARNING_RATE
-# )
-# oof_csv_name = "oof/{}_{}_oof_{}_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-#     MODEL_NUMBER,
-#     run_id,
-#     MODEL_TYPE,
-#     N_FOLDS,
-#     oof_gml_score,
-#     N_ESTIMATORS,
-#     LEARNING_RATE,
-# )
-# fi_csv_name = "fi/{}_{}_fi_{}folds_{:.4f}CV_{}iter_{}lr.csv".format(
-#     MODEL_NUMBER,
-#     run_id,
-#     MODEL_TYPE,
-#     N_FOLDS,
-#     oof_gml_score,
-#     N_ESTIMATORS,
-#     LEARNING_RATE,
-# )
-
-# logger.info("Saving LGB Submission as:")
-# logger.info(submission_csv_name)
-# ss = pd.read_csv("input/sample_submission.csv")
-# ss["scalar_coupling_constant"] = test_pred_df["prediction"]
-# ss.to_csv(submission_csv_name, index=False)
-# ss.head()
-# # OOF
-# oof_df.to_csv(oof_csv_name, index=False)
-# # Feature Importance
-# feature_importance.to_csv(fi_csv_name, index=False)
 end = timer()
 update_tracking(run_id, "training_time", (end - start), integer=True)
 logger.info("==== Training done in {} seconds ======".format(end - start))
 logger.info("Done!")
+
