@@ -32,12 +32,17 @@ from sklearn.neighbors import KNeighborsClassifier
 start = timer()
 
 # MODEL NUMBER
-KERNEL_RUN = True
+KERNEL_RUN = False
 MODEL_NUMBER = "M056"
-INPUT_DIR = '../input/champs-scalar-coupling/'
-FE_DIR = '../input/molecule-fe021/'
-FOLDS_DIR = '../input/champs-3fold-ids/'
-
+if KERNEL_RUN:
+    INPUT_DIR = '../input/champs-scalar-coupling/'
+    FE_DIR = '../input/molecule-fe021/'
+    FOLDS_DIR = '../input/champs-3fold-ids/'
+else:
+    INPUT_DIR = './input/'
+    FE_DIR = './data/FE021/'
+    FOLDS_DIR = './folds'
+    
 if not KERNEL_RUN:
     script_name = os.path.basename(__file__).split('.')[0]
     if script_name not in MODEL_NUMBER:
@@ -45,10 +50,12 @@ if not KERNEL_RUN:
         raise SystemExit('Model Number is not same as script! Update before running')
 
 # Order to run types
-types = ['1JHN'] #, '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
+# types = ['1JHC', '2JHH', '1JHN', '2JHN', '2JHC','3JHH','3JHC', '3JHN']
+types = ['1JHC', '2JHH', '2JHC', '3JHH', '3JHC']
+
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.005
 RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
@@ -557,13 +564,13 @@ for bond_type in types:
     train_df = pd.read_parquet(f"{FE_DIR}/FE021-train-{bond_type}.parquet")
     train_raw_type = train_raw.loc[train_raw['type'] == bond_type].reset_index(drop=True)
     train_df = pd.concat([train_raw_type, train_df], axis=1)
-    if bond_type in ['1JHC', '3JHC']:
-        train_df = reduce_mem_usage(train_df)
+    # if bond_type in ['1JHC', '3JHC']:
+    #     train_df = reduce_mem_usage(train_df)
     test_df = pd.read_parquet(f"{FE_DIR}/FE021-test-{bond_type}.parquet")
     test_raw_type = test_raw.loc[test_raw['type'] == bond_type].reset_index(drop=True)
     test_df = pd.concat([test_raw_type, test_df], axis=1)
-    if bond_type in ['1JHC', '3JHC']:
-        test_df = reduce_mem_usage(test_df)
+    # if bond_type in ['1JHC', '3JHC']:
+    #     test_df = reduce_mem_usage(test_df)
     if MODEL_TYPE == "xgboost":
         train_df.columns = [x.replace('[','_').replace(']','_') \
                                 .replace(', ','_').replace(' ','_') \
