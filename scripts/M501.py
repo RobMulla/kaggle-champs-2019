@@ -75,13 +75,13 @@ if script_name not in MODEL_NUMBER:
 
 # Make a runid that is unique to the time this is run for easy tracking later
 run_id = "{:%m%d_%H%M}".format(datetime.now())
-LEARNING_RATE = 0.2
+LEARNING_RATE = 0.5
 RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = "scalar_coupling_constant"
-N_ESTIMATORS = 1000000
-N_META_ESTIMATORS = 1000000
+N_ESTIMATORS = 10
+N_META_ESTIMATORS = 10
 VERBOSE = 20000
 EARLY_STOPPING_ROUNDS = 500
 RANDOM_STATE = 529
@@ -114,24 +114,13 @@ xgb_params = {'colsample_bytree': 1,
               'tree_method': "gpu_hist",
               }
 
-# lgb_params = {
-#     "boosting_type": "gbdt",
-#     "objective": "regression_l2",
-#     "learning_rate": LEARNING_RATE,
-#     "num_leaves": 255,
-#     "sub_feature": 0.50,
-#     "sub_row": 0.75,
-#     "bagging_freq": 1,
-#     "metric": EVAL_METRIC,
-#     "random_state": RANDOM_STATE,
-# }
 
 lgb_params = {
     'num_leaves': 16,
     'min_child_samples': 60,
     'objective': 'regression_l2',
     'max_depth': 8,
-    'learning_rate': 0.05,
+    'learning_rate': 0.5,
     "boosting_type": "gbdt",
     "subsample_freq": 1,
     "bagging_fraction": 0.9,
@@ -148,7 +137,8 @@ lgb_params = {
 # Order to run types
 # types = ['1JHC', '3JHH', '2JHN', '3JHN', '2JHC', '2JHH', '1JHN', '3JHC']
 # types = ['1JHN', '2JHN', '3JHN']
-types = ['3JHC', '2JHC', '1JHC', '3JHH', '2JHH']
+types = [('3JHH', '3JHC'), '3JHH', '3JHC', ]
+
 
 #####################
 ## SETUP LOGGER
@@ -253,7 +243,13 @@ def get_good_features(bond_type):
     """
     good_feats = pd.read_csv("fi/FI_ANALYSIS_M054_GOODFEATS.csv", index_col=0)
     good_feats = good_feats.fillna(False)
-    return good_feats.loc[good_feats[bond_type]].index.tolist()
+    if isinstance(bond_type, tuple):
+        fs = []
+        for type in bond_type:
+            fs += good_feats.loc[good_feats[type]].index.tolist()
+        return list(set(fs))
+    else:
+        return good_feats.loc[good_feats[bond_type]].index.tolist()
 
 
 #####################################
@@ -271,6 +267,7 @@ def fit_meta_feature(
         N_META_FOLDS=N_META_FOLDS,
         N_META_ESTIMATORS=N_META_ESTIMATORS,
         model_type="catboost",
+        mol_group=None,
 ):
     """
     Adds meta features to train, test and val
@@ -291,8 +288,9 @@ def fit_meta_feature(
     X_train_oof = X_train[["meta_" + feature]].copy()
     X_train = X_train.drop("meta_" + feature, axis=1)
     feature_importance = pd.DataFrame()
+    print('#', X_train.shape, _mol_group.iloc[train_idx].shape)
     for fold_n, (train_idx2, valid_idx2) in enumerate(
-            folds.split(X_train, groups=mol_group_type.iloc[train_idx].values)
+            folds.split(X_train, groups=mol_group.iloc[train_idx].values)
     ):
         logger.info(
             "{}: Running Meta Feature Type {} - Fold {} of {}".format(
@@ -557,7 +555,7 @@ folds = GroupKFold(n_splits=N_FOLDS)
 # Setup arrays for storing results
 train_df = pd.read_csv("input/train.csv")
 oof_df = train_df[["id", "type", "scalar_coupling_constant"]].copy()
-mol_group = train_df[["molecule_name", "type"]].copy()
+mol_group = train_df[["id", "molecule_name", "type"]].copy()
 del train_df
 gc.collect()
 
@@ -593,17 +591,41 @@ tr_scc = pd.read_csv(
 
 for bond_type in types:
     logger.info(f"{bond_type}: Reading input feature files....")
-    # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet(
-        "data/FE020/FE020-train-{}.parquet".format(bond_type)
-    )
-    if bond_type == '3JHC':
-        train_df = reduce_mem_usage(train_df)
-    test_df = pd.read_parquet(
-        "data/FE020/FE020-test-{}.parquet".format(bond_type)
-    )
-    if bond_type == '3JHC':
-        test_df = reduce_mem_usage(test_df)
+
+    train_df = None
+    test_df = None
+    if isinstance(bond_type, tuple):
+        for type in bond_type:
+            if train_df is None:
+                train_df = pd.read_parquet(
+                    "data/FE020/FE020-train-{}.parquet".format(type)
+                )
+                test_df = pd.read_parquet(
+                    "data/FE020/FE020-test-{}.parquet".format(type)
+                )
+            else:
+                _train_df = pd.read_parquet(
+                    "data/FE020/FE020-train-{}.parquet".format(type)
+                )
+                _test_df = pd.read_parquet(
+                    "data/FE020/FE020-test-{}.parquet".format(type)
+                )
+                train_df = pd.concat([train_df, _train_df], ignore_index=True)
+                test_df = pd.concat([test_df, _test_df], ignore_index=True)
+    else:
+        # Read the files and make X, X_test, and y
+        train_df = pd.read_parquet(
+            "data/FE020/FE020-train-{}.parquet".format(bond_type)
+        )
+        # if bond_type == '3JHC':
+        #     train_df = reduce_mem_usage(train_df)
+        test_df = pd.read_parquet(
+            "data/FE020/FE020-test-{}.parquet".format(bond_type)
+        )
+    print(bond_type, train_df.shape, test_df.shape, train_df['type'].value_counts())
+
+    # if bond_type == '3JHC':
+    #     test_df = reduce_mem_usage(test_df)
     if MODEL_TYPE == "xgboost":
         train_df.columns = [x.replace('[', '_').replace(']', '_') \
                                 .replace(', ', '_').replace(' ', '_') \
@@ -618,7 +640,7 @@ for bond_type in types:
     logger.info(f"{bond_type}: Getting good features...")
     FEATURES = get_good_features(bond_type)
     update_tracking(run_id, "{}_features".format(bond_type), len(FEATURES))
-    logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
+    # logger.info('{}: Using features {}'.format(bond_type, [x for x in FEATURES]))
     X_type = train_df[FEATURES + ['id']].copy()
     X_test_type = test_df[FEATURES + ['id']].copy()
     y_type = train_df[[TARGET] + ['id']].copy()
@@ -633,17 +655,40 @@ for bond_type in types:
     # Start training for type
     bond_start = timer()
     fold_count = 0  # Will be incremented at the start of the fold
-    mol_group_type = mol_group.loc[mol_group["type"] == bond_type]["molecule_name"]
+
+    '''
+    mol_group_type = None
+    if isinstance(bond_type, tuple):
+        for type in bond_type:
+            if mol_group_type is None:
+                mol_group_type = mol_group.loc[mol_group["type"] == type]["molecule_name"]
+            else:
+                mol_group_type = pd.concat([mol_group_type, mol_group.loc[mol_group["type"] == type]["molecule_name"]])
+            print(mol_group_type.shape)
+    else:
+        mol_group_type = mol_group.loc[mol_group["type"] == bond_type]["molecule_name"]
+    '''
+
     oof = np.zeros(len(X_type))
     prediction_type = np.zeros(len(X_test_type))
     bond_scores = []
+    _mol_group = mol_group[mol_group['id'].isin(X_type['id'])]['molecule_name']
+    print('1', X_type.shape, _mol_group.shape)
     for fold_n, (train_idx, valid_idx) in enumerate(
-            folds.split(X_type, groups=mol_group_type)
+            folds.split(X_type, groups=_mol_group)
     ):
         # Loading Fold ids from numpy arrays for consistency
         logger.info(f'{bond_type}: Loading numpy arrays with ids for this fold')
-        train_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-train_ids.npy')
-        valid_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-valid_ids.npy')
+        train_ids = []
+        valid_ids = []
+        if isinstance(bond_type, tuple):
+            for type in bond_type:
+                train_ids += list(np.load(f'folds/{N_FOLDS}FOLD-{type}-fold{fold_n}-train_ids.npy'))
+                valid_ids += list(np.load(f'folds/{N_FOLDS}FOLD-{type}-fold{fold_n}-valid_ids.npy'))
+                print(len(train_ids))
+        else:
+            train_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-train_ids.npy')
+            valid_ids = np.load(f'folds/{N_FOLDS}FOLD-{bond_type}-fold{fold_n}-valid_ids.npy')
         Meta_train = Meta.loc[Meta['id'].isin(train_ids)].drop('id', axis=1)
         Meta_valid = Meta.loc[Meta['id'].isin(valid_ids)].drop('id', axis=1)
         X_train = X_type.loc[X_type['id'].isin(train_ids)].drop('id', axis=1)
@@ -653,6 +698,7 @@ for bond_type in types:
         y_train = y_type.loc[y_type['id'].isin(train_ids)].drop('id', axis=1)
         y_valid = y_type.loc[y_type['id'].isin(valid_ids)].drop('id', axis=1)
 
+        print('2', X_train.shape, train_idx.shape)
         fold_count += 1  # First fold is 1
         if RUN_SINGLE_FOLD is not False:
             if fold_count != RUN_SINGLE_FOLD:
@@ -678,6 +724,7 @@ for bond_type in types:
                 bond_type,
                 fold_count,
                 model_type=MODEL_TYPE,
+                mol_group=_mol_group
             )
             model = lgb.LGBMRegressor(
                 **lgb_params, n_estimators=N_ESTIMATORS, n_jobs=N_THREADS
