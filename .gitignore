@@ -141,3 +141,5 @@ dmypy.json
 *.hdf5
 *.npz
 *.dat
+*.pickle
+*_epoch_*

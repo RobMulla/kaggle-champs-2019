@@ -1,12 +1,13 @@
 '''
 Created by: Rob Mulla
-Aug 14
+Jul 28
 
 New Changes:
-    - Features from: FE024
+    - Features from: FE025 (QM7)
     - Catboost
-    - No meta-features
-    - Increase iterations
+    - No Meta-features
+    - Learning rate 0.01
+    - Increase N_ESTIMATORS
 '''
 
 import numpy as np  # linear algebra
@@ -36,11 +37,11 @@ KERNEL_RUN = False
 MODEL_NUMBER = "M062"
 if KERNEL_RUN:
     INPUT_DIR = '../input/champs-scalar-coupling/'
-    FE_DIR = '../input/molecule-fe024/'
+    FE_DIR = '../input/molecule-fe021/'
     FOLDS_DIR = '../input/champs-3fold-ids/'
 else:
     INPUT_DIR = './input/'
-    FE_DIR = './data/FE024'
+    FE_DIR = './data/FE025'
     FOLDS_DIR = './folds'
 
 if not KERNEL_RUN:
@@ -60,7 +61,7 @@ RUN_SINGLE_FOLD = (
     False
 )  # Fold number to run starting with 1 - Set to False to run all folds
 TARGET = "scalar_coupling_constant"
-N_ESTIMATORS = 1000000
+N_ESTIMATORS = 2000000
 N_META_ESTIMATORS = 500000
 VERBOSE = 1000
 EARLY_STOPPING_ROUNDS = 5000
@@ -561,10 +562,10 @@ for bond_type in types:
     make_dir_if_not_exists(f'type_results/{bond_type}/meta')
 
     # Read the files and make X, X_test, and y
-    train_df = pd.read_parquet(f"{FE_DIR}/FE024-train-{bond_type}.parquet")
+    train_df = pd.read_parquet(f"{FE_DIR}/FE025-train-{bond_type}.parquet")
     train_raw = pd.read_csv(f"{INPUT_DIR}/train.csv")
     test_raw = pd.read_csv(f"{INPUT_DIR}/test.csv")
-    test_df = pd.read_parquet(f"{FE_DIR}/FE024-test-{bond_type}.parquet")
+    test_df = pd.read_parquet(f"{FE_DIR}/FE025-test-{bond_type}.parquet")
     if 'id' not in train_df.columns:
         train_raw_type = train_raw.loc[train_raw['type'] == bond_type].reset_index(drop=True)
         train_df = pd.concat([train_raw_type, train_df], axis=1)

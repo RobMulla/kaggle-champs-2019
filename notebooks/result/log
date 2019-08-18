@@ -1,0 +1,34 @@
+[
+    {
+        "main/loss": 0.831334114074707,
+        "valid/main/LogMAE_2JHN": 1.0742228304050692,
+        "valid/main/LogMAE_3JHC": 1.5368400951029808,
+        "valid/main/LogMAE_2JHC": 1.1323947653737578,
+        "valid/main/LogMAE_1JHN": 2.033958418517031,
+        "valid/main/LogMAE_2JHH": 1.436190490322626,
+        "valid/main/LogMAE_1JHC": 4.677485170934577,
+        "valid/main/LogMAE_3JHH": 1.3098650499327567,
+        "valid/main/LogMAE_3JHN": 0.7823737702794539,
+        "valid/main/ALL_LogMAE": 0.4081125668554345,
+        "alpha": 0.0009089270169129279,
+        "epoch": 1,
+        "iteration": 9550,
+        "elapsed_time": 517.6198618950002
+    },
+    {
+        "main/loss": 0.4328228831291199,
+        "valid/main/LogMAE_3JHC": 0.9345962940369229,
+        "valid/main/LogMAE_2JHC": 0.7712623032119115,
+        "valid/main/LogMAE_1JHN": 1.754559261869528,
+        "valid/main/LogMAE_2JHH": 0.6506712878914641,
+        "valid/main/LogMAE_3JHN": 0.5275712869162694,
+        "valid/main/LogMAE_1JHC": 1.72137869374141,
+        "valid/main/LogMAE_3JHH": 0.627342490467329,
+        "valid/main/LogMAE_2JHN": 0.8212060733881118,
+        "valid/main/ALL_LogMAE": -0.11931124576276819,
+        "alpha": 0.0008261400605910132,
+        "epoch": 2,
+        "iteration": 19100,
+        "elapsed_time": 1054.0979830239958
+    }
+]
