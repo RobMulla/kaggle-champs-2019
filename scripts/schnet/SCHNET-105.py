@@ -9,16 +9,16 @@ TODO:
 
 MODEL_NUMBER = int((__file__).replace('.py','')[-3:])
 print(f'Running Model number {MODEL_NUMBER}')
-DEVICE = 1
-DEVICE_cupy = '@cupy:1'
-FILTER_TYPES = None # ['2JHC'] # Set to None for all types
+DEVICE = 0
+DEVICE_cupy = '@cupy:0'
+FILTER_TYPES = ['3JHH'] # None # ['2JHC'] # Set to None for all types
 TRAIN_PCT = 0.9
 INPUT_DIR = '../../input'
 BATCH_SIZE = 8
 CREATE_DATASET = False
 SAVE_DATASETS = False
 LOAD_DATASETS = True
-DATASET_DIR = './datasets_acsf_soap'
+DATASET_DIR = './datasets_acsf_soap_3JHH'
 ALPHA = 1e-3 # Try to make it run fast for testing
 
 import os
@@ -533,8 +533,9 @@ trainer.extend(chainer.training.extensions.ProgressBar())
 print('Loading trainer from snapshot...')
 
 #trainer.load('results/SCHNET104_epoch_8')
-chainer.serializers.load_npz('result/SCHNET101_epoch_17', trainer)
-
+chainer.serializers.load_npz('result/SCHNET104_epoch_8', trainer)
+# Change learning rate
+trainer.
 
 ################
 # TRAIN
