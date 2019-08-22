@@ -148,7 +148,8 @@ if CREATE_DATASET:
     valid_targets = list()
     print('preprocess validation molecules ...')
     for mole in tqdm(valid_moles):
-        valid_graphs.append(Graph(structures_groups.get_group(mole), list_atoms))
+        conns = CONNS[mole]
+        valid_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         valid_targets.append(valid_gp.get_group(mole))
 
     test_graphs = list()
