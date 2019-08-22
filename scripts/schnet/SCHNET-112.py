@@ -1,25 +1,20 @@
-"""
-TODO:
-- add soap and acsf
-"""
-
 #######################
 ### SETTINGS
 #######################
 
 MODEL_NUMBER = int((__file__).replace('.py','')[-3:])
 print(f'Running Model number {MODEL_NUMBER}')
-DEVICE = 1
-DEVICE_cupy = '@cupy:1'
-FILTER_TYPES = None # ['2JHC'] # Set to None for all types
+DEVICE = 0
+DEVICE_cupy = '@cupy:0'
+FILTER_TYPES = None #['3JHH'] # Set to None for all types
 TRAIN_PCT = 0.9
 INPUT_DIR = '../../input'
 BATCH_SIZE = 8
-CREATE_DATASET = False
-SAVE_DATASETS = False
+CREATE_DATASET = True
+SAVE_DATASETS = True
 LOAD_DATASETS = True
-DATASET_DIR = './datasets_acsf_soap'
-ALPHA = 1e-3 # Try to make it run fast for testing
+DATASET_DIR = './datasets_acsf_soap_conns'
+ALPHA = 1e-4 # Try to make it run fast for testing
 
 import os
 if not os.path.exists(DATASET_DIR):
@@ -34,6 +29,9 @@ import chainer_chemistry
 from IPython.display import display
 import pickle
 from tqdm import tqdm
+import joblib
+
+CONNS = joblib.load('../../data/costas-graph/CONNS.dat')
 
 ###############
 ## LOAD DATASET
@@ -62,12 +60,12 @@ def load_dataset(filter_type=None):
     train.sort_values('molecule_name', inplace=True)
     valid.sort_values('molecule_name', inplace=True)
     test.sort_values('molecule_name', inplace=True)
-    
+
     if filter_type is not None:
         train = train.loc[train['type'].isin(filter_type)]
         valid = valid.loc[valid['type'].isin(filter_type)]
         test = test.loc[test['type'].isin(filter_type)]
-        
+
         train_moles = list(set(train['molecule_name']))
         test_moles = list(set(test['molecule_name']))
         valid_moles = list(set(valid['molecule_name']))
@@ -83,11 +81,12 @@ from scipy.spatial import distance
 
 class Graph:
 
-    def __init__(self, points_df, list_atoms):
+    def __init__(self, points_df, list_atoms, conns):
 
         self.points = points_df[['x', 'y', 'z']].values
 
         self._dists = distance.cdist(self.points, self.points)
+        self.conns = conns
 
         self.adj = self._dists < 1.5
         self.num_nodes = len(points_df)
@@ -106,7 +105,7 @@ class Graph:
 
         soap = points_df[soap_cols].values
         acsf = points_df[acsf_cols].values
-        self._array = np.concatenate([one_hot, bonds, soap, acsf], axis=1).astype(np.float32)
+        self._array = np.concatenate([one_hot, bonds, soap, acsf, conns], axis=1).astype(np.float32)
 
     @property
     def input_array(self):
@@ -136,12 +135,13 @@ if CREATE_DATASET:
     list_atoms = list(set(structures['atom']))
     print('list of atoms')
     print(list_atoms)
-        
+
     train_graphs = list()
     train_targets = list()
     print('preprocess training molecules ...')
     for mole in tqdm(train_moles):
-        train_graphs.append(Graph(structures_groups.get_group(mole), list_atoms))
+        conns = CONNS[mole]
+        train_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         train_targets.append(train_gp.get_group(mole))
 
     valid_graphs = list()
@@ -155,7 +155,8 @@ if CREATE_DATASET:
     test_targets = list()
     print('preprocess test molecules ...')
     for mole in tqdm(test_moles):
-        test_graphs.append(Graph(structures_groups.get_group(mole), list_atoms))
+        conns = CONNS[mole]
+        test_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         test_targets.append(test_gp.get_group(mole))
 
     train_dataset = DictDataset(graphs=train_graphs, targets=train_targets)
@@ -264,7 +265,7 @@ class SchNet(chainer.Chain):
 
         return out
 
-model = SchNet(num_layer=3)
+model = SchNet(num_layer=6)
 model.to_gpu(device=DEVICE)
 
 ########################
@@ -477,7 +478,7 @@ class TypeWiseEvaluator(Evaluator):
 print('Extending trainer with evaluators')
 
 trainer.extend(
-    TypeWiseEvaluator(iterator=valid_iter, target=model, converter=coupling_converter, 
+    TypeWiseEvaluator(iterator=valid_iter, target=model, converter=coupling_converter,
                       name='valid', device=DEVICE, is_validate=True))
 trainer.extend(
     TypeWiseEvaluator(iterator=test_iter, target=model, converter=coupling_converter,
@@ -519,8 +520,11 @@ trainer.extend(
 trainer.extend(training.extensions.LogReport(filename=f'SCHNET_{MODEL_NUMBER}.log'))
 trainer.extend(training.extensions.PrintReport(
     ['epoch', 'elapsed_time', 'main/loss', 'valid/main/ALL_LogMAE',
-     'valid/main/1JHC', 'valid/main/2JHC', 'valid/main/3JHC', 'valid/main/1JHN',
-     'valid/main/2JHN', 'valid/main/3JHN', 'valid/main/2JHH', 'valid/main/3JHH', 'alpha']))
+      'valid/main/1JHC',
+     'valid/main/2JHC',
+      'valid/main/3JHC', 'valid/main/1JHN',
+      'valid/main/2JHN', 'valid/main/3JHN', 'valid/main/2JHH', 'valid/main/3JHH',
+     'alpha']))
 
 #########
 # Progress Bar
@@ -530,13 +534,20 @@ print('Extending trainer with progress bar')
 trainer.extend(chainer.training.extensions.ProgressBar())
 
 ###### LOAD PREVIOUS MODEL
-print('Loading trainer from snapshot...')
+# print('Loading trainer from snapshot...')
 
-#trainer.load('results/SCHNET104_epoch_8')
-chainer.serializers.load_npz('result/SCHNET103_epoch_39.mod', trainer)
-trainer.extend(training.extensions.WarmupShift('alpha', 1e-3, 1e-5, 500000))
+# trainer.load('results/SCHNET104_epoch_8')
+# chainer.serializers.load_npz('result/SCHNET109_epoch_104.mod', trainer)
 
+################
+# Reset the optimizer
+################
 
+# optimizer = trainer.updater.get_optimizer('main')
+# optimizer.alpha = 0.1
+# print(f'Alpha reset to {optimizer.alpha}')
+# Exshift = trainer.get_extension('ExponentialShift')
+# Exshift.initialize(trainer)
 ################
 # TRAIN
 ################

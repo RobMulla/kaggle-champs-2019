@@ -62,12 +62,12 @@ def load_dataset(filter_type=None):
     train.sort_values('molecule_name', inplace=True)
     valid.sort_values('molecule_name', inplace=True)
     test.sort_values('molecule_name', inplace=True)
-    
+
     if filter_type is not None:
         train = train.loc[train['type'].isin(filter_type)]
         valid = valid.loc[valid['type'].isin(filter_type)]
         test = test.loc[test['type'].isin(filter_type)]
-        
+
         train_moles = list(set(train['molecule_name']))
         test_moles = list(set(test['molecule_name']))
         valid_moles = list(set(valid['molecule_name']))
@@ -136,7 +136,7 @@ if CREATE_DATASET:
     list_atoms = list(set(structures['atom']))
     print('list of atoms')
     print(list_atoms)
-        
+
     train_graphs = list()
     train_targets = list()
     print('preprocess training molecules ...')
@@ -477,7 +477,7 @@ class TypeWiseEvaluator(Evaluator):
 print('Extending trainer with evaluators')
 
 trainer.extend(
-    TypeWiseEvaluator(iterator=valid_iter, target=model, converter=coupling_converter, 
+    TypeWiseEvaluator(iterator=valid_iter, target=model, converter=coupling_converter,
                       name='valid', device=DEVICE, is_validate=True))
 trainer.extend(
     TypeWiseEvaluator(iterator=test_iter, target=model, converter=coupling_converter,
@@ -533,10 +533,17 @@ trainer.extend(chainer.training.extensions.ProgressBar())
 print('Loading trainer from snapshot...')
 
 #trainer.load('results/SCHNET104_epoch_8')
-chainer.serializers.load_npz('result/SCHNET103_epoch_39.mod', trainer)
-trainer.extend(training.extensions.WarmupShift('alpha', 1e-3, 1e-5, 500000))
+chainer.serializers.load_npz('result/SCHNET106_epoch_153.mod', trainer)
 
+################
+# Reset the optimizer
+################
 
+optimizer = trainer.updater.get_optimizer('main')
+optimizer.alpha = 10.0
+print(f'Alpha reset to {optimizer.alpha}')
+Exshift = trainer.get_extension('ExponentialShift')
+Exshift.initialize(trainer)
 ################
 # TRAIN
 ################
