@@ -32,6 +32,7 @@ from tqdm import tqdm
 import joblib
 
 CONNS = joblib.load('../../data/costas-graph/CONNS.dat')
+CONNS_test = joblib.load('../../data/costas-graph/CONNS_test.dat')
 
 ###############
 ## LOAD DATASET
@@ -86,7 +87,6 @@ class Graph:
         self.points = points_df[['x', 'y', 'z']].values
 
         self._dists = distance.cdist(self.points, self.points)
-        self.conns = conns
 
         self.adj = self._dists < 1.5
         self.num_nodes = len(points_df)
@@ -100,12 +100,19 @@ class Graph:
         bond = np.sum(self.adj, 1) - 1
         bonds = np.identity(len(dict_atoms))[bond - 1]
 
+        print(conns)
+        print(conn)
+        print(dict_atoms)
+
+        conn = np.sum(conns, 1) - 1
+        con = np.identity(len(dict_atoms))[conn - 1]
+
         soap_cols = [c for c in points_df.columns if 'soap' in c]
         acsf_cols = [c for c in points_df.columns if 'acsf' in c]
 
         soap = points_df[soap_cols].values
         acsf = points_df[acsf_cols].values
-        self._array = np.concatenate([one_hot, bonds, soap, acsf, conns], axis=1).astype(np.float32)
+        self._array = np.concatenate([one_hot, bonds, soap, acsf, con], axis=1).astype(np.float32)
 
     @property
     def input_array(self):
@@ -140,6 +147,7 @@ if CREATE_DATASET:
     train_targets = list()
     print('preprocess training molecules ...')
     for mole in tqdm(train_moles):
+        break
         conns = CONNS[mole]
         train_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         train_targets.append(train_gp.get_group(mole))
@@ -148,6 +156,7 @@ if CREATE_DATASET:
     valid_targets = list()
     print('preprocess validation molecules ...')
     for mole in tqdm(valid_moles):
+        break
         conns = CONNS[mole]
         valid_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         valid_targets.append(valid_gp.get_group(mole))
@@ -156,7 +165,7 @@ if CREATE_DATASET:
     test_targets = list()
     print('preprocess test molecules ...')
     for mole in tqdm(test_moles):
-        conns = CONNS[mole]
+        conns = CONNS_test[mole]
         test_graphs.append(Graph(structures_groups.get_group(mole), list_atoms, conns))
         test_targets.append(test_gp.get_group(mole))
 
